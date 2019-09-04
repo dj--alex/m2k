@@ -11,6 +11,8 @@ i=1; -- Проект M2K является по сути своеобразным
 getstandartdamage=0;
 --success = love.window.setMode( 0,0)  ; --width height
 spacepressed=0; 
+escapepressed=0;
+joystickKEYPL1="";
 resolutionPC=0;
 ObjectSIZE=0;
 sourceammo="";
@@ -1361,15 +1363,19 @@ end
       table.insert (lootid, line:split("!"))
     end
       menuplayitems={};
+      if (titlegame~="RESKUE") and (titlegame~="COLONY") then 
       addmenuplayitems (60); --hp
       addmenuplayitems (58); --ammo
+    end
       addmenuplayitems (59); --dynamite
       addmenuplayitems (61); --ice
       addmenuplayitems (60); --medkit
    if (ossys~="Android") then
+      addmenuplayitems (62); -- live X
+      if (titlegame~="RESKUE") and (titlegame~="COLONY") then 
       addmenuplayitems (126); --key X
       addmenuplayitems (127); --water X 
-      addmenuplayitems (62); -- live X
+      end
     end
       --[[ pagesPLGUI={};       line="128!NAME!HEADER!0!0";           table.insert (pagesSC,line:split("!") );      line="128!Health!hp!0!0";           table.insert (pagesSC,line:split("!") );      ]]--
   -- аутыматычнае создание массива списков продаваемых предметов по objects.ini
@@ -5069,15 +5075,50 @@ if (ossys=="Linux")or(ossys=="Windows") then
     if (player2AI==0)or(editor==1) then ammoKEYPL2=""; end; 
 
     joysticks=love.joystick.getJoysticks();
-    if (#joysticks>0) then 
-      joystick = joysticks[1];
-     -- anyDown = Joystick:isGamepadDown("dpdown");
-   if joystick:isGamepadDown("dpright") then movePL1="right";lastmovePL1=movePL1; end;
-   if joystick:isGamepadDown("dpleft") then movePL1="left";lastmovePL1=movePL1; end;
-   if joystick:isGamepadDown("dpup") then movePL1="up";lastmovePL1=movePL1; end;
-   if joystick:isGamepadDown("dpdown") then movePL1="down";lastmovePL1=movePL1; end;
-      
+     
+      if (#joysticks>0) then 
+        joystickKEYPL1=""; 
+     for i, joystick in ipairs(joysticks) do
+      joystickPL1 = joysticks[1];
+        a=joystick:isGamepad() ;
+        joystick_name=joystick:getName(); -- WORKING   Gets real joystick name.
+     if joystick:isDown(1) then ammoKEYPL1="ammo";joystickKEYPL1="X"; end;  --A (X PS3) used for APPLY
+     if joystick:isDown(2) then ammoKEYPL1="ice"; joystickKEYPL1="O"; end;   --B (O PS3)  used for CANCEL
+     if joystick:isDown(3) then ammoKEYPL1="bomb";joystickKEYPL1="TR"; end;  --Y (TR PS3)
+     if joystick:isDown(4) then ammoKEYPL1="placeitem";joystickKEYPL1="SQR"; end; -- X (SQR PS3) (drop item)
+     if joystick:isDown(5) then ammoKEYPL1="unpack"; itemkey=0; end --left fire PS3
+     if joystick:isDown(6) then ammoKEYPL1="ammo";  end ;--right fire PS3
+     if joystick:isDown(7) then ammoKEYPL1="prifle"; itemkey=1; end --left fire fire PS3
+     if joystick:isDown(8) then ammoKEYPL1="ice";  end --right fire fire PS3
+     if joystick:isDown(9) then movePL1="menu"; end;  --select PS3
+     if joystick:isDown(10)  then movePL1="pause";  end;  --start PS3
+     if joystick:isDown(11) then ammoKEYPL1="openmainmenu"; end;  -- PS key (guide?) PS3
+     if joystick:isDown(12) then ammoKEYPL1="h"; end;  -- left stick click PS3
+     if joystick:isDown(13) then ammoKEYPL1="r"; end;  -- right stick click PS3
+   if joystick:isDown(14) then movePL1="up";lastmovePL1=movePL1; end; --dpup PS3
+   if joystick:isDown(15) then movePL1="down";lastmovePL1=movePL1; end; --dpdown PS3
+   if joystick:isDown(16) then movePL1="left";lastmovePL1=movePL1; end; --dpleft PS3
+   if joystick:isDown(17) then movePL1="right";lastmovePL1=movePL1; end; --dpright PS3
+   if joystick:isDown(18) then ammoKEYPL1="openmainmenu"; end;  -- PS key (guide?)
+   if joystick:isDown(19) then ammoKEYPL1="openmainmenu"; end;  -- PS key (guide?)
+   if joystick:isDown(20) then ammoKEYPL1="openmainmenu"; end;  -- PS key (guide?)
+
+   if joystick:getHatCount()>0 then
+                for p=0,joystick:getHatCount(),1 do
+                        if joystick:getHat()~=nil then
+                          smsg1="joystick "..p.."'s direction is: "..tostring(joystick:getHat(p));
+                        end
+                end
+        end
+--        smsg1="gethatcount="..joystick:getHatCount() ; -- --NO WORK!!!!
+--        smsg1=movePL1;
+      end
+
+  
+      --smsg1="joysticks:"..#joysticks; -- WORKING  Total joysticks in system
+      --joystick = joysticks[1];
       end;
+
 
 
    if love.keyboard.isDown("right") then movePL1="right";lastmovePL1=movePL1; end;
@@ -6125,7 +6166,7 @@ end;
        end
   end
 
-if  love.keyboard.isDown("f4")and(editor==0) then
+if  love.keyboard.isDown("f4")and(editor==0)or(ammoKEYPL1=="wopros") then
      stattitle=1;
     end
 
@@ -6257,7 +6298,7 @@ if (editor==1)and(love.keyboard.isDown("l"))or(editor==1)and(ammoKEYPL1=="l") th
           codename=smsg_string (objs[((selectedobject+1))][13]); 
           love.window.showMessageBox("Info",objs[((selectedobject+1))][12].."."..codename , {"OK"}, 'error');
         end
-        if love.keyboard.isDown("f3")and(editor==0)and not (love.keyboard.isDown("lshift"))or(ammoKEYPL1=="wopros") then 
+        if love.keyboard.isDown("f3")and(editor==0)and not (love.keyboard.isDown("lshift")) then 
           codename=smsg_string (objs[((zzx+1))][13]); 
           love.window.showMessageBox("Info",objs[((zzx+1))][12].."."..codename , {"OK"}, 'error');
           ammoKEYPL1="";
@@ -6275,6 +6316,8 @@ if (editor==1)and(love.keyboard.isDown("l"))or(editor==1)and(ammoKEYPL1=="l") th
   end
 
      if (love.keyboard.isDown(" "))or (love.keyboard.isDown("space"))or(love.keyboard.isDown("return")) then spacepressed=1; end; 
+     if (joystickKEYPL1=="X") then spacepressed=1; end;  
+     if (joystickKEYPL1=="O") then escapepressed=1; end;  
 
   if ((spacepressed==1)or(ammoKEYPL1=="space")) then if (targetremains<1)and(editor==0)and(titlegame=="M2K")then 
          if (levelnumber<maximumlevels_ingame) then levelnumber=levelnumber+1; finaltitle=0; else finaltitle=1; end;
@@ -6299,7 +6342,7 @@ if (editor==1)and(love.keyboard.isDown("l"))or(editor==1)and(ammoKEYPL1=="l") th
     end
 
 
-     if (editor==0) then if love.keyboard.isDown("f1")or(ammoKEYPL1=="usermenu") then 
+     if (editor==0) then if love.keyboard.isDown("f1")or(ammoKEYPL1=="usermenu")or(movePL1=="menu") then 
        menu=4; -- score=-100000; debug mode on
        selectedoptionmenu=1;
        renderer=0;pause=1;timerz=0;
@@ -6355,7 +6398,7 @@ if (execute==true) then  smsg2="execute="..execute; end;
      if (love.keyboard.isDown(" "))or (love.keyboard.isDown("space"))or(love.keyboard.isDown("return")) then spacepressed=1; end; 
     if (menu==0)and(renderer==0)and(timerz>3) then
       
-   if love.keyboard.isDown("escape")or love.keyboard.isDown("1")or((selectedoptionmenu==1)and(spacepressed==1)or(ammoKEYPL1=="menu_startgame")) then 
+   if love.keyboard.isDown("escape")or love.keyboard.isDown("1")or((selectedoptionmenu==1)and(spacepressed==1)or(ammoKEYPL1=="menu_startgame"))or (joystickKEYPL1=="O") then 
      stattitle=0;  benchtitle=0; 
        if (gameover==0) then renderer=1; -- START GAME OPTION  or(timerz>150)   меню на Android должно автоматически убиратся
        pause=0;-- timerz=0; 
@@ -6452,7 +6495,7 @@ if love.keyboard.isDown("escape")or(ammoKEYPL1=="openmainmenu") then
  if (menu==1)and(renderer==0)and(timerz>3) then
 
 
-    if ((selectedoptionmenu==1)and(spacepressed==1))or(ammoKEYPL1=="zero") then 
+    if ((selectedoptionmenu==1)and(spacepressed==1))or(ammoKEYPL1=="zero")or (joystickKEYPL1=="O") then 
        menu=0;selectedoptionmenu=1;
        writeactualsettings=1;
     end
@@ -6522,7 +6565,7 @@ end;
        timerz=15; _G[keyword]=0;
     end
 
-      if (ObjectSIZE>3) then ObjectSIZE=3; end; 
+      if (ObjectSIZE>1) then ObjectSIZE=1; end;  --2
    if (ObjectSIZE<0) then ObjectSIZE=0; end; 
    if (mastervolume>10) then mastervolume=10; end; 
    if (mastervolume<0) then mastervolume=0; end; 
@@ -6787,7 +6830,7 @@ end
 -- Меню Пауза, вызывается по F1 
  if (menu==4)and(timerz>3) then
 --              keypresspages
-   if ((selectedoptionmenu==1)and(spacepressed==1))or(ammoKEYPL1=="pause1") then 
+   if ((selectedoptionmenu==1)and(spacepressed==1))or(ammoKEYPL1=="pause1")or (joystickKEYPL1=="O") then 
        menu=0;pause=0 ;  selectedoptionmenu=1;
            renderer=1;
          end
@@ -6839,7 +6882,7 @@ end
        pause=1;
     end
 
-    if love.keyboard.isDown("pause")and(timerz>20)or love.keyboard.isDown("f13") or love.keyboard.isDown("f14")or love.keyboard.isDown("f15")  or love.keyboard.isDown("eject") then 
+    if love.keyboard.isDown("pause")and(timerz>20)or love.keyboard.isDown("f13") or love.keyboard.isDown("f14")or love.keyboard.isDown("f15")  or love.keyboard.isDown("eject")or (movePL1=="pause")and(timerz>20) then 
         
         if (pause==1) then pause=0; timerz=0;return ;end;
         if (pause==0) then pause=1; timerz=0;return ;end;
@@ -6892,7 +6935,7 @@ if (editor==1)then
       ed_return_x=x; ed_return_y=y;editorcallselectobject=1;
       ed_camera_x=cameraleftpos_x_hor;  ed_camera_y=camerauppos_y_vert;
         if (visual_mapsize_vertical<21) then editorfix=5 else editorfix=0; end;
-  camerauppos_y_vert=mapsize_vertical+0+visual_mapsize_vertical; cameraleftpos_x_hor=0; 
+  camerauppos_y_vert=mapsize_vertical+0+visual_mapsize_vertical-(20*ObjectSIZE); cameraleftpos_x_hor=0; 
          x,y=xgametorealpositionbezbyte (mapsize_vertical+18,14);--+editorfix
                     
     timerz=0;
@@ -6948,12 +6991,7 @@ touchreleased=nil
         if (new_x_block_fix~="") then movePL1=new_x_block_fix; end
         if (hardened_ammo_get~="") then movePL1=hardened_ammo_get; end
 
-        
-        --ax=1020 ay=313
-
-        --ax=920  ay=414
-        --ax=1020  ay=414
-        --ax=1120  ay=414
+        --ax=1020 ay=313        --ax=920  ay=414        --ax=1020  ay=414        --ax=1120  ay=414
        end 
     end
 end
@@ -7846,7 +7884,7 @@ if (menu==4) then
 lg.setFont(fontVERYBIG);
 yellow ()  ;  
 lprint("MENU_USER_PAUSE", maxwidth/2, 40);
-lg.print ("smsg1:"..smsg1, 10, 840);
+lg.print ("smsg1:"..smsg1, maxwidth/4, maxheight-rozmiarznak);
 lg.setFont(font);
 menu_printed=0;
 
@@ -8055,7 +8093,7 @@ lprint("LOADMENU", maxwidth/2, 40);
 lg.setFont(fontSMALL);
 --lg.print ("Types:"..countinventory_s.." ammoKEYPL1="..ammoKEYPL1, 10, 690);
 --lg.print ("Your order is "..countinventory_i.." of 20 items.", 10, downspaceonscreen);
-lg.print ("Score:"..score, rightspaceonscreen-200, downspaceonscreen);
+lg.print ("Score:"..score, maxwidth-400, downspaceonscreen);
 lg.print ("Smsg1:"..smsg1, 500, downspaceonscreen);
 lg.setFont(font);
 menu_printed=-1;
@@ -8651,7 +8689,7 @@ if (incontrolcentre==0)and(android_ui_changed_state>0) then
     yellow ()
 
     FPSnow=love.timer.getFPS();
-    lg.print("FPS:"..FPSnow, maxwidth-170, maxheight-rozmiarznak*1.7);
+    lg.print("FPS:"..FPSnow, maxwidth-230, maxheight-rozmiarznak*1.7);
       
     lg.setFont(fontSMALL);
    if (editor==0)or(huded==1)then if (ossys~="Android")and(showandroidbar==0) then  
@@ -8674,7 +8712,7 @@ if (editor==0)and(renderer==1) then
                           object_to_rendering_gui=0;
                           lg.setCanvas(GUI_PC_CANVAS); --почему ломает?  fuck 
                           lg.clear (); 
-                          for i=1,8,1 do
+                          for i=1,#menuplayitems,1 do
                             menuplayitems_visualcode=menuplayitems[i];
                           if (menuplayitems_visualcode==nil) then menuplayitems_visualcode=0; end; 
                            pc_gui_draw_create_status=1;
@@ -8697,15 +8735,22 @@ end
 -- тут заканчивается отрисовка GUI PC как инвентаря
     lg.setColor(0, 0, 0, 255)
 
-    if (ossys~="Android") then printparam (hp,leftpos,8,"/"..hpmax) ; 
-    printp (ammo,leftpos,8+1*wysotamenu,"") ;
-    printp (bombs,leftpos,8+2*wysotamenu,"") ;
-    printp (ice,leftpos,8+3*wysotamenu,"") ;
-    printparam (reservedaids,leftpos,8+4*wysotamenu,"[h]") ; end
-    if (keys>0) then printp (keys,leftpos,8+5*wysotamenu,"") ; end;
-    if (water>0) then printp (water,leftpos,8+6*wysotamenu,"") ;end;
-    printparam (lives,leftpos,8+7*wysotamenu,"[r]") ;
+    if (ossys~="Android") then 
+    str=0;
+        if (titlegame~="RESKUE")and (titlegame~="COLONY") then
+    printparam (hp,leftpos,8,"/"..hpmax) ; str=str+1;
+    printp (ammo,leftpos,8+str*wysotamenu,"") ;str=str+1;
+    end
+    printp (bombs,leftpos,8+str*wysotamenu,"") ;str=str+1;
+    printp (ice,leftpos,8+str*wysotamenu,"") ;str=str+1;
+    printparam (reservedaids,leftpos,8+str*wysotamenu,"[h]") ;str=str+1;
+    printparam (lives,leftpos,8+str*wysotamenu,"[r]") ;str=str+1;
+    if (titlegame~="RESKUE")and (titlegame~="COLONY") then
+       if (keys>0) then printp (keys,leftpos,8+str*wysotamenu,"") ;str=str+1; end;
+       if (water>0) then printp (water,leftpos,8+str*wysotamenu,"") ;str=str+1;end;
+       end;
     
+     end
  end;   
    
    white (); 
@@ -8721,10 +8766,10 @@ end
     printparam (lives,sdwig,sdwig+5*standartsizeusermenu_android_0_cc,"") ; 
     white () ;
       end;  --androidfuckup  
-    if (etatimer>0) then lg.print("ETA:"..(etatimer), rightspaceonscreen-640,5+downspaceonscreen+wysotastroki*2);end;
-    if (solarenergy>0) then printp ("Solar:"..solarpower.." ["..solarenergy.."]", rightspaceonscreen-900,5+downspaceonscreen+wysotastroki*1,"") ; end; 
-    if (totalenemies>0) then printp ("Tanks:"..livedtanks, rightspaceonscreen-600,5+downspaceonscreen+wysotastroki*1,"") ; end; 
-    if (scientists>0) then printp ("Tanks:"..livedtanks.." Humans="..scientists, rightspaceonscreen-600,5+downspaceonscreen+wysotastroki*1,"") ; end; 
+    if (etatimer>0) then lg.print("ETA:"..(etatimer), maxwidth-640,5+downspaceonscreen+wysotastroki*2);end;
+    if (solarenergy>0) then printp ("Solar:"..solarpower.." ["..solarenergy.."]", maxwidth-900,5+downspaceonscreen+wysotastroki*1,"") ; end; 
+    if (totalenemies>0) then printp ("Tanks:"..livedtanks, maxwidth-600,5+downspaceonscreen+wysotastroki*1,"") ; end; 
+    if (scientists>0) then printp ("Tanks:"..livedtanks.." Humans="..scientists, maxwidth-600,5+downspaceonscreen+wysotastroki*1,"") ; end; 
 
 black ();    
  -- менюшку сделать двигаемой или пересмотреть. --font = lg.newFont(rozmiarznak);   отображение "баффов"
@@ -8748,13 +8793,13 @@ if (special_rifle_enh_slot>0) then lg.print("+",debufftable-10,5+downspaceonscre
 white ()  
 
 white () 
- if (powerstate>0) then  lg.print("Power",rightspaceonscreen-750,5+downspaceonscreen+wysotastroki*1);end
- if (puszkistate>0) then  lg.print("Cannon",rightspaceonscreen-850,5+downspaceonscreen+wysotastroki*1); end
--- if (player2AI==1) then  lg.print("PL2AI",rightspaceonscreen-950,5+downspaceonscreen+wysotastroki*1);end
+ if (powerstate>0) then  lg.print("Power",maxwidth-750,5+downspaceonscreen+wysotastroki*1);end
+ if (puszkistate>0) then  lg.print("Cannon",maxwidth-850,5+downspaceonscreen+wysotastroki*1); end
+-- if (player2AI==1) then  lg.print("PL2AI",maxwidth-950,5+downspaceonscreen+wysotastroki*1);end
  
 if (hardlevel<1)or(hardlevel>2) then  lg.setBackgroundColor(0, 0, 0); end ; -- фон игры. 
-if (hardlevel==1) then  lg.print("Hard",rightspaceonscreen-300,0);  lg.setBackgroundColor(25, 25, 25); end ; -- фон игры.
-if (hardlevel==2) then  lg.print("Bonus",rightspaceonscreen-300,0); lg.setBackgroundColor (0, 100, 0); end ; -- фон игры.
+if (hardlevel==1) then  lg.print("Hard",maxwidth-300,0);  lg.setBackgroundColor(25, 25, 25); end ; -- фон игры.
+if (hardlevel==2) then  lg.print("Bonus",maxwidth-300,0); lg.setBackgroundColor (0, 100, 0); end ; -- фон игры.
 white ();
 
 -- SE приходит неверный, он не может быть ни 17  ни 4 (!) 
@@ -9223,7 +9268,7 @@ if (pause==1) then      lg.setFont(fontVERYBIG);   randomcolor ()  ;  lprint("PA
    if (targetremains<1)and(editor==0) then 
       lg.setFont(fontVERYBIG);green ();
        if (ossys=="Android") then lprint("ANDR_NEXT_LEVEL", maxwidth/4,maxheight/2); end;
-       if (ossys~="Android") then lprint("WIN", maxwidth/4,maxheight/2); end;
+       if (ossys~="Android")and (titlegame~="RESKUE")and (titlegame~="COLONY") then lprint("WIN", maxwidth/4,maxheight/2); end;
        lg.setFont(font) ; white ();
     end;
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-zip -r game.love *.* Textures Levels Sounds
+zip -r game.love *.* Textures Levels Sounds spec
 exec python3 <<END_OF_PYTHON
 import sys
 file=open('build.ini','r');
