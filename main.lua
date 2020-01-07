@@ -17,6 +17,7 @@ kolorowanie=0;
 wsego_miner_teleporterow=0;
 miners=0;
 local anim8 = require 'anim8';
+local moonshine = require 'moonshine';
 local image, animation, hero_anim, hero_anim_weap;
 --success = love.window.setMode( 0,0)  ; --width height
 spacepressed=0; 
@@ -507,11 +508,20 @@ IMAGES = {};
   order1snd=love.audio.newSource("Sounds/order1.mp3","stream");
   order2snd=love.audio.newSource("Sounds/order2.mp3","stream");
   zwuk1snd=love.audio.newSource("Sounds/zwuk1.mp3","stream");  --UNUSED!!!!!!
+  dwigacsnd=love.audio.newSource("Sounds/dwigac.mp3","stream");  
   pisk2snd=love.audio.newSource("Sounds/railroaddestr.mp3","stream");  --UNUSED!!!!!!
   pisk1snd=love.audio.newSource("Sounds/pisk.mp3","stream");  --perestroika only
+  bouldersnd=love.audio.newSource("Sounds/boulder.mp3","stream");  --bd only
+  krysztalsnd=love.audio.newSource("Sounds/krysztal.mp3","stream");    --bd only
+  bdashwalksnd=love.audio.newSource("Sounds/walk.mp3","stream");   --bd only
+superbombsnd=love.audio.newSource("Sounds/superbomb.mp3","stream");
 
 
 function love.load ()
+   effect = moonshine(moonshine.effects.filmgrain)
+                    .chain(moonshine.effects.vignette)
+      effect.filmgrain.size = 2
+   
 
 NO_SCORE_MINES_MODE=0;
  ndata={};
@@ -1057,6 +1067,7 @@ end
 -- scanobject (140,-7,-7,gamex(x),gamey(y),5);
 function scanobject (code,SC_MODE,coord2,SC_X,SC_Y,SC_radius)  
   if (SC_Y==nil)and (SC_MODE>-1) then SC_Y=SC_MODE ; end;  -- Если не передан SC_Y тогда SC_MODE подменяет его. для совместимости со старым кодом.
+  if (titlegame=="COLONY")and (code==166) then code=0; end; 
  if (code==166)or(code==17)or(code==18)or(editor==1)or(drawonce==0) then reduce=0; maximumscansize_vertical=mapsize_vertical; maximumscansize_horizontal=mapsize_horizontal; else reduce=1; end;  
  if (reduce==1) then 
     if (skan_x_max<1) then maximumscansize_vertical=mapsize_vertical/2;maximumscansize_horizontal=mapsize_horizontal;   end --пока что нет карт где более 100 клеток используется. 
@@ -1316,7 +1327,7 @@ if ( loadsavegame=="yes") then
       flagchecknewteleportersenemy=1;  -- add flag chech tanks to field ! 
       ty,tx=scanobject (119,-1);--check teleport cel dla "..titlegame.." level.   wot takaja prostaja prowerka
       shippingzone_y,shippingzone_x=scanobject (29,-5,1);
-      skan_y_max,skan_x_max=scanobject (166,-1) ;  --object "166"
+      if (titlegame~="COLONY") then skan_y_max,skan_x_max=scanobject (166,-1) ;  end --object "166"
       krysztalow=scanobject (197,-2) ;  --object "166"
     end
     -- тип ZX только для устаревших уровней, никогда не используется ни в сохранениях ни в новых уровнях
@@ -1447,7 +1458,7 @@ ATLAS = lg.newCanvas(4096, basetexturesize*4) -- это создание пус�
 nonetexture="1empty.png"; 
 IMAGES = {};
 IMAGES[0]=objs[0+1][3];
-for a0=1,200,1 do  -- максимум временно 170 (6800 пикс), для 1 байтового режима - 256. 
+for a0=1,250,1 do  -- максимум временно 170 (6800 пикс), для 1 байтового режима - 256. 
 IMAGES[a0]=objs[a0][3]; -- загружаем список имён из таблицы обьектов. 
 end
 
@@ -2394,7 +2405,9 @@ end
         objectcode_water=ext_objs_param (objectcode,24);
         if (objectcode_water~=nil) then  result=objectcode_water else result=0; end; 
       if (objectcode_water==0) then return 0;  end; 
-          if (objectcode==183) then result=objectcode_water;      end; 
+          if (objectcode==183) then result=objectcode_water;             
+              end; 
+              if (objectcode==74) then result=200;    end
            return result; 
         end
 
@@ -2527,6 +2540,10 @@ function mushroomupd (by,bx)
                   if (checkcode==80) then return "81"; end;
                   if (checkcode==81) then return "82"; end;
                   if (checkcode==82) then return "83"; end;
+                  if (checkcode==200) then return "201"; end;
+                  if (checkcode==201) then return "202"; end;
+                  if (checkcode==202) then return "203"; end;
+                  if (checkcode==203) then return "204"; end;
                   return "0";
                   end
 
@@ -2565,14 +2582,40 @@ function greenshit (by,bx,placeobject,placeitembydefault_d)
             if (xxx>1)and(checklistwater (c4)>0) then trytoplacewater (by,bx-1,c4,placeobject);end;
         end
 
+
+function gravity_exec (by,bx,placeobject)
+            --c1=getobjcode (by+1,bx); -- тут мы получаем коды всего что лежит рядом.
+            printed=0;
+            c2=getobjcode (by+1,bx);
+            c3=getobjcode (by,bx+1);-- справа
+            c4=getobjcode (by,bx-1);-- слева
+            c33=getobjcode (by+1,bx+1);-- справа и внизу
+            c44=getobjcode (by+1,bx-1);-- слева и внизу
+                      --        xxx=math.ceil(math.random (4));
+            if (c2~=198)and(gravity_check (c2)>0) then printed=trytoplace (by+1,bx,c2,placeobject);end;
+            if (printed==0)and(c2~=198)and(gravity_check (c3)>0)and(gravity_check (c33)>0) then  printed=trytoplace (by,bx+1,c3,placeobject);end;
+            if (printed==0)and(c2~=198)and(gravity_check (c4)>0)and(gravity_check (c44)>0) then  printed=trytoplace (by,bx-1,c4,placeobject);end;
+            if (printed==1) then printat (by,bx,"56" );end; 
+  return
+end
+
+  function gravity_check (objectcode)
+           result=0;
+           if (objectcode==56) then result=200;    end
+           if (objectcode==27) then result=200;    end
+           return result; 
+        end
+
+
             function trytoplace (dx,dy,startobject,finalobject)
                check2=damagestage (startobject);
+               printed=0;
                if (startobject==124) then explodebomb (dx,dy);end; 
                if (check2~="0") then finalobject=check2; end
                if (finalobject~="255") then
-                    printat (dx,dy,finalobject); 
+                    printat (dx,dy,finalobject); printed=1 ;
                     end
-               
+               return printed;
               end
 
             function trytoplacewater (dx,dy,startobject,finalobject)
@@ -2645,6 +2688,9 @@ end
   end
   if (zzx2==56)and(chancesrandomsound>65)and(timerz>50) then  
          printat (gamey(ypla2)+plusypla2,gamex(xpla2)+plusxpla2,"122");
+  end
+  if (zzx2==74)and(chancesrandomsound>65)and(timerz>40) then  
+         printat (gamey(ypla2)+plusypla2,gamex(xpla2)+plusxpla2,"200");
   end
 
   end
@@ -3109,7 +3155,7 @@ function reactmove (zzx)
      love.audio.play(patronysnd);
              printat (gamey(y)+plusy,gamex(x)+plusx,"56");
              if (zzx==83) then printat (gamey(y)+plusy,gamex(x)+plusx,"74"); end; 
-                else
+                            else
               allowmove=0;
              end
          end;
@@ -3355,7 +3401,7 @@ function reactmove (zzx)
                 end
                 if (zzblock==43)and(zzx==70) then 
                   fuel=fuel+1; 
-                    love.audio.play(movableblockdestrsnd);
+                    love.audio.play(dwigacsnd);
                     printat (gamey(y)+plusy,gamex(x)+plusx,"56");
                     printat (gamey(y)+2*plusy,gamex(x)+2*plusx,"42");
                 end
@@ -3768,10 +3814,17 @@ function reactmove (zzx)
         end
 
            if (zzx==197) then
-          -- love.audio.play(targsnd); 
+           love.audio.play(krysztalsnd); 
+           score=score+10;
      targetremains=targetremains-1;
       printat (gamey(y)+plusy,gamex(x)+plusx,"56");
         end
+
+ if (zzx==198) then
+           love.audio.play(bdashwalksnd); 
+          printat (gamey(y)+plusy,gamex(x)+plusx,"56");
+        end
+
 
 
       
@@ -5106,7 +5159,7 @@ chancesyou=(math.random(67+20*damager)); -- chances attack
 
 
               if (zzx2ammo==71) then 
-      playsoundifvisible(bombsnd,x2pla2am,y2pla2am);
+      playsoundifvisible(superbombsnd,x2pla2am,y2pla2am);
              printat (gamey(y2pla2am),gamex(x2pla2am),"27");
              printat (gamey(y2pla2am)+plusy,gamex(x2pla2am)+plusx,"27");
                           allowshotpla2=0;
@@ -5230,7 +5283,7 @@ end
          end;
 
           if (zzxammo==71) then 
-     love.audio.play(bombsnd);
+     love.audio.play(superbombsnd);
              printat (gamey(y2),gamex(x2),"27");
              printat (gamey(y2)+plusy,gamex(x2)+plusx,"27");
                           allowshot=0;
@@ -7286,7 +7339,7 @@ if (editor==1)then -- печать обьектов редактора для р
                 
                 xdata[54518-250-240]=string.char (56); -- это уже новый массив данных специально для модуля редактора
                 bb=1;cc=math.ceil (bb/visual_mapsize_horizontal);
-                for aa=1+xshift,200+xshift,1 do 
+                for aa=1+xshift,255+xshift,1 do 
                 editorobjects=string.char (aa-1-xshift);
                  if ( objs[aa-0-xshift][14]=="noeditor"and (editor_dont_show_broken_items==1)) then editorobjects="skip"; end;
                 if ( objs[aa-0-xshift][3]~="1empty.png")and (editorobjects~="skip") then 
@@ -7644,6 +7697,10 @@ end
 
 -- Android interface ( стрельба- заморозка- ездить - воскрешение - читы - редактор уровней)
 function love.draw()
+ 
+     --if (hp<1)and(editor==0) then end
+    
+  --if (hp<1)and(editor==0) then   end
 
 
 lg.setFont(font);
@@ -8560,7 +8617,7 @@ if (drawonce==0) then   -- fuck для 166 похоже выполняется �
   flagchecknewteleportersenemy=1;
    greenshittotal=scanobject (21,-2);
   --smsg1="drawonce completed";    
-  skan_y_max,skan_x_max=scanobject (166,-1) ;  --object "166"   вот это вот нихера не выполняется  никогда 
+  if (titlegame~="COLONY") then skan_y_max,skan_x_max=scanobject (166,-1) ;end;  --object "166"   вот это вот нихера не выполняется  никогда 
     --7 левый штё  9 верхний штырёк.6 prawyj  8 niżnij 
     -- обработка штырьков с помощью scanobject который ищет обьект на карте и возвращает координаты.
     -- можно добавить по всей карте, только по вертикали и только по горизонтали. 
@@ -8590,7 +8647,10 @@ if (timerz>1)and(editor==0)and(pause==0)and(menu<1)and(titlegame~="RESKUE") then
   if (greenshitdelay>0) then greenshitdelay=greenshitdelay-1;end;
  greenshittotal=scanobject (21,-2); --smsg1="Greenshit.."..greenshittotal;
  watertotal=scanobject (183,-2); --water total on map
-
+ sorniaktotal=scanobject (204,-2); --
+ krysztalowtotal=scanobject (197,-2); --
+ bouldertotal=scanobject (196,-2); 
+ gravitytotal=krysztalowtotal+bouldertotal;
   if (greenshitdelay<2)and(greenshittotal>1)and(math.random(256)>220)and(typelevel~="ZX") then skanx,skany=scanobject (21,-3)  ; 
       for a=0,0+greenshithastetime,1 do  
        if (skanx<1) then  skanx,skany=scanobject (21,-3)  ; end; 
@@ -8600,23 +8660,39 @@ if (timerz>1)and(editor==0)and(pause==0)and(menu<1)and(titlegame~="RESKUE") then
 
  if (watertotal>1)and(math.random(256)>150)and(typelevel~="ZX") then 
       xxx=math.ceil(math.random (6));
-
       skanx,skany=scanobject (183+xxx,-3)  ;  --183--189 for water
       for a=0,4+greenshithastetime,1 do  
        if (skanx<1) then  skanx,skany=scanobject (183+xxx,-3)  ; end; 
        end
-        greenwater (skany,skanx,183); 
-       -- if (xxx<1) then greenwater (skany,skanx,184); end
+        greenwater (skany,skanx,183);        -- if (xxx<1) then greenwater (skany,skanx,184); end
  end
 
+if (gravitytotal>1)and(math.random(256)>150)and(typelevel~="ZX") then 
+       for g=krysztalowtotal,0,-1 do  
+       skanx,skany=scanobject (197,-5,g)  ; 
+       if (skanx~=nil) then  gravity_exec (skany,skanx,197);  end; 
+       end
+      for g=bouldertotal,0,-1 do  
+       skanx,skany=scanobject (196,-5,g)  ; 
+       if (skanx~=nil) then  gravity_exec (skany,skanx,196);  end; 
+       end
+      end
+
+
+
+
+if (sorniaktotal>1)and(math.random(256)>150)and(typelevel~="ZX") then 
+       skanx,skany=scanobject (204,-3)  ;  --183--189 for water
+      for a=0,4+greenshithastetime,1 do  
+       if (skanx<1) then  skanx,skany=scanobject (204,-3)  ; end; 
+       end
+        greenwater (skany,skanx,200,204); 
+      end
 
  if (dasglukenfild>0)and(editor==0)and(pause==0)and(menu<1) then 
-  --greenshitactivity=greenshitactivity+0.25;
   if (greenshitdelay>0) then greenshitdelay=greenshitdelay-1;end;
-  
 
   if (greenshitdelay<2) then skanx,skany=scanobject (76,-3)  ; 
-    --smsg1="greenshit (skany="..skany..",skanx="..skanx..")=";
    greenshit (skany,skanx,76);
  end
 end
@@ -8627,6 +8703,8 @@ if (timerz>1)and(editor==0)and(pause==0)and(menu<1) then
  -- тут устанавливается скорость роста мухоморов.
   if(math.random(256)>220)and(typelevel~="ZX") then 
     for m_a=0,0,1 do  skanx,skany=scanobject (79+(math.ceil(math.random(3))),-3); 
+           mushroomupd (skany,skanx); end 
+   for m_a=0,0,1 do  skanx,skany=scanobject (199+(math.ceil(math.random(4))),-3); 
            mushroomupd (skany,skanx); end 
 
 
@@ -9411,6 +9489,22 @@ end
                                 end    return false;
                         end
 
+
+local fragment = [[
+vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
+    vec4 pixel = Texel(image, uvs);
+
+    float avg = (pixel.r + pixel.g + pixel.b) / 3.0;
+
+    pixel.r = avg;
+    pixel.g = avg;
+    pixel.b = avg;
+
+    return pixel;
+}
+]]
+local shaderX = love.graphics.newShader(fragment)
+
 --RENDERER CODE  quads= {}; 
   xxxx=visual_mapsize_horizontal*rozmiarznak;
    yyyy=visual_mapsize_vertical*rozmiarznak;
@@ -9451,6 +9545,7 @@ object_to_rendering_game=0;   -- всё работает ТОЛЬКО если v
             postobjectX=xx*rozmiarznak;
             postobjectY=yy*rozmiarznak;
              if (defacescreen==1) then randomcolorbw () ;  if (timerz>3) then defacescreen=0; end; end;
+  -- if (damagetimerPL1>0)  then  lg.setShader(shaderX); end;    
              if (defacescreen==2) then randomcolor () ; if (timerz>3) then defacescreen=0; end; end; 
        if (OBJECTPRINTNOW_IMAGESX~=nil) then 
         if (darkzone==1)and(editor==0)then -- радиус светлости вокруг задается тут и должен зависет от знакоместа
@@ -9458,21 +9553,16 @@ object_to_rendering_game=0;   -- всё работает ТОЛЬКО если v
               if (xdarkcompare~=true) or (ydarkcompare~=true) then randomcolorbw ();  else white (); end;
           end
         animset_detect=objs[((objectcodenow+1))][12];
-
    if (animset_detect=="kolorowanie") then 
     kolorowanie=objs[((objectcodenow+1))][2]; --name kolor w object.ini (objs)
      if (kolorowanie=="yellow") then yellow () ; end
-     if (kolorowanie=="green") then green () ; end
-    --lg.setColor(kolor1,kolor2,kolor3, 255);
-    end;          
-      
-       
+     if (kolorowanie=="green") then green () ; end    --lg.setColor(kolor1,kolor2,kolor3, 255);
+    end;             
       lg.draw(ATLAS,OBJECTPRINTNOW_IMAGESX,postobjectX, postobjectY,0,scaling,scaling);
-     -- error ("objectcodenow="..objectcodenow.." objs[((objectcodenow+1))][12]="..objs[((objectcodenow+1))][12]);
+    --   if (damagetimerPL1>0)then  lg.setShader(); end; 
       if (objectcodenow~=nil)and (animset_detect=="animset") then   --identifier animset
         animset_id_objs=objs[((objectcodenow+1))][1]; --number object in object.ini (objs)
-        animset_id=objs[((objectcodenow+1))][2];  -- number animation in animset1.png
-        --anim[animset_id_objs]=animset_id;
+        animset_id=objs[((objectcodenow+1))][2];  -- number animation in animset1.png        --anim[animset_id_objs]=animset_id;
         anim[animset_id_objs]:draw(image, postobjectX, postobjectY,0,scaling,scaling);
       end
         object_to_rendering_game=object_to_rendering_game+1; --+(yy*(mapsize_horizontal-visual_mapsize_horizontal)); 
@@ -9492,11 +9582,22 @@ object_to_rendering_game=0;   -- всё работает ТОЛЬКО если v
 
   lg.setCanvas() -- эта строчка возвращает рендерер в игровое поле. обязательная.
 
-    
+
   --end
 
 if (renderer==1) then  
-if (GAMEWINDOWCANVAS) then gr.draw(GAMEWINDOWCANVAS,postCANVASobjectX,postCANVASobjectY) ; end; -- canvas test  e
+if (GAMEWINDOWCANVAS) then 
+ if (damagetimerPL1>0)and(defacescreen<1)  then  lg.setShader(shaderX); end;  
+   if (hp<1)and(editor==0)  then    
+    effect(function() 
+  gr.draw(GAMEWINDOWCANVAS,postCANVASobjectX,postCANVASobjectY) ;
+        end)
+  end 
+  if (hp>0)or(editor==1) then 
+    gr.draw(GAMEWINDOWCANVAS,postCANVASobjectX,postCANVASobjectY) ;
+  end
+   end; -- canvas test  e
+ if (damagetimerPL1>0)  then  lg.setShader(); end;  
 if(map_changed<2) then map_changed=0;end; 
     end; 
 if (editor==1)  then  lprint("EDITOR",maxwidth-3*rozmiarznak,20);  end ;
@@ -9545,7 +9646,7 @@ end
 if (BADATLAS==nil) then BADATLAS = lg.newCanvas(4096, basetexturesize*4); end  -- это создание пустой картинки для наполнения ее картой спрайтов.
 nonetexture="1empty.png"; 
 BADIMAGES = {};
-for a0=0,200,1 do  -- максимум временно 170 (6800 пикс), для 1 байтового режима - 256. 
+for a0=0,250,1 do  -- максимум временно 170 (6800 пикс), для 1 байтового режима - 256. 
 BADIMAGES[a0]=objs[a0+1][3]; -- загружаем список имён из таблицы обьектов. 
 end
   lg.setCanvas(BADATLAS);

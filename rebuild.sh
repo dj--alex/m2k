@@ -1,5 +1,5 @@
 #!/bin/bash
-zip -r m2ktest.lib *.* Textures Levels Sounds spec
+zip -r m2ktest.lib *.* Textures Levels Sounds spec moonshine
 exec python3 <<END_OF_PYTHON
 import sys
 file=open('build.ini','r');
