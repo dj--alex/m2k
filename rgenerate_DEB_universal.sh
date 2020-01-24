@@ -36,7 +36,7 @@ echo 'Architecture: all'
 echo 'Maintainer: dj--alex <dj--alex@ya.ru>'
 echo 'Original-Maintainer: dj--alex'
 echo 'Depends: dialog'
-echo 'Description: Recreated simple old 8-bit game. A scientific camp was attacked by tanks. You need to resque the scientists, lead them to an  airgate - the three iron doors (the destination point is marked by the red dots). To win the game you need to save at least 6 scientists. One of 4 game based on M2K self-written engine using power of Lua and Love.'
+echo 'Description: Logical game. 70+ items. You can solve puzzles or can fight with enemies.128+ maps (levels). No donates. You can build your own levels. Exist editor level (Linux and PC only). Game is a remake Mission2000 from Zx-spectrum. One of 4 game based on M2K self-written engine using power of Lua and Love.'
 } > control
 {
 #!/bin/sh

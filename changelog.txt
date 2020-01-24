@@ -1,5 +1,50 @@
 
+==============
+M2K Build 7307
 
++ Теперь билды игры M2K доступны и в виде дебиан пакетов!
++ На некоторых ОС в меню авторы теперь можно открыть сайт игры или сайты творцов принимавших участие в создании игры.
+Используя кнопки 1...9
++ В распаковываемых ящиках бывших ранее обьектом вопрос теперь находится более разнообразный инвентарь
++ Fixed: В M2K по умолчанию при смерти телепортация на старт убрана, т.к. ломала многие уровни рассчитанные на  то что ГГ воскреснет там же где и погиб.
++ Fixed: Белый танк теперь может быть замедлен выстрелом с замедлением. Цветовые эффекты теперь показываются.
+Fear хотя и срабатывает на белый танк, однако действия не оказывает.
++ Очень быстрый расход бомб исправлен, добавлена задержка не позволяющая ставить больше 2 бомб в секунду. 
+
+https://yadi.sk/d/qf2vdxiiSggnKg Linux
+https://yadi.sk/d/ktLruKcMyWhQEg Windows
+
+https://dj-alex.itch.io/m2k
+
+==============
+M2K Build 7200
+
+? Планируется выпуск Deb пакета с игрой.
++ Добавлен level parameter - background color 0- серый, 1 - жёлтый, 2- чёрный. 
++ Предметам добавлен параметр 26 - гравитация. На уровнях где есть такие предметы вещи будут падать вниз по клеткам.
++ При потере жизни игрок теперь всегда оказывается на старте
++ При потере жизни или получении ранения добавлены спецэффекты
++ В игру добавлены сорняки которые когда вырастают начинают быстро расползающиеся по полю, также сорняки могут притащить вражеские противники. 
++ Локализация на английский и польский выполнена на 100%
+
+==============
+M2K Build 7184 
+
++ В распаковываемых ящиках с вопросом находится больше разных вещей.
++ Меню доставки товаров исправлено и теперь корректно отображает описание выбираемых товаров на нужном языке.
+а не только увеличенную картинку. 
++ После смерти теперь игрок будет оказыватся в точке старта. В Colony же ещё и будет терять танк.
++ Теперь чтобы сделать предмет перемещаемым по полю достаточно дать ему характеристику movable
++ В Reskue возвращена статистика спасения учёных.
++ Добавлена поддержка смены цветов неживых обьектов. Опция в поле 12 "kolorowanie" Поле 1 - имя цвета.
++ Зона тьмы работает корректно, однако включает постоянную анимацию.
++ Добавлена поддержка анимации любых стоячих обьектов (правда она требует постоянной перерисовки Canvas.)
+ Опция в поле 12 "animset" Поле 1 - ID анимации. 
+ Анимация будет автоматически включатся на любой карте где есть хотя бы 1 кристал или другой анимированный обьект.
+
+
+
+==============
 M2K Build 7074
 
 Продолжается создание обьектов для игры Colony. Теперь все 100% обьектов оригинальной игры готовы
@@ -74,13 +119,11 @@ https://yadi.sk/d/rXX4YtmijRCMQA
 https://www.patreon.com/m2kdev_djalex
 
 
-
 M2K Build 6804 "Kulemet"
 
 + Игрок может теперь использовать стрельбу очередями, достаточно удерживать кнопку огонь дольше 2 секунд 
 и будет произведен выстрел очередью из 10 патрон, если есть из чего выпустить обойму конечно. (автомат или пулемёт иконки не имеет пока что.).
-***На данный момент всё ещё есть проблемы с их попаданием. Летят сквозь всё.
-
+***На данный момент всё ещё есть проблемы с их попаданием. Летят сквозь всё при выстреле влево или вправо.
 + Можно увеличить или уменьшить скорость игрока и противников, если на вашем компьютере
 игра идёт слишком быстро и слишком чувствительно или слишком медленно. 
 + Игра при запуске выполняет разворот на весь экран (решает вопрос неполного отображения для разрешений выше HD i 4K)
@@ -92,6 +135,15 @@ M2K Build 6804 "Kulemet"
 + Редактор , рисовать карту можно не только кнопками 1-4 но и lshift. 
 Причем рисование по кнопке 1 устаналивает обычную скорость, а lshift рисует с ускорением.
 + Поправлен Lootid
++ Поправлено расположение надписей о смерти, выигрыше или переходе уровня.
+
++ Player can use minigun by take it and press fire for 2 second in direction.
++ Speed control added in settings. Sets speed whole game
++ Space to next level is fixed (some PC's have send incorrect code space key)
++ Fixed 3 bugs
++ Editor , added lshift key to paint map.
++ Fixed lootid
++ Fixed messages position about win, death or next level.
 
 
 M2K Build 6744 "Konstruktor engine"
@@ -105,6 +157,13 @@ M2K Build 6744 "Konstruktor engine"
 Работает только если вы не в танке.
 Важно т.к. защита является ломаемой не стоит думать что она будет вас спасать бесконечное число раз.
 
++ Unificied source code for all project.
+Every M2k-based project have one Lua code, but can use another assets, sounds, music, objects and languages.
+Any updates done to my other projects backported to M2K, and any M2K update can used in other projects.
++ Protect automatically use medkit if your player seriously damaged  and you don't have a tank.
+Protect is not infinite. It can be broken sometimes.
+
+
 M2K Linux Build 6744
 https://yadi.sk/d/A-1g_B7z5GmJhg
 
@@ -117,6 +176,10 @@ M2K Build 6670
 + Android: Игра теперь может выдавать до 120FPS. Полностью исправлена ошибка вызывавшая постоянное сильное падение FPS.
 + Фикс: Теперь нельзя любого противника без бонуса высадить из танка.
 Очень давно боролся с этим багом и наконец заборол. баг проник во все проекты которые я делал и наконец исправлен. (программа постоянно занималась бессмысленным постоянным сканированием всей карты)
+
++ Redone menu and inventory code in Canvas. Improve FPS.
++ Android: Up to 120FPS. Fixed error with memory leak and drop FPS.
++ Fix: Bonus to ammo "? tank" removed from all weapons.
 
 https://dj-alex.itch.io/m2k
 
@@ -150,6 +213,10 @@ M2K Build 6617 test
 + Editor: Кнопки пробел и l отключают блокировку камеры например для автоматического перемещения к найденному обьекту (по 9 )
 + Теперь предметы например аптечки,усилители и т.п. можно использовать нажав на номер предмета 1...10 на клавиатуре.
 + Автоматические пули теперь запоминают источник который их создал. Сделано для того чтобы защита например убирала урон от рикошета, но не от очередей. 
+
++ Added possiblity install enhancement on your weapons add some types additional damage or applying effects on one or 1-5 enemies nearby.
+Install item by press 1-5,  Remove installed item can be done with EMPTY inventory and press unpack key. (u)
+
 
 https://dj-alex.itch.io/m2k
 
@@ -765,6 +832,7 @@ Game in Active development.
 Game is a remake Mission2000 from Zx-spectrum
 
 
+
 M2k. I do remake and rewrite engine and add some new elements.
 And add possiblity to save and load and crossplatform. 
 M2K - is my game, ZX-original created 1997.
@@ -782,10 +850,8 @@ allow use level editor and external save map.
 Keyboard or touchpad.  Mouse allowed only in editor mode.
 
 On windows - run as admin
-
 On Linux - you must unpack and maybe set flag ​'executable'
-
 On android - allow install other APK  sources.
 
-
+https://www.patreon.com/m2kdev_djalex
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-bver=$(cat build.ini) #&& echo $bver
+bver=$(cat build.ini) #&& echo $bver unibuilder v2.0
 nazwa=$(cat nazwa.ini) #&& echo $nazwa
 cd ..
 cp ${nazwa}/m2ktest.lib ${nazwa}-Linux/usr/bin 
@@ -12,7 +12,9 @@ rm "${namelinux}"
 tar -czf "${namelinux}" ${nazwa}-Linux
 cd ${nazwa}-Windows
 cd ${nazwa}-src
-sh compile.sh
+#sh compile.sh
+cat love.exe m2ktest.lib > ${nazwa}-Win64.exe
+#cat love.exe game.love > m2k-Win64l.exe
 cd ..
 cd ..
 cp ${nazwa}-Windows/${nazwa}-src/${nazwa}-Win64.exe ${nazwa}-Windows/${nazwa}-Win/${nazwa}-Win64.exe

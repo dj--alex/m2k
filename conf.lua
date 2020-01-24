@@ -1,6 +1,6 @@
 function love.conf(t)
   t.identity = "data"
-  t.version = "0.10.1"
+  t.version = "11.3"
   t.console = true
   t.window.title = "M2k by dj-alex"
   t.window.width = 0
