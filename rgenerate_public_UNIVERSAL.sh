@@ -7,7 +7,7 @@ cp ${nazwa}/m2ktest.lib ${nazwa}-Windows/${nazwa}-src
 cp ${nazwa}/m2ktest.lib ${nazwa}-Android/game.love
 namelinux="${nazwa}-Linux-$bver.tar.gz"
 namewindows="${nazwa}-Windows-$bver.tar.gz"
-nameandroid="${nazwa}-Android-$bver.tar.gz" #final application love2d lua name
+nameandroid="${nazwa}-Android-$bver.apk" #final application love2d lua name
 rm "${namelinux}"
 tar -czf "${namelinux}" ${nazwa}-Linux
 cd ${nazwa}-Windows

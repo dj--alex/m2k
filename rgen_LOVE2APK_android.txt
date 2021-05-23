@@ -1,0 +1,67 @@
+==================================================
+Generating signed APK for LOVE games under Linux.  * by Шмель Тяжеловес и dj--alex(alxius.r)
+==================================================
+Based on https://bitbucket.org/MartinFelis/love-android-sdl2/wiki/Building_L%C3%96VE_for_Android_-_Linux
+
+1. git clone https://bitbucket.org/MartinFelis/love-android-sdl2 --recurse-submodules
+path=/media/user/D/Programs/Android-compile
+--recurse-submodules нужно что-бы кроме обвязки андроида скачались и исходники 
+
+2. Ty muśisz instalować przez synaptic stara wersja Java.
+Установить Java 8 ! 11 - слишком новая (внезапно!)  
+* default jre 
+* openjdk-8-jre
+
+3. У вас могут быть другие пути, подкорректируйте их под свой проект самостоятельно
+От неправильно заданного пути может все перестать работать.
+/media/user/D/Programs/Android-SDK/tools/bin   (sdkmanager)
+paths=/media/user/D/Programs/android-studio  (3.5) 
+paths=/media/user/D/Programs/Android-SDK   (19,23 api)
+
+./sdkmanager --licenses
+./sdkmanager --update
+./sdkmanager ndk-bundle
+
+4.
+export ANDROID_HOME=/media/user/D/Programs/Android-SDK/
+path= user@PC1:/media/user/D/Programs/Android-compile/love-android-sdl2$
+./gradlew
+./gradlew assemble
+Должно получится: 
+BUILD SUCCESSFUL in 8s
+1 actionable task: 1 executed
+
+Проверка на вшивость:find . -name "*.apk"
+
+должно быть
+user@PC1:/media/user/D/Programs/Android-compile/love-android-sdl2$ find . -name "*.apk"
+./app/build/outputs/apk/release/app-release-unsigned.apk
+./app/build/outputs/apk/debug/app-debug.apk
+user@PC1:/media/user/D/Programs/Android-compile/lov
+
+5. Создать папку и положить в неё свою игру
+/home/user/D/Programs/Android-compile/love-android-sdl2/app/src/main/assets
+и повторить компиляцию ещё раз.   
+Можно и пропустить первую компиляцию  и сразу разместить игру.
+
+скрипт generate_apk.sh должен выглядеть примерно так.: 
+#!/bin/bash
+bver=$(cat build.ini) #&& echo $bver unibuilder v2.1  .  In M2K  build number Тут указываете файл где храните обновляемый номер билда
+nazwa=$(cat nazwa.ini) #&& echo $nazwa  In M2K title game  Тут указываете файл где хранится название.
+nameandroid="${nazwa}-Android-$bver.apk" #final application love2d lua name
+export ANDROID_HOME=/media/user/D/Programs/Android-SDK/
+SDK="/media/user/D/Programs/Android-SDK/build-tools/28.0.3/" #Your SDK build tools path (Execs)
+SDL2="/media/user/D/Programs/Android-compile/love-android-sdl2/" #Love-android-SDL2 path
+#git clone https://bitbucket.org/MartinFelis/love-android-sdl2 --recurse-submodules  export PATH=${SDK}
+cd ..
+mkdir ${SDL2}app/src/main/assets # Assets of SDL2
+rm ${SDL2}app/src/main/assets/game.love 
+rm ${SDL2}love_icon_512x512.png
+cp ${nazwa}/m2ktest.lib ${SDL2}app/src/main/assets/game.love
+cp ${nazwa}/icon.png ${SDL2}love_icon_512x512.png
+${SDL2}./gradlew  assemble -p ${SDL2} # *** 
+zipalign -v -p 4 ${SDL2}app/build/outputs/apk/release/app-release-unsigned.apk ${SDL2}app/build/outputs/apk/release/aligned-"${nameandroid}"
+#keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias #--делается 1 раз! 
+${SDK}./apksigner sign --ks ${SDL2}my-release-key.jks --out ${SDL2}app/build/outputs/apk/release/"${nameandroid}" ${SDL2}app/build/outputs/apk/release/aligned-"${nameandroid}"
+
+cp ${SDL2}app/build/outputs/apk/release/${nameandroid} NEW/${nameandroid}

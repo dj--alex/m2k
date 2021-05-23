@@ -44,6 +44,7 @@ echo 'cp /opt/Games/'${nazwa}'-Linux/'${nazwa}'.desktop /usr/share/applications/
 } > postinst
 tar czf control.tar.gz control postinst
 ar -r ${nazwa}-Debian-amd64-b${bver}.deb  debian-binary control.tar.gz data.tar.gz
-mv ${nazwa}-debpack/${nazwa}-Debian-amd64-b${bver}.deb NEW
+cd ..
+mv ${nazwa}-debpack/${nazwa}-Debian-amd64-b${bver}.deb NEW/${nazwa}-Debian-amd64-b${bver}.deb
 
 

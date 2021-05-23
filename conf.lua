@@ -1,20 +1,21 @@
 function love.conf(t)
   t.identity = "data"
   t.version = "11.3"
-  t.console = true
+  t.console = false
   t.window.title = "M2k by dj-alex"
   t.window.width = 0
   t.window.height= 0
+  t.window.usedpiscale = false
   t.window.borderless = false
   t.window.resizable = true
-  t.window.minwidth = 320
-  t.window.minheight = 200
+  t.window.minwidth = 1024
+  t.window.minheight = 640
   t.window.fullscreen = false  -- Enable fullscreen (boolean)
   t.window.vsync = true         -- Enable vertical sync (boolean)
   t.window.msaa = 0        -- The number of samples to use with multi-sampled antialiasing (number)
   t.window.fsaa = 0
   t.window.display = 1
-  t.window.highdpi = false  -- Enable high-dpi mode for the window on a Retina display (boolean)
+  t.window.highdpi = true  -- Enable high-dpi mode for the window on a Retina display (boolean)
   t.window.srgb = false
   t.modules.audio = true
   t.modules.event = true

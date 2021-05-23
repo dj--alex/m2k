@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=M2K
+GenericName=M2K
+Type=Application
+Categories=Game;
+Exec="/opt/Games/M2K-Linux/start_game"
+Terminal=false
+StartupNotify=true
+Icon=/opt/Games/M2K-Linux/icon.png
+Name[ru]=M2K
+Comment=Start M2K
