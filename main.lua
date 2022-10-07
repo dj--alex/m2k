@@ -4237,7 +4237,8 @@ end
        end;
 
 
-    function reactmove (zzx)
+    function reactmove (zzx,inventory_fast_and_full_remove_flag_enable)
+        if (inventory_fast_and_full_remove_flag_enable==nil) then inventory_fast_and_full_remove_flag_enable=0; end; 
         if (ObjectSIZEchangeallow>0) then  allowmove=0; allowshot=0;  return; end;
         if (editor==1) then return; end;
         if (pause==1) then return; end;
@@ -4250,6 +4251,8 @@ end
         if (ignorecode~="IGNORE") then ostatni_obiekt=zzx; end;--всего лишь не печатать инфо о названии обьекта.
         takeableitem=ext_objs_string (zzx,19);
         movableitem=ext_objs_string (zzx,25);
+        remove_inv_after_using_item=ext_objs_string (zzx,27);
+        disable_take_action=ext_objs_string (zzx,28);
         usable=ext_objs_string (zzx,22);
         rifleenh=ext_objs_string (zzx,23);
         if (reactmove_code==255) then  allowmove=0; end;
@@ -4281,6 +4284,11 @@ end
             reschange (resolutionPC);         map_changed=3;
        end
 
+      if (otladka==1)and (remove_inv_after_using_item=="removeinvafteruse") then smsg1=" item must be removed  "..itemkey ; end; 
+        if (inventory_fast_and_full_remove_flag_enable==1)and (remove_inv_after_using_item=="removeinvafteruse") then
+          removeinventoryitem (itemkey); takeableitem=""; -- removing item CANNOT be retaken 
+        end
+
 
         if  (takeableitem=="take") then --starttanks=starttanks+5; ДЕЙСТВИЕ TAKE
             if (countinventory<maximuminventorysize) then
@@ -4292,6 +4300,12 @@ end
                 allowmove=0;
             end
         end;
+
+
+        if   (inventory_fast_and_full_remove_flag_enable==0)and (disable_take_action=="disabletakeaction") then --starttanks=starttanks+5; ДЕЙСТВИЕ TAKE
+          return 0 ; 
+        end
+
 
         if (zzx==183) then hp=math.ceil (hp/8)-1; end;
 
@@ -8194,11 +8208,12 @@ typeobject_generated="";
                 playsoundifvisible (newarsenalsnd,x,y);
                 removeinventoryitem(itemkey);
             end
-
-            if (usable=="usable")and(rifleenh=="") then
+            
+            if (usable=="usable")and(rifleenh=="") then  -- Others item using    używanie itemów "c" ekwipunek
                 plusx=0; plusy=0;
                 removeinventoryitem(itemkey);
-                reactmove (codeitem);
+                --inventory_fast_and_full_remove_flag_enable=1; 
+                reactmove (codeitem,1);
 
             end
             -- реакция на usable особые предметы. 
@@ -11864,6 +11879,7 @@ function game_gui_pc_player_do ()
 
 menu_printed=0;
 
+-- RADAR CODE 
 if (x~=nil)and(GAMEWINDOWCANVAS~=nil)and(titlegame=="Reskue") then 
 xmappc1=math.ceil (gamex (x)/10); ymappc1=math.ceil (gamey (y)/6); 
 --objectpodnogami=(screens (gamey (y),gamex (x)));  -- реализация автоходьбы по стрелкам.
@@ -11878,7 +11894,7 @@ for ymap=1,9 do
   sl=math.ceil (math.random(2));
   for xmap=1,11 do 
 if (levelnumber==2) then   gray () ; else cyan () ; end; 
-finalx=4+sl+maxwidth-13*size+xmap*size;
+finalx=4+sl+maxwidth-13*size+xmap*size;  
 finaly=0+ymap*size;
 if (xmap==xmappc1)and (ymap==ymappc1) then yellow (); end;
 if (hxmap~=nil)and (hxmap>0)and (xmap==hxmap1)and (ymap==hymap1) then green (); end;
@@ -12447,6 +12463,14 @@ androidhpshowfix=0;
      graybledny () ;
      protectshow=math.floor (protect/2); 
      lg.rectangle("fill", leftspaceonscreen-androidhpshowfix+rozmiarznak-1,0,515*1.6, rozmiarznak,0,0);
+     cyanbledny (); 
+     if (maximumammo_PC1==nil) then maximumammo_PC1=0; end; 
+     hpmaxshow=hpmax*1.6;
+     if (hpmax>510) then hpmaxshow=515*1.6; end;
+     ammomaxshow=maximumammo_PC1*1.6;
+     if (ammomaxshow>510) then maximumammo_PC1=515*1.6; end;
+     lg.rectangle("fill", leftspaceonscreen-androidhpshowfix+rozmiarznak,1,hpmaxshow, rozmiarznak/2-4,0,0);
+     lg.rectangle("fill", leftspaceonscreen-androidhpshowfix+rozmiarznak,1+rozmiarznak/2, ammomaxshow, rozmiarznak/2-4,0,0);
       if (hp>0) then  if (hp>90) then  green (); end;
                     if (hp<91) then yellow () ; end; 
                     if (hp<30) then red () ; end; 
@@ -12460,7 +12484,12 @@ androidhpshowfix=0;
             
         white ();
       end
-      lg.print ("+", leftspaceonscreen-androidhpshowfix+5+rozmiarznak,6-rozmiarznak/2); 
+      plusss="+  ";
+    for a=1,reservedaids,1 do
+      plusss=plusss.."+"; 
+    end
+      lg.print (plusss, leftspaceonscreen-androidhpshowfix+5+rozmiarznak,6-rozmiarznak/2); 
+  
       -- Здесь должен быть GUI оружия и переключение показа имеющихся патрон в наличии.
    if (weaponselected==3) then 
                     if (ammo>90) then  green (); end;
@@ -12473,16 +12502,19 @@ androidhpshowfix=0;
               end
 
   if (editor==0)and(renderer==1)and (titlegame=="Reskue") then -- GUI ELEMENTS
+  widthinventoryblock=20+rozmiarznak*(maximuminventorysize-1); 
  cyanbledny () ;
- lg.rectangle("fill", 2*rozmiarznak+520*1.6,upspaceonscreen+rozmiarznak-rozmiarznak/4,rozmiarznak*11*scaling, rozmiarznak/8);
+ lg.rectangle("fill", 2*rozmiarznak+520*1.6,upspaceonscreen+rozmiarznak-rozmiarznak/4,widthinventoryblock, rozmiarznak/8);
  lg.rectangle("fill", 2*rozmiarznak+520*1.6+rozmiarznak/8,0, rozmiarznak/8, rozmiarznak);
   cyan(); 
- lg.rectangle("fill", 2*rozmiarznak+520*1.6,upspaceonscreen+rozmiarznak-rozmiarznak/8,rozmiarznak*11*scaling, rozmiarznak/8);
+ lg.rectangle("fill", 2*rozmiarznak+520*1.6,upspaceonscreen+rozmiarznak-rozmiarznak/8,widthinventoryblock, rozmiarznak/8);
  lg.rectangle("fill", 2*rozmiarznak+520*1.6,0, rozmiarznak/8, rozmiarznak);
  cyan () ;
-  lg.rectangle("fill", 0, downspaceonscreen+0+rozmiarznak ,maxwidth, rozmiarznak/8);
+lg.rectangle("fill", widthinventoryblock+2*rozmiarznak+520*1.6,0, rozmiarznak/8, rozmiarznak);
+ 
   cyanbledny (); 
-  lg.rectangle("fill", 0, downspaceonscreen+rozmiarznak/8+rozmiarznak  ,maxwidth, rozmiarznak/8);
+lg.rectangle("fill", widthinventoryblock+2*rozmiarznak+520*1.6+rozmiarznak/8,0, rozmiarznak/8, rozmiarznak);
+ 
 
   
   white () ; 
