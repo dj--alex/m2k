@@ -1,0 +1,478 @@
+===================
+Colony build 196
+===================
++ Fixed: Ammo damage enemy if it near wall cell. 
++ Updated textures for some items.
++ Redrawed map problem places and add new territory.  
++ Cannons now correct works using by distant key shoot.
++ Code: actions.ini includes SMSG.
++ Fixed: Control centre - remove time reset for sended ship.
++ Partial belarussian language.
++ Fixed: No save when score <0
++ Fixed: Remove armor causes null item adds.
++ Fixed: When exit pause executing redraw for fix screen corruption.
++ Colony: Maximum inventory size with Belt-8 increased to 12 items. Fast using Item 10 and 11 binded to - and + key.
++ Code: Maximum inventory size used for canvas.
++ Code: Double size messages when used joystick inventory keys.
++ Joystick adds drop selected item under player position if empty (left spust + square)
+
+===================
+Colony build 196
+===================
++ Исправлено: Патроны теперь вредят противнику если он стоит прижавшись к стенке.
++ Iсправлено: Выстрел из ближайших пушек по нажатию на кнопку теперь работает всегда.
++ Code: actions.ini Теперь использует SMSG. (Для переводчика)
++ Исправлено: Центр управления - ошибочный сброс времени для корабля с грузом если он уже в пути.
++ Добавлена беларусская локализация игры. (частичная)
++ Исправлено: Не разрешать сохраняться при минусе очков
++ Исправлено: Кнопкой снять доспех при некоторых условиях можно было снять несуществующий доспех что приводило к ошибке.
++ Исправлено: При отпускании паузы добавлен фикс отсутствия перерисовки если игрок трогал камеру.
++ Инвентарь теперь может быть расширен до максимума в 12 слотов, Открываемые предметы вместо 5 слотов будут распаковыватся более эффектно в 8 предметов.
+Для кнопки 11 и 12 предмета использовать - и =.
++ При выборе предмета с джойстика надпись с названием предмета также увеличивается.
++ Фикс изображения инвентаря повышенной ёмкости для джойстика.
++ С джойстика можно выкидывать предмет под ноги. (левый курок + квадрат)
++ Перерисована и улучшена карта по проходимости. добавлена новая территория. все косяки с отрисовкой обьемных зданий исправлены. 
++ Новые текстуры для некоторых предметов
++ Модуль карт V3 теперь поддерживает 2байтную адресацию. Это позволяет использовать не 256 а 65536 разных обьектов.
+Проще говоря в игру можно добавлять теперь много новых вещей. 
+Совместимость с картами и сохранёнными играми сохранена! Все карты при загрузке автоматически обновляются.
+
+https://dj-alex.itch.io/colony
+
+
+===================
+Reskue build 955
+===================
+RU
++ Reskue: добавлен радар, показывающий героя а также цель миссии.
++ Добавлены новые звуки для оружия с эффектами Corrosion, Dispel, Slow, Control..
++ Исправлено отсутствие повторяющихся звуков.
++ Пулемёт больше не заклинивает. Улучшена проверка долгого зажимания кнопки огонь
++ Частичная поддержка тайлинга стен. (Обьекты 76 и 44)
++ FPS lock теперь сохраняется в настройках
+EN
++ Reskue: Added radar to help found scientists.
++ Added new weapon sounds
++ Fixed lost soundplay problem
++ Minigun not stucked 
++ Tiling partial support added (76,44) 
++ FPS Lock now saved in settings
+PL
++ Dodan radar ktory pomoże znaleźć naukowców
++ Nowy dzwięk broni
++ Karabin maszinowy teraz nie zacina się
++ Tiling częściowo zrobione
++ FPSLock teraz nie resetuje, zapamiętany
+
+
+===================
+Reskue build 1032
+===================
++ Добавлена новая анимация главного героя
++ Добавлена анимация ремонтного дроида
++ При начале игры игроку сообщается о возможност изменить положение камеры и настроить скорость игры.  
++ Добавлен потерянный звук для появления учёного на карте. 
++ Заменена часть текстур: танк.телепортеры, люки, декоративная стена.
++ Полностью заменены текстуры стен на новые, кроме зеленых стен.
++ Code:: Энкодер карт Reskue теперь поддерживает dbyte (mapv3)
++ Добавлены обьекты показывающие карту местности, но только в 1-ю карту Reskue
++ При увеличении размера обьектов надписи в меню больше не сьезжают
++ При подборе ящика с случайным предметом. теперь пишется его имя а не ID.
++ Убрана возможность через меню сохранения или редактор попытатся продолжить проигранную игру. 
++ Добавлена возможнось показывать игроку
+короткие сообщения поверх игрового поля в меню с окантовкой.
+Убираются любым действием - выстрелом или перемещением.
+Либо сами через несколько секунд. (Задаётся кодом обьекта) 
++ Убрано ускоренное уничтожение вещей танками. (без выстрелов) 
++ Радтопливо теперь можно уничтожить.
+
++ New main hero animation and new droid animation
++ When starts first game player receive short message with window about settings. 
++ Added new messages events to player. Any key to close window.
++ Restored lost sounds appear new scientists.
++ Reworked wall textures and decorations.
++ Now crates with items shows name loot item, not ID.
++ Code:: Map encoder Reskue now supports dbyte (mapv3)
++ Added terminals showing actual map (without enemies)
++ Change object size now not broke menus or editor.
++ After game over you cannot summon editor. Only after new game key.
++ Removed fast destroying some items by tanks (without shooting)
++ Radfuel now destructible.
+
++ Nowy animacje herosa, a także droida.
++ Przy początku gry, gracz widzę małe okienko z tekstem o pomoc
++ Dodany nowy typ extra-wiadomosci dla graczy
++ Retekstur scian, niektorych obiektów
++ Kod:: dodan dbyte (mapv3) support 
++ Dodany terminaly z zwyklymi mapami miejscowymi
++ Zmiana rozmiaru obiektów więcej nie zlamie interfejs
++ Przy porażke nie można używać edytor
++ Usunięto - Szybka destrukcja obiektów czołgami wroga.
++ Rad paliwo teraz można zniszczyć
+
+========================
+Выпущена бесплатная демо версия Reskue для Steam
+Из игры убраны
+*** Возможность Save/Load
+*** Редактор уровней.
+
+Now available demo Reskue
+Removed only save and edit options. 
+
+Teraz dostepną demo wersja gry Reskue 
+Wycofanę tyłko zapis gry + edytor
+=========================
+
+
+===================
+Reskue build 1141
+===================
+* Надписи в доп.меню больше не мерцают. 
++ Добавлены новые анимации стрельбы и использования предметов для героя.
++ Учёных можно заинтересовать использованием предметов и они подойдут к вам. Возможно.
++ Добавлены вражеские дроиды вооруженные тремя разными типами оружия наносящим низкий урон, однако накадывающим негативные эффекты. некоторые снимаются аптечкой если она есть в инвентаре. Каждое попадание суммируется.
++ Добавлено новое меню Джойстики.
+Показывает подключенные джойстики и управление для 1 игрока
+* При смерти теряется 25% набранных очков. 
++ Перемещены и уменьшены иконки джойстиков и логотипа
++ Добавлена новая брона на одеваемый слот1  (№256) - 
+Измененяет работу защиты. Работает только не в танке
+Защита лечит космонавта при критическом уроне аптечкой
+А при обычных получениях повреждений начинает немедленную регенерацию
+сильно уменьшая свою собственную длительность. 
++Стрелочки теперь пропускают пули только в указываемую ими сторону.
++Добавлена возможность стакающихся предметов.
+Например если персонаж оденет сразу 2 усилителя в разные слоты
+теперь их мощность будет складыватся
++ Сделан нормальный перенос слов для справки и многострочных текстов.
+На джойстике доступна прокрутка текста правым стиком
++ Load menu теперь отображается только если есть сохранения.
++ Сохранить игру отображается только если игрок набрал очки и не проиграл.
++ Редактор отображается если игрок начал любую игру.
++ Список сохранений теперь перечитывается после каждого сохранения, вместо требования перезапуска игры.
++ Исправлена ошибка с сообщением при проигрыше. Выдавался дескриптор вместо сообщения.
++ Защитное поле теперь снижает в 2 раза длительность любых негативных эффектов. 
++ Code::Баланс игры мог исказится, command_power - Длительность теперь передаётся через параметр (только для выстрелов в игрока)   
++ Fix: Починен старый режим стрельбы когда можно было стрелять только указывая куда именно стрелять а не нажимать огонь и выстрел был бы в сторону последнего движения. Однако включение старого режима блокирует выстрел с выдержкой (некоторые особенности оружий могут быть недоступны)
++ В авторах теперь показывается все арты и модели для игры и их авторы. 
++ Добавлена опция: Отключение тачскина для запуска джойстика на андроид.
+
++ Statyczny kolor w menu
++ Nowa animacja strzelb, oraz używania itemów
++ Naukowcy teraz jest zaciekawiony w używanii itemów. Sprobujcie
++ Dodana opcja: Wylączenie  touchscreen dla używania na Android PS3/Xbox kontrollera.
++ Nowe menu "Pady"
++ Śmierć zabiera 25% xp
++ Dodano kilka nowych zbroj
++ Dodano zawijanie słów.
++ Niewielky naprawy w menu (Load/Save/etc)
++ Nowa stranka authors.
+
+* No flashing menus
++ New animation shoot and use item for hero (both Reskue and Colony)
++ Scientists stops move from hero when using items
++ Added enemy droids used 3 types weapon with negative effects. Some can be healed by firstaid.
++ New controller menu
++ Menu text can be scrolled using pad
++ Death take 25% xp.
++ Added new armor (slot1). Can work only without tank
+When you get damage starts fast regeneration drains protection level.
++ Fixed word printing long texts.
++ Load menu shows only when saves exists.
++ Save game shows only when Player have score
++ Protect shield lower 2 times any negative effects.
++ Code:: command_power parameter now works.
++ Fix:: Old shoot mod.
++ Authors:: Now shows arts and models in menu
++ Added option settings: Disable touchscreen for android PS3/Xbox controller using.
+
+Available on Steam! 
+====================
+M2K build 10383
+====================
+
++ Улучшенная камера (движения по горизонтали автоматические сразу переводят на новую комнату)
++ Новый торговый центр (покупка и продажа вещей работают)
+Технически можно доработать до установки разных магазинчиков с разными товарами. 
+В магазине можно смотреть описания действия и эффекта всех обычных предметов.
++ Улучшенный и исправленный экспресс. 
++ Code::Текстуры атласа нестандартного размера автоматически уменьшаются для вставки. 
+
++ New express textures
++ Enhanced Control centre store and interface (you can sell game items for score)
+Contains help for any game item if it on store. Can extended to create few stores. 
++ Enhanced camera movement
++ Code::Atlas textures autoresize to fit it too big.
+
++ Nowy express 
++ Nowy sklep, teraz można sprzedac itemy. Dodana pomoc o itemach
++ Ulepszona kamera
++ Code::Atlas 
+
+https://store.steampowered.com/app/1763120/M2K/
+
+
+
+
+
+==================
+Colony build 236
+==================
++ 3 новых анимации дроида - ходьба, стрельба и инвентарь.
+Игрок может пользоватся всеми видами оружия знакомым ему из Reskue.
++ Более удобная камера для игрока. 
+* Временно вместо анимаций насекомых снова танки из Reskue
+* Надписи в доп.меню больше не мерцают. 
+Добавлены дополнительные настройки для уровня (по умолчанию выключенные)
+enableredtank - Разрешить усиленных врагов (выключено)
+enableauratank - Разрешить врагов с аурами (выключено)
+enablewtank - Разрешить мини-босса с 3000хп (выключено)
++ Улучшенная камера (движения по горизонтали автоматические сразу переводят на новую комнату)
++ В авторах теперь показывается все арты и модели для игры и их авторы. 
++ Добавлена опция: Отключение тачскина для запуска джойстика на андроид.
++ Сделан нормальный перенос слов для справки и многострочных текстов.
+На джойстике доступна прокрутка текста правым стиком
++ Load menu теперь отображается только если есть сохранения.
++ Сохранить игру отображается только если игрок набрал очки и не проиграл.
++ Все новые предметы брони импортированы из Reskue но не добавлены.
+
+Планируется доработка карты и лута
+
+Надо ли игру в стим добавлять? 
+
+https://dj-alex.itch.io/colony
+
+
+===========================
+Reskue build 1197 
+===========================
++ Добавлено меню Инвентарь и одеваемые предметы рядом с "куклой" персонажа.
+Теперь их можно удобно снимать и одевать. 
+Выбрав любой предмет можно почитать информацию что это и для чего оно нужно.
+Распаковка и выкидывание предмета пока не поддерживается
+Вход по кнопке С либо L1 по умолчанию. Можно перенастроить. 
+На данный момент в игре 1 оружейный слот, и 6 слотов для различных приборов или улучшений.
+Новые предметы пока не имеют картинок и вместо них изображается "силовой щит".
++ Исправлена ошибка с отображением джойстиков
++ Новое меню + подсветка в меню. Пиктограммы удалены.
++ Все новые предметы брони доступны в качестве награды за спасение учёных (шанс 18%)
++ Джойстик: Круг (B) теперь используется только для отмены. R2 - альт. стрельба теперь
++ 1 Уровень сделан упрощенный для новичков, с самого начала даны бонусы для игрока (увеличение жизни и защита)
+По сути теперь есть 2 версии игры упрощённая и более сложная с более сильными врагами.
+Максимум танков:5
++ 2 уровень для тех кто уже более опытный в игре содержит гораздо больше объектов и окружения. 
+Максимум танков:12
+Добавлены дополнительные настройки для уровня (по умолчанию выключенные)
+enableredtank - Разрешить усиленных врагов 
+enableauratank - Разрешить врагов с аурами
+enablewtank - Разрешить белый танк  
++ Более удобная камера для игрока. 
++ Игрок может теперь быстро переключать броню или усилители в инвентаре на одетые если они у него есть. 
++ Слот2. Новые предметы: 
+257 - Улучшение Disruptor - +200 вреда. удвоение эффекта вреда. Не влияет на другое оружие.
+258 - Защищает от выстрелов Disruptor полностью поглощая его урон. Удвоенный вред от обычных вражеских пуль.
++ При спасении ученого или числе учёных равном нулю маркер карты убирается.
+Исправлены ложные срабатывания радара. Также радар теперь показывает аномалии на карте если они есть.
++ Code::Текстуры атласа нестандартного размера автоматически уменьшаются для вставки. 
++ Editor:: Исправлен графический баг. Теперь все доступные обьекты показываются нормально. 
++ Исправлено:: Ящики и стаканы теперь являются препятствием . Стаканы можно носить, однако пока они функционально не нужны
+и для завершения миссии не учитываются (хотя должны).
++ Противотанковая ракета уничтожающая все танки разом и являющаяся секретным бонусом из ящиков
+теперь носимый предмет занимающий место в инвентаре и не требует специальной кнопки.
+
+
++ Added new menu Inventory (C,L1 by default) 
+Player now have 1 weapon slot and 6 slots for armor and enhancements. Really items exists only for 3 slots.
+Now available drop, wear, unwear items. Work with containers and loot is partial. not use it please.
+If you wear weapon or armor, new item replace old. 
+Any item has info about it.
+Unpack not supported, temporary.
+New items no have an image and shows "shield" image or "ammopack".
++ Fixed show pads menu.
++ Camera now more accurate works.
++ Blinking and flashing menus removed. 
++ New menu with background. Pictogramm removed
++ Pad:: B(circle)  no use for weapon, R2 is now alternate fire mode. 
++ Added new level! Now 1 level is full game adapted for Novice player in new Reskue. Contain less objects and less enemies.
+2 Level is now a recommended for experienced players, contain more objects and enemies. 
++ Fixed error with joystick images
++ Swap items for slot1, slot2 enabled (like swap weapon slot)
++ Slot2. New items:
+257 - Enhance Disruptor - +200 damage, doubles harm time. 
+258 - Defence from disruptor. Doubles in enemy damage
++ Code::Atlas textures autoresize to fit it too big.
++ Code::Added level settings  
+enableredtank -  Enable red enemy. 
+enableauratank -  Enable enemy with auras
+enablewtank -  Enable White tank
+
+
+
+================
+Colony build 253
+================
++ Все монстры анимированы и работают! 
+И божья коровка и пауки, ненужные монстры убраны.
++ Camera: Перемещение вверх и вниз теперь более блочное также как  и по горизонтали
++ Заменен флаг на маяк который необходим для прибытия корабля. 
+Здание добавлено только если начать новую игру!! 
+Иначе потребуется здание (обьект 36) установить вручную.
++ Попадание в бомбу из ледяного оружия вызывает взрыв осколков во все стороны в виде ледяных пуль.
++ Улучшен гранатомёт. Бомба встречающаяся с обычным обьектом теперь также взрывается. Оружие довольно медлительное. 
++ Выстрел по бомбе из гранатомёта с усилителем вызывает дополнительные осколки во все стороны.
+
++ Done animations of all creatures. Unnecessary removed.
++ New set of items and weapons for colony.  
+* Only new sprites for buildings is delayed. 
+* Game is full written by me from zero on Lua language. 
+================
+Colony build 253
+================
+https://dj-alex.itch.io/colony
+
+=================
+Reskue build 1309 
+=================
++ Попадание в бомбу из ледяного оружия вызывает взрыв осколков во все стороны в виде ледяных пуль.
++ Добавлено 2 новых существа. Мимик и Механический паук.
++ Существа: случайно рядом вещами появляются мимики которые не будут никуда ходить пока игрок их не разбудит. 
+Сам по себе вред невысокий для снаряжённого героя, но яд от них действует довольно долго. Рекомендуется носить аптечки.
+Иногда мимики могут и случайно приходить из телепортеров но редко. 
+Пауки обладают способностью заразить игрока, жизнь это не отнимает, однако если не провести лечение появится отряд новых пауков. 
+Роботов и танкистов пауки заразить не могут. 
+Пауки прекращают плевать ядом в заражённого игрока. 
++ Противник гвоздь получил новую модель из 3д рендера.
++ Исправлено отображение исчезновения одетых вещей в инвентаре на некоторых разрешениях
++ Улучшен гранатомёт. Бомба встречающаяся с обычным обьектом теперь также взрывается. Оружие довольно медлительное. 
++ Выстрел по бомбе из гранатомёта с усилителем вызывает дополнительные осколки во все стороны.
++ Новое оружие - миномёт. Стреляет как ни странно минами. Устанавливает удаленно мину немедленно уничтожающего любого врага при наезде.
++ Fix: вещь при сохранении с пустым инвентарём дюпается.  сохранять пустое место! 
++ Тест: Добавлена пушка 177 стреляющая врагами с случайными параметрами.
++ Camera: Перемещение вверх и вниз теперь более блочное также как  и по горизонтали
++ Fix: Убрана несуществующая анимация в М2К для (placeitem action)
++ Fix: Заморозка у врагов теперь работает корректно. : Выстрел из любого оружия с Freeze теперь учитывает номера предметов из objects.ini ,если есть. (колонка 7). Выстрел из обычного пистолета в режиме заморозки по прежнему делает слабую заморозку но вещи морозит идеально.  даже бомбы.
+Damagestage игнорируется, если повреждение уже выполнено от Ice. 
+* Code: Функция reactice может стать необязательной
++ Исправлен цвет радара для 1 и 2 уровня. Радар показывает теперь и аномалии если они есть.
++ Fix: 178 Усилитель урона. Исправлено всегда гарантированное уничтожение предмета. Даже если потом усилитель будет снят.
++ Code: x_tanks removed. 
++ Добавлен счётчик уничтожений противника одним выстрелом (Double kill, Multikill , Ultrakill)
++ Baggage message fixed
++ Code: isnearED добавлен radius.
+
++ Shooting to bomb from freezer cause explode ice shards. Beware, you can be frozen too. 
++ Added 2 creatures . 
+Mimic: Near any boxes can be found hidden mimic. Sound singal alerts about anomaly.
+In normal situation it harmless.
+When you walk too close its awake and attack with deadly poison. 
+Spider.
+Spiders use poison too, but it weakest, and it can disease hero. (If you dont have a tank or robot)
+Spiders not shoot poison to already diseased persons. 
++ Gwozd have a new 3d pre-rendered model instead 2d.
++ Fixed weared items in new inventory. (on some high resolutions like 2K-4K).
++ Enhanced Grenadelauncher. Now bomb when stuck object explodes too. Good for action, but slow. Slows player walk. 
+Using Grenadelaucher with Speedbost cause additional shards when explode bombs.a
++ New weapon - Minelauncher - Leaves mine when stuck object or enemy. Bad for action, good for mining territory, Slow.
++ Fix: item duping.  
++ Test: Weapon 177 shooting new enemies.
++ Camera: enhances up and down moves.
++ Enemys can use freeze items ability instead destruct. (Damagestage ignored)
++ Code: Reactice depreacted.
++ Radar colors for 1,2 levels fixed.
++ Added counter for Double Kill and Multi-kill. It need to be done from 1 seconds for maximum 1-2 shots or explodes. 
++ Baggage message fixed
++ Code: isnearED added radius.
+
++ Strzełanina bomb freezerom wywoluje strzepy lodu . Uwaga wrażliwy na ciebie też.
++ Dodany nowy istoty: mimic, pająk.
+Mimic, uwelbia pudełki. Nieaktywny. Jeżeli będę blizko atakuje mocnym kwasem. 
+Pająk, slaby kwas, może wydać pasażytów.
++ Gwozd - nowy 3d model.
++ Fix: ekwipunek błąd na 2K-4K.
++ Ulepszenia Grenade-Laucher. Teraz bomby exploduje zawsze. Tężki. Używanie szybkośći wywoluje dodatkowy odłamki.
++ Fix: item duping
++ Kamera: W góre i w dół ulepszenie.
++ Wrogowie może zamróźić przedmioty.
++ Code: Reactice deprecated
++ Radar -  kolorowę naprawienie.
++ Dodano Doublekill & Multikill
++ Bagaż wiadomość naprawiona.
++ Code: isnearED dodan nowy parameter radius.
+
+https://dj-alex.itch.io
+https://store.steampowered.com/app/1550780/Reskue/
+
+======================
++ Optimization FPS for enemies
++ Ice shards fixed for bombs
++ GUI enhanced - adequate show hp and ammo maximum, shows better reserved aids. 
++ Code:: Spawnpoints created for mimic,anomaly,gwozd,spider, droid. (192,195,235,255,269)
+
++ Увеличен ФПС при повышенном количестве врагов
++ Ледяная бомба исправлена. 
++ голубая рамка равна макс количеству слотов инвентаря.
++ Количество жизни и патрон теперь показывается учитывая возможный максимум этих параметров
++ количество плюсов равно количеству аптечек плюс 1.
++ Code:: Spawnpoints created for mimic,anomaly,gwozd,spider, droid.
+
++ Optimizacja, FPS.
++ Naprawiono:: Lodowy bomby 
++ GUI ulepszenia - maksimalny poziom życia i broni. 
++ Code:: Spawnpoints created for mimic,anomaly,gwozd,spider, droid. 
+
+-- Джойстик. Стандартные предметы должны тоже использоватся из инвентаря
+-- Сделать распаковку из инветаря. Добавлено здание для распаковки предметов. Однако если не будет 5 слотов для предметов они будут выброшены. 
+-- Ошибка с делением координат игрока на ноль. (при попадании пули с замедлением? )
+
+
+
+-- Печать монстра только если он visible
+--Видео о добавлении фото и видео. На джумлу. Потом видео вы получите то что вы пожелаете и набросок карандашом тот самый
+--Считать количество смертей героя и сохранять его. Считать мультики. И убийства и сохранять их
+--Уменьшать ли за количество смертей максимум жизни вместо вообще их количетсва
+--Учёный в ответ стреляет заморозкой . За 10 мультикиллов даётся предмет +40 к любому урону.
+
+
+интересно где бы поискать желающего помочь мне с ИИ монстров именно в примере моей игры.  нельзя просто так взять и подключить какой то плагин к собственному движку. это не так то просто
+ Планы на будущее:: 
+-- пули летят на указанное расстояние
+-- похоже монстры не накладывают друг на друга вред(квас), заморозку, замедление или страх если их длительность слишком короткая.
+-- трещины должны для 44 сохранятся в базе трещин 
+-- Ученый может носить и выкладывать 1 предмет. zebrany_item_id
+?? если игрок куда то уйдет то мимик будет искать ближайшие предметы для "парковки" ну или уничтожения  и подмены их собой?
+При игроке нежелательно чтобы мимик прятался.
+ -- угловой рикошет 235
+ -- 5168 камера хранения, добавить мод в инвентарь  предмет - 24 - для инвентаря доп.
+ -- ОТЛОЖЕНО. АНДРОИД многократный ТАП :: https://github.com/Archund/love2dtesting/blob/master/lualoveTesting/Libraries/GestureLib-Love2D-master/README.md 
+-- окошко для дебаффов и показа времени их действия. Для таблицы баффов - totalbuff=1; образец уменьшения дебаффов готов. 
+-- Stun эффект врага не проверяет землю.  if (command=="stun") (может сделать чтобы цель летела дальше чем на пару шагов? )
+-- Разброс предметов по месту попадания пули
+-- Предметы активирующие создание или разморозку монстров. 
+-- Добавить - Обьект - активатор места возрождения, Control point, При активации герой может возрождатся 
+-- Эффект снимают друг друга - проверено ловушками и бомбами) Подтверждено b635
+-- Reskue 110 FPS  M2K - 70 FPS .--if (editor==0)and(timer>75)and(timerz>1) then  -- возможно именно это и ответственно за тормоза проверить 
+ AI => tankmove при zzx2!=0 вызывают тормоза для обычных aitype которые могут стрелять. 
+-- Сохранения - добавить танков ЕТА:: таблиц https://github.com/gvx/Ser   if (menu==5) then
+-- Баг: Механизм резервной копии печатает обьект даже если его нельзя печатать.
+
+===========================================================
+m2k
+https://yadi.sk/d/iYapvSp1350ZRw Linux *autoupdated link
+https://yadi.sk/d/MCLvBXNo1dDknQ Windows *autoupdated link
+https://yadi.sk/d/lyeQ8L7PvUsstA Debian *autoupdated link
+https://yadi.sk/d/yTdM0j-aUiobBQ Android *autoupdated link
+https://yadi.sk/d/HUeCCRs2VTaTlg Android-all *autoupdated link
+
+reskue
+https://yadi.sk/d/9i5rHDGcfxmKXA Reskue Android *autoupd
+https://yadi.sk/d/bPR_bWYe8yKvXQ Reskue Linux tar,deb *autoupd
+https://yadi.sk/d/UchZpqMfw-0WTg Reskue Windows *autoupd
+SZMEL Шмель Тяжеловес, [30.01.20 18:18] cd ; locate sdkmanager
+
+   addkeyprint="";
+       if (ossys~="Android")and (titlegame~="Reskue")and (titlegame~="Colony") then
+        if (rzad=="pad") and ( typePL1joystick=="xbox360") then addkeyprint="[A].";end;
+        if (rzad=="pad") and ( typePL1joystick=="sonyPS3") then addkeyprint="[X].";end;
+        if (rzad=="kb") then addkeyprint="[SPACE].";end;
+        keyprint=smsg_string ("WIN")..addkeyprint;
