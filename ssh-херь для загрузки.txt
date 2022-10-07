@@ -1,0 +1,2 @@
+set-url origin git@github.com:dj--alex/m2k
+
