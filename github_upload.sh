@@ -1,5 +1,5 @@
 git add .
-git commit -m "Build " | cat build.ini
+git commit -m "Build "..| cat build.ini ..""
 git remote set-url origin git@github.com:dj--alex/m2k 
 git push -u origin master
 git pull
