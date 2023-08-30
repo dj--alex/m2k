@@ -8,6 +8,7 @@ i=1; -- Проект M2K является по сути своеобразным
 -- грубо говоря одна игра использует один набор для организации загадок, вторая второй набор - для стрелялок, третья- набор для песочницы и т.п.
 -- Однако поведение обьектов меняется только через objects.ini или код, а smsg.ini содержит перевод (локализацию)
 screens_used=0;
+lasthopeadded=0;
 wsego_jezykow=0;
 pajaks=0; 
 freadbin_used=0; 
@@ -200,8 +201,8 @@ extradroids=0;
      backgroundcolorlevel=0;
      colorizepole=0;
      colorizeboulder=0;
-     parameter64=0;
-     parameter65=0;
+     multikills=0;
+     ultrakills=0;
      parameter66=0;
      parameter67=0;
      parameter68=0;
@@ -875,6 +876,7 @@ superbombsnd=love.audio.newSource("Sounds/superbomb.mp3","stream");
 superbombsnd=love.audio.newSource("Sounds/superbomb.mp3","stream");
 
 function love.load ()  -- love.load  gra zaczyna się tutaj
+  lasthopeadded=0; 
   Gesture_SwipeN = Swipe('[TP,N,TR]', -1, 500);
   Gesture_SwipeS = Swipe('[TP,S,TR]', -1, 0);
   Gesture_SwipeLDC = Swipe('[TP,S,E,TR]', -1, 800);
@@ -1562,7 +1564,9 @@ end
 -- единственное место где определяется всё что должно быть в сохранённой игре SAVEGAME parameters 
   function xdatapreparetowrite ()
      --может быть не имеет смысл совсем читать максимум HP. 200 для любого уровня. 
-      if (tanksdestroyed>250) then tanksdestroyed=250; end; 
+      if (tanksdestroyed>252) then tanksdestroyed=252; end; 
+      if (multikills>252) then multikills=252; end; 
+      if (ultrakills>252) then ultrakills=252; end; 
       xdata[55634]=poke (tanksdestroyed);
       xdata[55625]=poke (gamey(y)+1);
       xdata[55626]=poke (gamex(x)); 
@@ -1595,8 +1599,8 @@ end
      xdata[55661]=poke (backgroundcolorlevel);
      xdata[55662]=poke (colorizepole);
      xdata[55663]=poke (colorizeboulder);
-     xdata[55664]=poke (parameter64);
-     xdata[55665]=poke (parameter65);
+     xdata[55664]=poke (multikills);
+     xdata[55665]=poke (ultrakills);
      xdata[55666]=poke (parameter66);
      xdata[55667]=poke (parameter67);
      xdata[55668]=poke (parameter68);
@@ -2226,8 +2230,8 @@ end
         backgroundcolorlevel= (string.byte (xdata[55661]));
         colorizepole= (string.byte (xdata[55662]));
         colorizeboulder= (string.byte (xdata[55663]));
-        parameter64= (string.byte (xdata[55664]));
-        parameter65= (string.byte (xdata[55665]));
+        multikills= (string.byte (xdata[55664]));
+        ultrakills= (string.byte (xdata[55665]));
         parameter66= (string.byte (xdata[55666]));
         parameter67= (string.byte (xdata[55667]));
         parameter68= (string.byte (xdata[55668]));
@@ -2880,7 +2884,7 @@ end
 function love.update(dt)
   --if (otladka==1) then 
   PC1_x=x; PC1_y=y; 
-    smsg5="SCREENS="..screens_used .."fast="..fasttimer; --end
+    if (otladka==1) then smsg5="SCREENS="..screens_used .."fast="..fasttimer; end
 
 
 --  Gesture_SwipeN:update();
@@ -3071,11 +3075,11 @@ end
      -- Gracz , param
     function standartparameters_player ()
         maximumammo_PC1=500;
+         chances=math.ceil (math.random(100));
         if (tank==1) then hpmax=500; end
         if (tank==0) then hpmax=200; end;
         if (poziom==1) then hpmax=hpmax/2; end;
         if (slot0==180) then hpmax=hpmax+100; end;
-
         
 
         if (slot1==237) then hpmax=hpmax+300; end;
@@ -3095,12 +3099,20 @@ end
         if (speedtimer<1) then
             man_speed = default_man_speed-100*deboostPL1;
             ammo_speed = default_ammo_speed+250*boostPL1;
+
         end
         if (speedtimer<1)and(slowPL1>0) then
             man_speed= math.ceil (default_man_speed/4)-100*deboostPL1;
+            --smsg1="man_speed="..man_speed.." deboost"..deboostPL1;
             ammo_speed= math.ceil (default_ammo_speed/4)+250*boostPL1;
         end
+            if (man_speed<1) then man_speed=2; end; 
+            if (ammo_speed<1) then ammo_speed=2; end; 
          if (express==1) then man_speed=default_man_speed*4;  end;
+         if (slot5==272) then hpmax=hpmax*2; 
+          if (hp<hpmax)and (chances>50) then hp=hp+1; end;
+          end;
+        
     end
 
     -- Gracz , ataka
@@ -3119,6 +3131,10 @@ end
         if (slot0==173)and (ammoLONGpressedPC1==1) then standartdamage=standartdamage-20; end;
         if (slot0==175)and (ammoLONGpressedPC1==1) then standartdamage=standartdamage-20; end;
         if (slot0==178)and(slot2==257) then standartdamage=standartdamage+200; end;
+        if (slot3==259) then standartdamage=standartdamage+40; end;
+        if (slot4==271) then standartdamage=standartdamage+100; end;
+        if (slot5==272) then standartdamage=standartdamage+50; end;
+
         if (slot0==181) then standartdamage=standartdamage+50; end;
         if (slot0==172)and (ammoLONGpressedPC1==1) then standartdamage=0; end;
         if (cursedtimerPL1>0) then standartdamage=math.ceil (standartdamage/2); end;
@@ -3176,6 +3192,8 @@ end
                     if (slot2==258) then damagetimerPL1=math.ceil (command_power/100); end; 
                     end
                     if (command_ammo=="kwas") then damagetimerPL1=damagetimerPL1+command_power; end; 
+                    if ((titlegame=="Colony")and (command_ammo=="kwas")) then damagetimerPL1=math.ceil (command_power/20); end;
+                    if (tank==1)and(command_ammo=="kwas")  then damagetimerPL1=math.ceil (command_power/10);  end
                     if (command_ammo=="pajakowy_zespol") then pajaktimerPL1=pajaktimerPL1+command_power*12; pajakilosc=command_power; end; 
                     if (command_ammo=="invisible") then directdamage_autoammo=2; end; 
                     if (command_ammo=="szkoda") then hp=hp-command_power; end;
@@ -3466,6 +3484,12 @@ end
         return 0;
     end
 
+   function check_nagrode () 
+    if (multikills)==5 and (countinventory<maximuminventorysize) then addinventoryitem (259) end; 
+    if (multikills)==5 and (countinventory>maximuminventorysize-1) then printat (gamey(y)+plusy,gamex(x)+plusx,"259");end; 
+    if (ultrakills)==5 and (countinventory<maximuminventorysize) then addinventoryitem (271) end; 
+    if (ultrakills)==5 and (countinventory>maximuminventorysize-1) then printat (gamey(y)+plusy,gamex(x)+plusx,"271");end; 
+    end
 
     function mass_explode (by_ME,bx_ME,command_ME,damage_ME,sourceammo_ME,src_tankid_ME,command_power_ME)     -- Для аур - sourceammo="aura_effect", src = -2 всегда.
       --zabicie_ilosc=0; 
@@ -3497,8 +3521,11 @@ end
                   
                      smsg2="zabicie-b="..zabicie_ilosc;
                     if (zabicie_ilosc>1)and (smsg1~="ultrakill !") then smsg1="doublekill !"; end 
-                    if (zabicie_ilosc>3) then smsg1="multikill !"; end 
-                    if (zabicie_ilosc>5) then smsg1="ultrakill !"; end 
+                    if (zabicie_ilosc>3) then smsg1="multikill !";
+                    multikills=multikills+1; check_nagrode ();  end 
+                    if (zabicie_ilosc>5) then smsg1="ultrakill !";
+                    ultrakills=ultrakills+1; 
+                     end 
         return 0 ;
     end
 
@@ -5230,6 +5257,7 @@ end
             if (slot0==180) then command_ammo="heal";  command_power=100;    end;
             if (slot0==180)and (onlyICEPL1==1) then command_ammo="protect"; command_power=100;end;
             if (slot0==180)and (combofirePL1==1) then protect=protect+5; command_ammo="noammo"; command_power=0;end;
+            --smsg1="wzmacniacz przy wystrzele:"..wzmacniacz; -- tut on nil!   analog - damager. 
             if (slot0==214)and(bombs>0) then cooldownPL1ammo=cooldownPL1ammo+190;command_ammo="bombplace";bombs=bombs-1;  command_power=500;    end;
             if (slot0==179)and(bombs>0) then cooldownPL1ammo=cooldownPL1ammo+190;command_ammo="mineplace";bombs=bombs-1;  command_power=500;    end;
             if (ammo<0) then ammo=0; end;
@@ -5787,6 +5815,8 @@ end
                     command_ammo="kwas";
                     command_power=40;   --command power почему то в итоге получает 50 или 100!
                     damage=math.floor (damage/15); 
+                    if (titlegame=="Colony") then damage=5; end; 
+                    if (tank==1) then damage=math.floor (damage/2); end
                     tanks_speed_am=tanks_speed_am-40;
                      if (randomget<24)and (titlegame~="Colony")and (tank==0) then 
                       damage=1; 
@@ -6115,8 +6145,9 @@ typeobject_generated="";
           generator_tanks_called=generator_tanks_called+1; 
           if (otladka>-1) then consolelogg=""; end;  -- .." TA:"..totalammo;
             wsego_tank_teleporterow=scanobject (28,-2); -- tanks RESKAN
-            if (livedtanks<minimumtanks) then timerx=-10;  end;
-            if (livedtanks>minimumtanks-1)and (livedtanks<minimumtanks*2) then timerx=-300;  end;
+            if (livedtanks<starttanks) then timerx=-100;  end;
+            if (livedtanks>starttanks)and (livedtanks<minimumtanks) then timerx=-390;  end;
+            if (livedtanks>minimumtanks-1)and (livedtanks<minimumtanks*2) then timerx=-700;  end;
             if (ammoKEYPL1=="placeenemy") then timerx=90; end;
             if (totalenemies<starttanks) then timerx=85; end;
             randomteleporterselect=   math.ceil (math.random (wsego_tank_teleporterow));
@@ -6616,7 +6647,7 @@ typeobject_generated="";
         end;
 
         if (zzx2ammo==124) then
-
+          start_x=x2pla2am; start_y=y2pla2am; 
             if (titlegame=="Reskue") then  playsoundifvisible(dynamitesnd,x2pla2am,y2pla2am);end;
             if (titlegame~="Reskue") then playsoundifvisible(bombsnd,x2pla2am,y2pla2am);end;
             by=gamey(y2pla2am);bx=gamex(x2pla2am); --для выстрела 1 и 2 и наступания назначаются bx i by - коорд бомбы.
@@ -6627,18 +6658,33 @@ typeobject_generated="";
               mass_explode (by,bx,"freeze",0,"trap",-2,5000)
             printat (gamey(y2pla2am),gamex(x2pla2am),"30");
               tanks_speed_am = default_ammo_speed;
-          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("left",x2pla2am,y2pla2am,x2,y2,x2,y2,ammo_moving,180,1,rikoszets,0,tanks_speed_am,"freezebomb","freeze",wzmacniacz,50,0,"freezebomb",200);
-          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("right",x2pla2am,y2pla2am,x2,y2,x2,y2,ammo_moving,0,1,rikoszets,0,tanks_speed_am,"freezebomb","freeze",wzmacniacz,50,0,"freezebomb",200);
-          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("up",x2pla2am,y2pla2am,x2,y2,x2,y2,ammo_moving,90,1,rikoszets,0,tanks_speed_am,"freezebomb","freeze",wzmacniacz,50,0,"freezebomb",200);
-          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("down",x2pla2am,y2pla2am,x2,y2,x2,y2,ammo_moving,270,1,rikoszets,0,tanks_speed_am,"freezebomb","freeze",wzmacniacz,50,0,"freezebomb",200);
+          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("left",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,180,1,rikoszets,0,tanks_speed_am,"freezebomb","freeze",wzmacniacz,50,0,"freezebomb",200);
+          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("right",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,0,1,rikoszets,0,tanks_speed_am,"freezebomb","freeze",wzmacniacz,50,0,"freezebomb",200);
+          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("up",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,90,1,rikoszets,0,tanks_speed_am,"freezebomb","freeze",wzmacniacz,50,0,"freezebomb",200);
+          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("down",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,270,1,rikoszets,0,tanks_speed_am,"freezebomb","freeze",wzmacniacz,50,0,"freezebomb",200);
          
             end ;
      
-        if (slot0==214) and (wzmacniacz==1)then 
-          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("left",x2pla2am,y2pla2am,x2,y2,x2,y2,ammo_moving,180,renderammoshot_ammos,rikoszets,0,tanks_speed_am,typt,"",wzmacniacz,50,0,"",200);
-          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("right",x2pla2am,y2pla2am,x2,y2,x2,y2,ammo_moving,0,renderammoshot_ammos,rikoszets,0,tanks_speed_am,typt,"",wzmacniacz,50,0,"",200);
-          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("up",x2pla2am,y2pla2am,x2,y2,x2,y2,ammo_moving,90,renderammoshot_ammos,rikoszets,0,tanks_speed_am,typt,"",wzmacniacz,50,0,"",200);
-          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("down",x2pla2am,y2pla2am,x2,y2,x2,y2,ammo_moving,270,renderammoshot_ammos,rikoszets,0,tanks_speed_am,typt,"",wzmacniacz,50,0,"",200);
+        if (slot0~=172)then  --(slot0==214) and 
+           command_ammo_b=""; delayed_cmd="";
+          if (damager==1) then command_ammo_b="bombplace"; delayed_cmd="bombplace"; 
+            --wzmacniacz tam null i nado damager  okay  okay. 
+             tanks_speed_am = default_ammo_speed;
+             tanks_speed_am=tanks_speed_am-20; 
+             end; 
+          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("left",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,180,renderammoshot_ammos,rikoszets,0,tanks_speed_am,typt,command_ammo_b,damager,50,0,delayed_cmd,200);
+          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("right",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,0,renderammoshot_ammos,rikoszets,0,tanks_speed_am,typt,command_ammo_b,damager,50,0,delayed_cmd,200);
+          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("up",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,90,renderammoshot_ammos,rikoszets,0,tanks_speed_am,typt,command_ammo_b,damager,50,0,delayed_cmd,200);
+          totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("down",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,270,renderammoshot_ammos,rikoszets,0,tanks_speed_am,typt,command_ammo_b,damager,50,0,delayed_cmd,200);
+          if (slot0==214)and (damager==1)  then
+          command_ammo="invisible";  command_power=1; 
+         final_ammo_speed=final_ammo_speed-100;SEND_DAMAGE=0; damager=0;
+         totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("left",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,angle,renderammoshot_ammos,rikoszets,0,final_ammo_speed,"PC1",command_ammo,damager,SEND_DAMAGE,0,paramX,command_power,delayed_cmd,delayed_snd);
+         totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("right",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,angle,renderammoshot_ammos,rikoszets,0,final_ammo_speed,"PC1",command_ammo,damager,SEND_DAMAGE,0,paramX,command_power,delayed_cmd,delayed_snd);
+         totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("up",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,angle,renderammoshot_ammos,rikoszets,0,final_ammo_speed,"PC1",command_ammo,damager,SEND_DAMAGE,0,paramX,command_power,delayed_cmd,delayed_snd);
+         totalammo=totalammo+1;ammoX[totalammo] = class_ammo:new("down",start_x,start_y,start_x,start_y,start_x,start_y,ammo_moving,angle,renderammoshot_ammos,rikoszets,0,final_ammo_speed,"PC1",command_ammo,damager,SEND_DAMAGE,0,paramX,command_power,delayed_cmd,delayed_snd);
+          end
+
          end
 
             allowshotpla2=0;
@@ -6831,6 +6877,8 @@ typeobject_generated="";
                                 a,item_name1=smsg_string (objs[((codeitem+1))][13]); --=selectedobject_name_SMSG_code);
                                 if (item_name1~=nil) then smsg1="Select "..item_name1; end;
                             end
+                            if (countinventory==nil) then countinventory=0; end;  
+                            if ((itemkeypress==nil)) then itemkeypress=0; end; 
                             if (itemkeypress>countinventory) then itemkeypress=countinventory; end
                             if (itemkeypress<1) then itemkeypress=1; end
                             
@@ -7054,7 +7102,7 @@ typeobject_generated="";
             --smsg1="joysticks:"..#joysticks; -- WORKING  Total joysticks in system      --joystick = joysticks[1];
         end;
 
-
+        -- именно тут идет подмена значений приходящих от выбранных настроек клавиатуры пользователем на стандартные ключи игры (ammoKEYPL1 i movePL1)
         if love.keyboard.isDown("lalt")and love.keyboard.isDown("return")and (timerz>3) then timerz=0;statusfullscreen=not (statusfullscreen); stfullscreen=love.window.setFullscreen(statusfullscreen, "desktop"); end
         if love.keyboard.isDown("ralt")and love.keyboard.isDown("return")and (timerz>3) then timerz=0;statusfullscreen=not (statusfullscreen); stfullscreen=love.window.setFullscreen(statusfullscreen, "desktop"); end
         if love.keyboard.isDown("lgui")and love.keyboard.isDown("return")and (timerz>3) then  timerz=0; statusfullscreen=not (statusfullscreen); stfullscreen=love.window.setFullscreen(statusfullscreen, "desktop"); end
@@ -7116,11 +7164,15 @@ typeobject_generated="";
     end;
 
     if (damagetimerPL1>0)and(editor==0) then
+      hpsave=hp;
+      randomget=math.ceil (math.random(80)) ;
         if (movePL1~="")and (damagetimerPL1>19) then hp=hp-3; end;
         if (movePL1~="")and (damagetimerPL1<20) then hp=hp-1; end;
         if (protect<1) then hp=hp-1; end;
         if (poziom>0) then hp=hp-1; end;
         if (hardlevel>0) then hp=hp-1;end ;
+        if ((tank==1)and (randomget>40)) or ((titlegame=="Colony") and (randomget>20)) 
+        then hp=hpsave end;
     end;
 
     if (damagetimerPL2>0)and(editor==0) then
@@ -7383,6 +7435,7 @@ typeobject_generated="";
             pathtosavemap=love.filesystem.getSourceBaseDirectory().."/Levels/LEVEL"..levelnumber..".$C";
             -- в этом месте в уровень надо передать коды уровня + всех параметров в формате M2K включая новые.
             -- важно всего 4 места для загрузки и передачи параметров, но для сохранения и карты они немного различаются,не могут быть просто скопированы целиком.
+
             xdata[55623]=poke (greenshitdelay);
             xdata[55624]=poke(darkzone);
             xdata[55625]=poke (gamey(y)+1);
@@ -7423,8 +7476,8 @@ typeobject_generated="";
             xdata[55661]=poke (backgroundcolorlevel);
             xdata[55662]=poke (colorizepole);
             xdata[55663]=poke (colorizeboulder);
-            xdata[55664]=poke (parameter64);
-            xdata[55665]=poke (parameter65);
+            xdata[55664]=poke (0);--(multikills);
+            xdata[55665]=poke (0);--(ultrakills);
             xdata[55666]=poke (parameter66);
             xdata[55667]=poke (parameter67);
             xdata[55668]=poke (parameter68);
@@ -7781,8 +7834,8 @@ typeobject_generated="";
                     if (hpt<0) then zabicie=zabicie+1; end; 
                      smsg2="zabicie="..zabicie;
                     if (zabicie>1)and (smsg1~="ultrakill !") then smsg1="doublekill !"; end 
-                    if (zabicie>3) then smsg1="multikill !"; end 
-                    if (zabicie>5) then smsg1="ultrakill !"; end 
+                    if (zabicie>3) then smsg1="multikill !";   multikills=multikills+1; check_nagrode (); end 
+                    if (zabicie>5) then smsg1="ultrakill !";  ultrakills=ultrakills+1;  end 
                     -- if (sourceammo_TGD=="jezyk") then command_power_TGD=1000; end ;  -- Jezyk wysyła power=0; 
                     if (sourceammo_TGD=="PC1") then hplasttank=hpt; sledzione_hp_tankid=enemynum;  end      --if (sourceammo_TGD=="PC1")and(typt_TGD=="wtank") then hplasttank=hpt/4;   sledzione_hp_tankid=enemynum; end
                     potrafil=true;
@@ -8036,7 +8089,7 @@ typeobject_generated="";
     camerakey="";
     if (getkeyforpause~=0) then ammoKEYPL1=getkeyforpause; getkeyforpause=0; end;
 
-    if (countinventory==1) then if (ammoKEYPL1=="unpack")then  ammoKEYPL1="";
+    if (countinventory==1) then if (ammoKEYPL1=="unpack")or (menu==9) and (firekeyPL1=="fire") then  ammoKEYPL1="";
         codeitem=inventoryitemtable[1];  unpackedobject=ext_objs_param (codeitem,15); o_kod_repair=ext_objs_param (codeitem,24);
         if (unpackedobject~=nil) then removeinventoryitem(1);
 
@@ -8287,7 +8340,7 @@ typeobject_generated="";
         return zz;
     end
 
-    if (ammoKEYPL1=="h") then
+    if (ammoKEYPL1=="h") then -- uhealkey 
         if ((reservedaids>0)and(hp<hpmax)and(lives>0)and(hp>0)) then
             hp=hpmax; reservedaids=reservedaids-1;
             feartimerPL1=0; damagetimerPL1=0;
@@ -8296,10 +8349,11 @@ typeobject_generated="";
         end;
     end
 
-    if (ammoKEYPL1=="r") then
-        if ((reservedaids>0)and(hp<hpmax)and(lives>0)and(hp>0)) then
-            hp=hpmax; reservedaids=reservedaids-1;
+    if (ammoKEYPL1=="r") then -- resurrect key 
+         if ((reservedaids>0)and(hp<hpmax)and(lives>0)and(hp>0)) then
+            hp=hpmax; reservedaids=reservedaids-2;
             feartimerPL1=0; damagetimerPL1=0;
+            freezetimerPL1=0;  pajaktimerPL1=0;
             love.audio.play(aptekasnd);
         end;
         if ((lives>0)and(hp<1)) then
@@ -8316,17 +8370,25 @@ typeobject_generated="";
                 checkx,checky=scanobject (18,-1);--check player 1 start position
                 if (checkx>-1) then x,y=xgametorealpositionbezbyte (1+checky,checkx) ; end
             end
-            if (titlegame=="Colony") then tank=0; end;
-            hp=hpmax; lives=lives-1;
-            anikadr=0;anitimer=0;anicycles=0;
             if (destroy_inventory_after_dead==1) then
                 inventoryitemtable={}; countinventory=0;
             end
+        if (titlegame=="Reskue")or(titlegame=="Colony") then
+          smsg1="try add"; 
+          if (lives==1)and(slot5~=272)and(poziom==0) then addinventoryitem (272);
+            lasthopeadded=1; 
+          end   
+        end
+
+            if (titlegame=="Colony") then tank=0; end;
+            hp=hpmax; lives=lives-1;
+            anikadr=0;anitimer=0;anicycles=0;
             express=0; -- игрок вылезет из экспресса
             man_speed=default_man_speed;
             incontrolcentre=0; -- игрок вылезет из центра управления. ыы
             love.audio.play(aptekasnd);
         end;
+        
     end
 
     chances=(math.random(52+7*tank+1*protect));
@@ -9190,6 +9252,7 @@ end
             incontrolcentre=1;
             if (menu~=16) then selectedoptionmenu=1; end 
             menu=16; renderer=0;  
+            prokrutka=0; 
              timerz=0;
         end
 
@@ -9256,6 +9319,7 @@ end
             incontrolcentre=1;
             if (menu~=16) then selectedoptionmenu=1; end 
             menu=16; renderer=0;  
+            prokrutka=0; 
              timerz=0;
         end
 
@@ -10757,10 +10821,13 @@ h=20;
 --smgs1="menu="..menu.." selectedoptionmenu="..selectedoptionmenu.." spacepressed="..spacepressed; 
 --if (Ukeycode~=nil) then lg.print ("Ukeycode:"..Ukeycode,550, maxheight/3+rozmiarznak*3); end;
 -- lg.print ("Some other keys are hardcoded and cannot be changed."..Utext,150, maxheight/3+rozmiarznak*2); 
-
+     
 --0!KEYB_U3_2!Бомба!ubombkey
- pomoc_punktow=16; 
- prokrutka=0; 
+ pomoc_punktow=17; 
+ green (); 
+lg.rectangle("line",40+rozmiarznak, h,400*scaling, h+0+wysotamenu*pomoc_punktow+40,0,0);
+
+ 
  for i=0, pomoc_punktow,1 do
   if (titlegame=="Reskue") then SMSG_CODE="POMOCR"..i.."_"; end; 
   if (titlegame=="M2K") then SMSG_CODE="POMOCM"..i.."_"; end; 
@@ -10772,15 +10839,18 @@ if ((selectedoptionmenu+2)==i) then  if (string.len (text)==1) then _G[keyword]=
 if ((selectedoptionmenu+1)==i) then  green ()      else white () end;
      nameitem,textdatacontent=smsg_string (SMSG_CODE);-- smsg_string (objs[iditem+1][13]);
      if (textdatacontent=="POMOCR") then  SMSG_CODE="POMOCR"..i.."_";  nameitem,textdatacontent=smsg_string (SMSG_CODE); end; 
-     name=nameitem;
-                           -- cost=pagesSC[a][4]; 
- if (camerakey=="p") then ubywanie (prokrutka); end;
- if (camerakey==";") then prokrutka=prokrutka+1; end;
- --smsg1=prokrutka; 
+     name=nameitem;                           -- cost=pagesSC[a][4];
+    randomget=math.ceil (math.random(10));        
+ if (rsKEYPL1=="p")and randomget>5 then prokrutka=prokrutka-1; end;
+ if (rsKEYPL1==";")and randomget>5 then prokrutka=prokrutka+1; end;
+ if (ss.ay>0)and(ss.ay<deadzone/3)and randomget>5 and(disablerightstick==0)and (fasttimer==1) then  prokrutka=prokrutka-1; else ss.y=ss.ay; end
+ if (ss.ay<0)and(ss.ay>-deadzone/3)and randomget>5 and(disablerightstick==0)and (fasttimer==1) then  prokrutka=prokrutka+1; else ss.y=ss.ay; end
+ if (prokrutka>100) then prokrutka=100; end; 
+ if (prokrutka<-1000) then prokrutka=-1500; end; 
  msgbox (prokrutka.."cam"..camerakey,0,0,0,0);
                              if ((selectedoptionmenu+1)==i) then green (); 
                               --if (i>1)and (nameitem~=nil)  then  msgbox(nameitem.."",(maxwidth/2)-4*rozmiarznak , 40+0*rozmiarznak,wysotamenu); end
-                              if (i>1) and (nameitem~=nil) then  msgbox(textdatacontent,(maxwidth/2)-5*rozmiarznak , 40+prokrutka*rozmiarznak,0); end
+                              if (i>1) and (nameitem~=nil) then  msgbox(textdatacontent,(maxwidth/2)-6*rozmiarznak , 80+prokrutka,0); end
                               -- Это и есть ВЫВОД ОПИСАНИЯ ПРЕДМЕТА многострочным окошком в экране покупки заказ товара кораблём.
                               else white () end;
 
@@ -11604,7 +11674,7 @@ if (math.random(256)>230)then  --периодический поиск обье�
   extradroids=scanobject (169,-2) ; -- число автовоскрешений игрока. 
    savedscientists=scanobject (33,-2);
    frozenscientists=scanobject (34,-2);
-   if (otladka==0)and(savedscientists+frozenscientists<2)and(titlegame=="Reskue")and(editor==0)and (renderer==1)and (timerz>10) then missionfailed=1;   end; 
+   if (otladka==0)and(savedscientists+frozenscientists<2)and(titlegame=="Reskue")and(editor==0)and (renderer==1)and (timerz>10)and (benchmark_stage<1) then missionfailed=1;   end; 
         savedfuel=scanobject (42,-2);
    if (solarenergy<0) then solarenergy=0; end;
  end
@@ -12384,6 +12454,8 @@ end;
              minimumtanks=500; 
              starttanks=500; 
             enemies={};
+            editor=0;
+            pause=0;
             totalenemies=0;
             sledzione_hp_tankid=0; 
             selectedtankid=nil;
@@ -12402,13 +12474,13 @@ end;
           randomx=math.floor (math.random (35));
           randomy=math.floor (math.random (25));
            printat (randomx,randomy, 28); 
-           if (totalenemies>1)and(totalenemies<300) then  
+           if (totalenemies>1)and(totalenemies<500) then  
           enemies[totalenemies+1] = class_enemy:new("tank",xt,yt,500,0,0,0,0,0,addspeed,10+addprotect,0,0,0,0,0,0,addfear,0,addslowdown,0,0,1,0,0,0);           totalenemies=totalenemies+1;
                 end
             end; 
           timerx=94;
           ammoKEYPL1="placeenemy";
-        if (timerz>15) then benchmark_stage=3;timerz=0; stage2_fps=FPSnow;
+        if (timerz>85) then benchmark_stage=3;timerz=0; stage2_fps=FPSnow;
            livedtanks=0;
             wsego_tank_teleporterow=0
              minimumtanks=0; 
@@ -12815,8 +12887,8 @@ white ()
     if (scientists>0) then SystextSMG=SystextSMG.." Humans:"..scientists ; end; 
 
 
-lg.print("SMSG5:"..smsg5, 0,downspaceonscreen-wysotastroki*3);   
-lg.print("SMSG6:"..smsg6, 0,downspaceonscreen-wysotastroki*4);   
+if (otladka==1) then lg.print("SMSG5:"..smsg5, 0,downspaceonscreen-wysotastroki*3);    
+lg.print("SMSG6:"..smsg6, 0,downspaceonscreen-wysotastroki*4);   end
 
 if (SystextSMG~="") then print_with_shadows (SystextSMG, maxwidth-600,5+downspaceonscreen+wysotastroki*0); end; 
    lg.setFont(fontSMALL);
@@ -12951,3 +13023,4 @@ end
 end
 -- Самобытное творчество игр и ремейков по мотивам Spectrum -- https://dtf.ru/retro/91476-ishchu-lyubiteley-igr-zx-spectrum
 -- Слова которые важно знать.-- 1. Мирный Дюк-- 2. Мир делает мяч.-- 3. Твой кролик написал.
+-- тумбочка для кухни 60 по ширине  84 по высоте 
