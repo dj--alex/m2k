@@ -1,4 +1,67 @@
+======================
+M2K Build 10676
+======================
++ Инвентарь улучшен. Добавлены рамки и окантовка инвентарю в руках и одетым вещам. Размеры надписей поправлены.
+Выбранная вещь теперь выделяется не только цветом но и стрелочкой.
+Стандартные предметы тоже теперь могут использоватся из инвентаря.
++ M2K: Секретный уровень "Железный Колонист" "resurrect+rctrl"
++ F11+12 Debug mode
++ Fix: если сетевая игра запрещена ,однако второй игрок нажимает кнопку начать игру (kp7),игра реагирует на это,однако не запуском игрока ,а напоминанием что первый игрок выключил сетевую игру в меню. Раньше реакции не было. 
++ Benchmark hotkey - "Res"+"="
++ М2К:количество резервных аптечек по умолчанию увеличено на 10.
++ Смена текстурпака на "лету" F9+F10 (если текстурный мод установлен новые файлы будут считатся главнее Kolonista/Textures/pack1)
++ Победная картинка не будет пропускатся минимум 3 секунды.
++ Editor: В настройках уровня можно разрешить носить дополнительные аптечки. но не более 10.
++ Editor: Добавлены тени в описание обьектов,предметов и инструкции в редакторе
++ Editor: Исправлен баг редактора /Textures/0
++ Editor: Добавлены типичные для монстров одноразовые невидимые спавнпоинты. Для создания новых карт.
++ Engine: Добавлено больше информации на экране статистики, счётчики multikill и сохранений.
++ В редакторе печатаются флаги выбранного обьекта красным. А в меню предметов отмечаются подбираемые буквой U.
+ возможные флаги
+ take - можно подобрать и положить в инвентарь. не должен активироватся автоматически.
+ usable - используемый, можно активировать.
+ таким образом если нет флага usable предмет не должно быть никакого способа использовать кроме как выкинуть либо сдать как груз.
+ removeinvafteruse - принудительное удаление предмета после использования
+ disabletakeaction - должен запрещать повторное перевзятие предмета при использовании
+* All editor and engine enhancemens go to all game releases automatically.
 
++ Inventory enhanced. Added windowed borders. Fixes texts. Stardart items now works and used correctly
++ M2K: Secret level "resurrect"+"rctrl"
++ F11+12 Debug mode
++ Fix: Player 2 gets message about disabled coop game. [kp7]
++ Benchmark hotkey - "Res"+"="
++ М2К:Max reserved aids now 10.
++ Added support texture packs. Change F9+F10 (is exist mod)
++ Win screen not skipable.
++ Editor: Added medkit setting to map
++ Editor: Bug /Texturex/0 fixed
++ Editor: Added monsters spawnpoints (invisible) for maps creation.
++ Engine: Added more statistics, multikill, savegames counters. 
+
+* All editor and engine enhancemens go to all game releases automatically.
+
++ Ekwipunek zostal ułepszony. Dodany ramki. Naprawiony teksty. 
++ M2K: Sekretny pozion Kolonista "Res"+"rctrl"
++ F11+12 Debug mode
++ Fix: Gracz 2 czyta list jesli gra coop jest wyłączona z meniu. [kp7]
++ Benchmark hotkey - "Res"+"="
++ М2К:Max reserved aids now 10.
++ Dodana Zmiana teksturpaka F9+F10 (jeżeli jest mod)
++ Edytor: Dodana opcja medkits (max=10)
++ Edytor: Bag /Texturex/0 fixed
++ Editor: Dodany spawny wrogów jak nowy niewidzialny obiekty.
++ Engine: Dodano wiecej statystiki, multikill i zapisów gry. 
+* All editor and engine enhancemens go to all game releases automatically.
+
+Free:
+https://store.steampowered.com/app/1763120/M2K/
+https://dj-alex.itch.io/m2k
+
+ M2K Devblog разработчика- 
+ смена текстур пака на лету + гравитация (!)  
+ https://youtu.be/4J6ePXPS9rchttps://youtu.be/4J6ePXPS9rc
+
+ 
 ===============
 M2K Build 10642
 ===============

@@ -36,7 +36,7 @@ echo 'Architecture: all'
 echo 'Maintainer: dj--alex <dj--alex@ya.ru>'
 echo 'Original-Maintainer: dj--alex'
 echo 'Depends: dialog'
-echo 'Description: Logical game. 70+ items. You can solve puzzles or can fight with enemies.128+ maps (levels). No donates. You can build your own levels. Exist editor level (Linux and PC only). Game is a remake Mission2000 from Zx-spectrum. One of 4 game based on M2K self-written engine using power of Lua and Love.'
+echo 'Description: You landed on labyrinth-planet, where all territory filled of puzzles. Your need clearance mines and destroy trolls.When entering new rooms puzzles have more objects.You awaiting not only moving boxes, destructable walls, static lasers, electricity, speading acid, and more & more.  If you do error sometimes level must be restarted.Game have internal level editor and docs.Remake my original M2K game from 1998 (Zx-spectrum) with crossplatform,better graphics and PS3 controller support. using power of Lua and Love2d Framework.'
 } > control
 {
 #!/bin/sh

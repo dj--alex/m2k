@@ -5,9 +5,12 @@ cd ..
 cp ${nazwa}/m2ktest.lib ${nazwa}-Linux/usr/bin 
 cp ${nazwa}/m2ktest.lib ${nazwa}-Windows/${nazwa}-src
 cp ${nazwa}/m2ktest.lib ${nazwa}-Android/game.love
+cp ${nazwa}/changelog.txt  ${nazwa}-Linux
+cp ${nazwa}/changelog.txt  ${nazwa}-Windows/${nazwa}-src
+cp ${nazwa}/changelog.txt  ${nazwa}-Windows/${nazwa}-Win
 namelinux="${nazwa}-Linux-$bver.tar.gz"
 namewindows="${nazwa}-Windows-$bver.tar.gz"
-nameandroid="${nazwa}-Android-$bver.apk" #final application love2d lua name
+nameandroid="${nazwa}-Android-$bver.tar.gz" #final application love2d lua name
 rm "${namelinux}"
 tar -czf "${namelinux}" ${nazwa}-Linux
 cd ${nazwa}-Windows

@@ -8,6 +8,16 @@ i=1; -- Проект M2K является по сути своеобразным
 -- грубо говоря одна игра использует один набор для организации загадок, вторая второй набор - для стрелялок, третья- набор для песочницы и т.п.
 -- Однако поведение обьектов меняется только через objects.ini или код, а smsg.ini содержит перевод (локализацию)
 screens_used=0;
+itemcooldown_PL1=0;
+prokrutka=0 ;
+disablechangemenuoptions=0; 
+pietro=1; -- default pietro but this must be saved in map or savegame!
+mapsize_bytes_max=355924;
+selectplayermode="";
+steampak_PC1=0;
+menulockpage=0; 
+modtextures=0;
+mass_explode_damage=380; 
 lasthopeadded=0;
 wsego_jezykow=0;
 pajaks=0; 
@@ -34,7 +44,7 @@ fix_love_11_3_bug_atlas_android=0;
  item_PC1_timer=0;
  zabicie=0; 
  fasttimer=0; 
- wsego_boxes=0;
+ wsego_boxes_spawn_jednorazowy=0;
  mimics=0;
 require "lib/GestureLib/Swipe"
 require "lib/GestureLib/LongPress"
@@ -43,8 +53,8 @@ keyCC="";
 disable_android_touchscreen=0; 
 firstload_complete=0; 
        controlcenteritems={};
-        pagesSC_CC={};
-        counttablepagesSC_CC=0; 
+        kontrolny_centrum_SC_CC={};
+        counttablekontrolny_centrum_SC_CC=0; 
 creditCCmaximum=2500; -- 2500 для продажи в минус разрешено временно
  kamerasrc="" ;kamerapad=0;
  imagePL1joystick="";
@@ -95,12 +105,15 @@ uammokey="lshift";uicekey="capslock";ubombkey="z";udropkey="x";uleftkey="left";u
 uuammokey="lshift";uuicekey="capslock";uubombkey="z";uudropkey="x";uuleftkey="left";uurightkey="right";uuupkey="up";uudownkey="down";uuunpackkey="u";
 uhealkey="h"; urestkey="r";uzbrojakey="c"; ustatkey="f4"; utostartkey="l";
 uuhealkey="h"; uurestkey="r";uuzbrojakey="c"; uustatkey="f4";uutostartkey="l";
+uuxcamleftkey="["; uuxcamrightkey="]"; uuxcamupkey="p"; uuxcamdownkey=";";
+uxcamleftkey="["; uxcamrightkey="]"; uxcamupkey="p"; uxcamdownkey=";";
+
  weaponselected=3;
       cooldownPL1ice=0;
   glowlock=0; 
   anitimer=0;
-system_saveversion=3;
-system_mapversion=3;
+system_saveversion=4;
+system_mapversion=4;
 saveversion=1;
 mapversion=1;
 map_builded_with_version=1; 
@@ -435,7 +448,13 @@ protect=0;
 ey=10;sy=10;sx=10;exp=10;
 zx=10;
 zy=10;
-p1=10;dr=10;tx=10;ty=10;wt=10;p2=10;p3=10;p4=10; 
+tx=10;ty=10;wt=10;
+p1=0;dr=0;p2=0;p3=0;p4=0;
+savegamecounter=0;
+parameter80=0;
+parameter81=0;
+parameter82=0;
+parameter83=0;  
 targetremains=10;
    powerstate=10;
    puszkistate=1;
@@ -524,7 +543,7 @@ if (ndata) then titlegame=ndata[1][1]; end  -- nazwa projektu
   dro_idle_down = anim8.newAnimation(g('1-1',43), 0.1); --up
   dro_idle_up = anim8.newAnimation(g('1-1',45), 0.1);  --down
 
-if (titlegame=="Colony") then 
+if (titlegame=="Kolonista") then 
   hero_anim_right = dro_anim_left; --right -- для Colony это и hero
   hero_anim_left = dro_anim_right;--left
   hero_anim_up = dro_anim_down; --up
@@ -704,12 +723,28 @@ function setresolution (maxwidth,option)
       standartsizeusermenu_android_0_cc=standartwysotagraphicmenu+10;
       scalingleftgui=standartsizeusermenu_android_0_cc/80;
          
+
+        if (titlegame~="Kolonista") then 
         font= lg.newFont("YanoneKaffeesatz-Bold.ttf", rozmiarznak*0.9) -- 
         fontBIG= lg.newFont("YanoneKaffeesatz-Bold.ttf", rozmiarznak*1.1) -- 
         fontVERYBIG= lg.newFont("YanoneKaffeesatz-Bold.ttf", rozmiarznak*1.2) -- 
         fontSMALL= lg.newFont("YanoneKaffeesatz-Bold.ttf", rozmiarznak/1.6) -- 
         fontVERYSMALL= lg.newFont("YanoneKaffeesatz-Bold.ttf", rozmiarznak/2) -- 
         fontVERYSMALLX= lg.newFont("YanoneKaffeesatz-Bold.ttf", rozmiarznak/2.5) -- 
+      end
+
+      if (titlegame=="Kolonista") then 
+        a="CustomFontTtf12H20.ttf";
+        b=rozmiarznak;
+        --b=rozmiarznak/2;
+        font= lg.newFont(a, b*0.9) -- 
+        fontBIG= lg.newFont(a, b*1.1) -- 
+        fontVERYBIG= lg.newFont(a, b*1.2) -- 
+        fontSMALL= lg.newFont(a, b/1.6) -- 
+        fontVERYSMALL= lg.newFont(a, b/2) -- 
+        fontVERYSMALLX= lg.newFont(a, b/2.5) -- 
+      end
+
         return 1;
 end
 if (drawonce==0) then setresolution (maxwidth,option);  end; -- Загрузка игры для Androidfuck 
@@ -876,7 +911,11 @@ superbombsnd=love.audio.newSource("Sounds/superbomb.mp3","stream");
 superbombsnd=love.audio.newSource("Sounds/superbomb.mp3","stream");
 
 function love.load ()  -- love.load  gra zaczyna się tutaj
+  menulockpage=0; 
+  disablechangemenuoptions=0; 
   lasthopeadded=0; 
+  pietro=1; -- default pietro but this must be saved in map or savegame!
+  savegamecounter=0; 
   Gesture_SwipeN = Swipe('[TP,N,TR]', -1, 500);
   Gesture_SwipeS = Swipe('[TP,S,TR]', -1, 0);
   Gesture_SwipeLDC = Swipe('[TP,S,E,TR]', -1, 800);
@@ -940,8 +979,8 @@ end
 
 maximumlevels_ingame=128;
 if (titlegame=="M2K") then maximumlevels_ingame=136; end ;  --134--
-if (titlegame=="Reskue") then maximumlevels_ingame=12;prestartlevelselect=1; NO_SCORE_MINES_MODE=1;end ; 
-if (titlegame=="Colony") then maximumlevels_ingame=1;NO_SCORE_MINES_MODE=1; end ; 
+if (titlegame=="Reskue") then maximumlevels_ingame=14;prestartlevelselect=1; NO_SCORE_MINES_MODE=1;end ; 
+if (titlegame=="Kolonista") then maximumlevels_ingame=1;NO_SCORE_MINES_MODE=1; end ; 
 if (titlegame=="Perestroika") then maximumlevels_ingame=10; end ; 
 
     if (titlegame~="Perestroika")and(firstload==0) then 
@@ -995,7 +1034,7 @@ music:load{
 }
 end
 
-if (titlegame=="Colony") then 
+if (titlegame=="Kolonista") then 
 music:load{
   'Sounds/muzyka-colony-mb-e-trip_on_chip.mod',
   'Sounds/muzyka-the_return_of_the_madness.it',
@@ -1039,9 +1078,10 @@ signaltraptimer=0;
   totalammo=0; -- Загрузка уровня , нужно сбросить все параметры которые отстутвуют в этом уровне.
   ammoX={};
   
- if (ammokeyPL1=="loadexternallevel") then loadexternallevel=1 else loadexternallevel=0; end; 
+ if (ammokeyPL1=="loadexternallevel") then loadexternallevel=1; editor=1; menu=0; else loadexternallevel=0; end; 
 -- тут задаются переменные которые должны обнулятся до каждой загрузки уровня.
 damagetimerPL1=0;
+pietro=1;
 feartimerPL1=0;
 dasglukenfild=0;
 ammokeyPL1="";
@@ -1144,17 +1184,22 @@ smsglist = {} ;-- Список системных и игровых сообще
     end
 --8192 тоже можно. только 1% пользователей видеокарт будут иметь проблемы с этим.
  function create_atlas ()
-ATLAS = lg.newCanvas(8192, basetexturesize*8) -- это создание пустой картинки для наполнения ее картой спрайтов.
+if (modtextures==nil) then modtextures=0; end; 
+ATLAS = lg.newCanvas(8192, basetexturesize*8,{} ) -- это создание пустой картинки для наполнения ее картой спрайтов.
 nonetexture="1empty.png"; 
 IMAGES = {};
 IMAGES[0]=objs[0+1][3];
-for a0=1,310,1 do  -- максимум временно 170 (6800 пикс), для 1 байтового режима - 256.   310  maximumitemsID 
+for a0=1,350,1 do  -- максимум временно 170 (6800 пикс), для 1 байтового режима - 256.   310  maximumitemsID 
 if (objs[a0]~=nil) then IMAGES[a0]=objs[a0][3]; end;  -- загружаем список имён из таблицы обьектов. 
 end
 
   lg.setCanvas(ATLAS)
   for i = 0, #IMAGES - 1 do
-    local img = lg.newImage("Textures/"..IMAGES[i + 1]);
+  tor_texturowy="Textures/";
+  if (modtextures==1) then tor_texturowy_need_check="Textures/pack"..modtextures.."/";
+  exists = love.filesystem.exists( tor_texturowy_need_check..IMAGES[i + 1] )
+  if (exists) then tor_texturowy=tor_texturowy_need_check;  end;    end
+    local img = lg.newImage(tor_texturowy..IMAGES[i + 1]);
       widthimg = img:getWidth();
     if (img==nil) then lg.newImage("Textures/"..nonetexture); end; 
     local x = i % 64;
@@ -1195,10 +1240,10 @@ function reschange (resolutionPC)
                   xpla2save=gamex(xpla2); -- x2=29 (312) координаты игрока 2 НЕ сохраняются совсем. добавить обработку старт позиции.
                   ypla2save=1+gamey(ypla2); -- y2=13 (960)
     if (totalenemies>0) then for enemynum=1,totalenemies,1 do 
-         typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value) 
+         typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value) 
           xpla3save=math.ceil (gamex(xt));
           ypla3save=math.ceil (1+gamey(yt));
-         enemies[enemynum]:set(typt, xpla3save,ypla3save,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,0,speedtanks,protecttanks,0,0,0,0,0,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2); 
+         enemies[enemynum]:set(typt, xpla3save,ypla3save,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,0,speedtanks,protecttanks,0,0,0,0,0,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8); 
        end; end; 
                   
                   if (resolutionPC==6) then setresolution (maxwidth,0) ; end; --RESKUE 
@@ -1251,7 +1296,7 @@ end;
 -- string.byte 
 
 function screens (x,y)
-  if (love.keyboard.isDown("kp3")) then otladka=1; freezetimerPL1=100; return 0 ; end;  
+  if (love.keyboard.isDown("kp3"))and(otladka==1) then  freezetimerPL1=3; return 0 ; end;  
   screens_used=screens_used+1;
    --callingFuncName = debug.getinfo(2, "n").name;
    --if (x~=PC1_x)and(y~=PC1_y) then  smsg1="screens "..x..","..y..") FROM "..callingFuncName;--.."timerz="..timerz.."timerx=="..timerx; 
@@ -1393,9 +1438,8 @@ end
      end
 
      function  ext_objs_param (id,column)
-      if (id==nil) then 
-        return 0 ;
-         end; 
+      if (id==nil) then         return 0 ;         end; 
+      if (column==nil) then         return 0 ;         end; 
       if (objs[id+1][column]==nil) then return 0 ; end; 
        param=tonumber (objs[id+1][column]);
        return param ;
@@ -1563,6 +1607,7 @@ end
 
 -- единственное место где определяется всё что должно быть в сохранённой игре SAVEGAME parameters 
   function xdatapreparetowrite ()
+ 
      --может быть не имеет смысл совсем читать максимум HP. 200 для любого уровня. 
       if (tanksdestroyed>252) then tanksdestroyed=252; end; 
       if (multikills>252) then multikills=252; end; 
@@ -1575,6 +1620,11 @@ end
       xdata[55633]=poke (lives);
       xdata[55635]=poke (ammo);
       xdata[55638]=poke (targetremains);
+            xdata[55641]=poke (savegamecounter);
+            xdata[55642]=poke (parameter80);
+            xdata[55643]=poke (parameter81);
+            xdata[55644]=poke (parameter82);
+            xdata[55645]=poke (parameter83);
       xdata[55649]=poke (water); 
       xdata[55646]=poke (powerstate);
       xdata[55656]=poke (puszkistate);
@@ -1685,13 +1735,13 @@ function scanobject (code,SC_MODE,coord2,SC_X,SC_Y,SC_radius)
   scanobject_used=scanobject_used+1; 
   if (SC_Y==nil)and (SC_MODE>-1) then SC_Y=SC_MODE ; end;  -- Если не передан SC_Y тогда SC_MODE подменяет его. для совместимости со старым кодом.
 
-  if (titlegame=="Colony")and (code==166) then code=0; end;  -- код 166 запрещён для Colony. Это обычный обьект для него.
+  if (titlegame=="Kolonista")and (code==166) then code=0; end;  -- код 166 запрещён для Colony. Это обычный обьект для него.
  if (code==166)or(code==17)or(code==18)or(editor==1)or(drawonce==0) then reduce=0; maximumscansize_vertical=mapsize_vertical; maximumscansize_horizontal=mapsize_horizontal; else reduce=1; end;  
  -- До выполнения загрузки уровня, в редакторе и для стартовых точек и определения маркера всегда работает максимальный размер сканирования
  if (reduce==1) then 
     if (skan_x_max<1) then maximumscansize_vertical=mapsize_vertical/2;maximumscansize_horizontal=mapsize_horizontal;   end --пока что нет карт где более 100 клеток используется. 
   if (skan_x_max>0) then maximumscansize_vertical=skan_x_max;    maximumscansize_horizontal=skan_y_max;  end
-  if (titlegame=="Colony")or(levelnumber==132)  then maximumscansize_vertical=66;maximumscansize_horizontal=91; end ;  --пока что нет карт где более 100 клеток используется. 
+  if (titlegame=="Kolonista")or(levelnumber==132)  then maximumscansize_vertical=66;maximumscansize_horizontal=91; end ;  --пока что нет карт где более 100 клеток используется. 
   if (titlegame=="Reskue") then maximumscansize_vertical=69;maximumscansize_horizontal=94; 
   if levelnumber==1 then maximumscansize_horizontal=135;end; 
   end ;  --пока что нет карт где более 100 клеток используется. 
@@ -1753,7 +1803,7 @@ function sourceread(realfilename,map_flag)
                             --checkfileexists=file_isExists(filename);--i-f (checkfileexists==true) then 
                                     local file = io.open(filename, 'rb'); 
                                   if (file~=nil) then
-                                   local str = file:read (155923) ; --if (map_flag~="2") then  kurwa mać  55923!!! tyłe csasu stracono!
+                                   local str = file:read (mapsize_bytes_max-1) ; --if (map_flag~="2") then  kurwa mać  55923!!! tyłe csasu stracono!
                                           file:close();
                                           return str ;
                                           -- else return 1; end;
@@ -1859,11 +1909,54 @@ function sourcewrite(data, realfilename)
   if (ua[12]~=nil) then uzbrojakey = ua[12];  uuzbrojakey=uzbrojakey;end
   if (ua[13]~=nil) then ustatkey = ua[13];  uustatkey=ustatkey;end
   if (ua[14]~=nil) then utostartkey = ua[14];  uutostartkey=utostartkey;end
+    if (ua[15]~=nil) then uxcamleftkey = ua[15]; uuxcamleftkey =uxcamleftkey; end
+    if (ua[16]~=nil) then uxcamrightkey = ua[16];uuxcamrightkey=uxcamrightkey; end
+    if (ua[17]~=nil) then uxcamupkey = ua[17];   uuxcamupkey  = uxcamupkey; end
+    if (ua[18]~=nil) then uxcamdownkey = ua[18]; uuxcamdownkey= uxcamdownkey; end
+  
   end
 end
 
+function writesettingsgame () 
+  
+  if (writeactualsettings==1) then
+            pnew={};
+            pnew[1]=poke (musicvolume);
+            pnew[2]=poke (mastervolume);
+            pnew[3]=poke (language);
+            pnew[4]=poke (nomusic);
+            pnew[5]=poke (coop_join_disable); --похоже не используется 
+            pnew[6]=poke (editor_dont_show_broken_items);
+            pnew[7]=poke (saveslot);
+            pnew[8]=poke (lastmove);
+            pnew[9]=poke (poziom);
+            pnew[10]=poke (fpslock);
+            pnew[11]=poke (ObjectSIZE);
+            pnew[12]=poke (setspeedgame);
+            pnew[13]=poke (effectvolume);
+            pnew[14]=poke (savparam1);
+            pnew[15]=poke (savparam2);
+            pnew[16]=poke (deadzone);
+            pnew[17]=poke (savparam4);
+            pnew[18]=poke (invertaxesleft);
+            pnew[19]=poke (invertaxesright);
+            pnew[20]=poke (disableleftstick);
+            pnew[21]=poke (disablerightstick);
+
+            local mydata = binser.serialize(uammokey,uicekey,ubombkey,udropkey,uleftkey,urightkey,uupkey,udownkey,unpackkey,uhealkey,urestkey,uzbrojakey,ustatkey,utostartkey,uxcamleftkey,uxcamrightkey,uxcamupkey,uxcamdownkey)
+            datatowrite=table.concat(pnew);
+            sourcewrite(datatowrite, "gamesettings1");
+            if (ossys~="Android") then  sourcewrite(mydata, "keyboardsettings");  end
+            smsg1="Game settings saved.";
+            -- тут должно быть отображение дискетки с сохранением файла
+
+        end;
+      writeactualsettings=0;
+end
+
+-- tu jest podstawową wczytywanie danych oraz pozioma gry
   if (settingstest==0) then 
-    writeactualsettings=1; 
+    writeactualsettings=1;-- writesettingsgame () ; не надо её вызывать при первом запуске! 
     WELCOME_WINDOW_FIRSTLOAD=1
   end
   if (settingstest~=0) then 
@@ -1928,10 +2021,12 @@ end
 if (loadexternallevel==1) then 
   levelname="LEVEL"..levelnumber..".$C";
    save=sourceread(levelname,1); 
-     if (save==0) then smsg_menu=" Error. External file /Levels/"..levelname.." not exist. Try load another level."; end; 
+     if (save==0) then smsg_menu=" Error. External file /Levels/"..levelname.." not exist. Try load another level."; 
+  leveldatacopy=xdata_load_fail_copy; gameover=1; loading_lock_message=1; 
+      end; 
      if (save~=0) then loading_lock_message=0; leveldatacopy=freadbin (save);  end -- тут в массив загружается
-       leveldatacopy=xdata_load_fail_copy; gameover=1; loading_lock_message=1; 
-  loadexternallevel=0;
+     
+  loadexternallevel=0; -- блокируем авторестарт 
     xdata=leveldatacopy;
     
   end
@@ -1966,7 +2061,7 @@ if ( loadsavegame=="yes") then
             --start converting  625-656 ->  rozmiarznak25 rozmiarznak56
               --начальное преобразование уровня и убирание с карты поля данных об уровне на новое место.
               oldlevelshift=0;newformatstroka=0
-            for a=0,155924,1 do -- 1500 ->  1624
+            for a=0,mapsize_bytes_max,1 do -- 1500 ->  1624
               if ((leveldatacopy[a])==nil) then leveldatacopy[a]=56;end --затычка от nil 
                 if( a<55000) then xdata[a]=string.char (76);  end
                 if( a>54999) then xdata[a]=string.char (0);  end
@@ -2085,7 +2180,7 @@ if (o_kod==string.char (25))and(ch==0) then o_kod=147;ch=1;end;
             --start converting  625-656 ->  rozmiarznak25 rozmiarznak56
               --начальное преобразование уровня и убирание с карты поля данных об уровне на новое место.
               oldlevelshift=0;newformatstroka=0
-            for a=0,155924,1 do -- 1500 ->  1624
+            for a=0,mapsize_bytes_max,1 do -- 1500 ->  1624
               if ((leveldatacopy[a])==nil) then leveldatacopy[a]=56;end --затычка от nil 
                 if( a<55000) then xdata[a]=string.char (76);  end
                 if( a>54999) then xdata[a]=string.char (0);  end
@@ -2119,7 +2214,7 @@ if (o_kod==string.char (25))and(ch==0) then o_kod=147;ch=1;end;
       xdata=leveldatacopy;  
        if (#xdata<155000) then --mapversion==2)or (saveversion==2)or (mapversion==0)or (saveversion==0)
             typelevel="fix" ; --smsg1= "xdata= "..#xdata; 
-                for a=55685,155924,1 do -- 1500 ->  1624
+                for a=55685,mapsize_bytes_max,1 do -- 1500 ->  1624
                   xdata[a]=string.char (0);  
                 end
             end
@@ -2142,7 +2237,7 @@ if (o_kod==string.char (25))and(ch==0) then o_kod=147;ch=1;end;
       flagchecknewteleportersenemy=1;  -- add flag chech tanks to field ! 
       ty,tx=scanobject (119,-1);--check teleport cel dla "..titlegame.." level.   wot takaja prostaja prowerka
       shippingzone_y,shippingzone_x=scanobject (29,-5,1);
-      if (titlegame~="Colony") then skan_y_max,skan_x_max=scanobject (166,-1) ;  end --object "166"
+      if (titlegame~="Kolonista") then skan_y_max,skan_x_max=scanobject (166,-1) ;  end --object "166"
       krysztalow=scanobject (197,-2) ;  --object "166"
     end
     -- тип ZX только для устаревших уровней, никогда не используется ни в сохранениях ни в новых уровнях
@@ -2169,11 +2264,6 @@ if (o_kod==string.char (25))and(ch==0) then o_kod=147;ch=1;end;
         printat (tx,ty,"119");
         --printat (tx+1,ty+1,"86");
         end;
-      p1= (string.byte (xdata[55641]));  --sost lazerow p1-p4 не сохранять. ненужно уже. 
-      dr= (string.byte (xdata[55642]));
-      p2= (string.byte (xdata[55643]));
-      p3= (string.byte (xdata[55644]));
-      p4= (string.byte (xdata[55645]));
       ey= (string.byte (xdata[55630]));--expressSX,SY start SX,EY-END 
       sy= (string.byte (xdata[55628]));
       sx= (string.byte (xdata[55627])); 
@@ -2186,6 +2276,11 @@ if (o_kod==string.char (25))and(ch==0) then o_kod=147;ch=1;end;
 if (loadedfirst==0) then
 -- 76, 69, 86 , если три первых байте не равны кодам букв LEV, значит уровень не ZX. DECat 24310,639 bytes?? --нкт 29 50,51,52,53,54,55
 --загружать старые карты по схеме, но на новых просто исп. будут новые коды для. --DATA x2,y2,sx,sy,xt,ey,b0,i,l,p,u,exp,t,SE,zx,zy,p1,dr,p2,p3,p4,pw,tx,ty,wt,e,e,e,e,e,e,mv   HEADER
+     savegamecounter = (string.byte (xdata[55641])); -- zzOLD p1  --sost lazerow p1-p4 не сохранять. ненужно уже. 
+     parameter80= (string.byte (xdata[55642])); -- zzOLD dr
+     parameter81= (string.byte (xdata[55643])); -- zzOLD p2
+     parameter82= (string.byte (xdata[55644])); -- zzOLD p3
+     parameter83= (string.byte (xdata[55645])); -- zzOLD p4
     startX=xdata[55625];startY=xdata[55626];   --1-- загрузка координат игрока
     zx=string.byte (xdata[55639]); zy=string.byte (xdata[55640]); --2   
         saveversion= (string.byte (xdata[55669])); -- загрузка системных параметров одинаковая и для сохраненки и для карты.
@@ -2319,33 +2414,33 @@ if  (loading_lock_message==1) then gameover=1;allowmove=0; renderer=0; allowshot
       table.insert (lootid, line:split("!"))
     end
       menuplayitems={};
-      if (titlegame~="Reskue") and (titlegame~="Colony")and (titlegame~="Perestroika") then 
+      if (titlegame~="Reskue") and (titlegame~="Kolonista")and (titlegame~="Perestroika") then 
       addmenuplayitems (60); --hp
       addmenuplayitems (58); --ammo
     end
     if (titlegame~="Perestroika") then  addmenuplayitems (59); --dynamite
       addmenuplayitems (61); --ice
-            if (titlegame~="Colony") then  addmenuplayitems (60); end --medkit
+            if (titlegame~="Kolonista") then  addmenuplayitems (60); end --medkit
     end
    if (ossys~="Android") then
-      if (titlegame~="Colony") then   addmenuplayitems (62);end ;  -- live X
-      if (titlegame~="Reskue") and (titlegame~="Colony")and (titlegame~="Perestroika") then 
+      if (titlegame~="Kolonista") then   addmenuplayitems (62);end ;  -- live X
+      if (titlegame~="Reskue") and (titlegame~="Kolonista")and (titlegame~="Perestroika") then 
       addmenuplayitems (126); --key X
       addmenuplayitems (127); --water X 
       end
     end
-      --[[ pagesPLGUI={};       line="128!NAME!HEADER!0!0";           table.insert (pagesSC,line:split("!") );      line="128!Health!hp!0!0";           table.insert (pagesSC,line:split("!") );      ]]--
+      --[[ menu_glownaPLGUI={};       line="128!NAME!HEADER!0!0";           table.insert (centrum_dostawy_listSC,line:split("!") );      line="128!Health!hp!0!0";           table.insert (centrum_dostawy_listSC,line:split("!") );      ]]--
   -- аутыматычнае создание массива списков продаваемых предметов по objects.ini
     itemshippinglist={};
           shippingcenteritems={};
           shippingcenteritemsHQ={};
           shippingcenteritemsCC_classic={};
-          pagesSC={};
+          centrum_dostawy_listSC={};
           
-          counttablepagesSC=0;
-           --HEADER SAMPLE  line="ID!ITEM_id!name_item!cost!title_shippingcenteritems";           table.insert (pagesSC,line:split("!") );
-           line="128!0!"..smsg_string ("SH_EXIT").."!0!0";           table.insert (pagesSC,line:split("!") );
-           line="0!0!"..smsg_string ("SH_ORDER").."!0!0";           table.insert (pagesSC,line:split("!") );
+          counttablecentrum_dostawy_listSC=0;
+           --HEADER SAMPLE  line="ID!ITEM_id!name_item!cost!title_shippingcenteritems";           table.insert (centrum_dostawy_listSC,line:split("!") );
+           line="128!0!"..smsg_string ("SH_EXIT").."!0!0";           table.insert (centrum_dostawy_listSC,line:split("!") );
+           line="0!0!"..smsg_string ("SH_ORDER").."!0!0";           table.insert (centrum_dostawy_listSC,line:split("!") );
           etatimer=0;
             for sa=0,#objs-1,1 do 
               aa=tonumber (ext_objs_param (sa,16)); -- 16 - COST , 15- UNPACK !!!!!
@@ -2353,11 +2448,11 @@ if  (loading_lock_message==1) then gameover=1;allowmove=0; renderer=0; allowshot
               qualityitem=ext_objs_string (sa,28);
              if (aa)and(aa>0) then 
                 addshippingcenteritems(sa);
-                counttablepagesSC=counttablepagesSC+1;
+                counttablecentrum_dostawy_listSC=counttablecentrum_dostawy_listSC+1;
                 nameobject=ext_objs_string (sa,2); if (nameobject==nil) then nameobject="0"; end;
                 nameobject="0"; 
-                line=counttablepagesSC.."!"..sa.."!"..nameobject.."!"..aa.."!";
-                table.insert (pagesSC,line:split("!") );
+                line=counttablecentrum_dostawy_listSC.."!"..sa.."!"..nameobject.."!"..aa.."!";
+                table.insert (centrum_dostawy_listSC,line:split("!") );
                 end
             end
             -- end of shipping list generating  (using objects.ini)
@@ -2368,39 +2463,39 @@ if  (loading_lock_message==1) then gameover=1;allowmove=0; renderer=0; allowshot
       req_recheck_savelist=0; 
      
      function getsaveslist () 
-          pagesSAVES={};
-          counttablepagesSAVES=0;
-           --HEADER SAMPLE  line="ID!ITEM_id!name_item!cost!title_shippingcenteritems";           table.insert (pagesSC,line:split("!") );
-           line="0!Exit to main menu [Esc]!0!0";    table.insert (pagesSAVES,line:split("!") );
-           line="1!Exit to main menu [Esc]!0!0";    table.insert (pagesSAVES,line:split("!") );
-           --line="2!Quicksave [f5]!0!0";           table.insert (pagesSAVES,line:split("!") );
+          zapisy_SAVES={};
+          counttablezapisy_SAVES=0;
+           --HEADER SAMPLE  line="ID!ITEM_id!name_item!cost!title_shippingcenteritems";           table.insert (centrum_dostawy_listSC,line:split("!") );
+           line="0!Exit to main menu [Esc]!0!0";    table.insert (zapisy_SAVES,line:split("!") );
+           line="1!Exit to main menu [Esc]!0!0";    table.insert (zapisy_SAVES,line:split("!") );
+           --line="2!Quicksave [f5]!0!0";           table.insert (zapisy_SAVES,line:split("!") );
             savename="quicksave";
             wsego_saves=0;
               savetest=sourceread(savename);
             if (savetest~=0) then savetest=1;wsego_saves=wsego_saves+1; end; 
 
-             line="2!"..savename.."!2!"..savetest;           table.insert (pagesSAVES,line:split("!") );
+             line="2!"..savename.."!2!"..savetest;           table.insert (zapisy_SAVES,line:split("!") );
             for sa=3,13,1 do 
               if (1>0) then 
                savename="Savegame"..sa-2;
-                counttablepagesSAVES=counttablepagesSAVES+1;
+                counttablezapisy_SAVES=counttablezapisy_SAVES+1;
                  savetest=sourceread(savename);
             if (savetest~=0) then savetest=1; wsego_saves=wsego_saves+1;end; --  фиксим баг 5963 с UTF-8  , значит sourceread ПРОИГНОРИРОВАЛ map_flag 2 и прислал файл вместо 1
                -- nameobject=ext_objs_string (sa,2); if (nameobject==nil) then nameobject="0"; end; -- and(savetest~="1")
-                line=sa.."!"..savename.."!"..counttablepagesSAVES.."!"..savetest.."!";
+                line=sa.."!"..savename.."!"..counttablezapisy_SAVES.."!"..savetest.."!";
                 --if (sa==3)and(otladka==1) then smsg1="LINE 630:"..line;  end; 
                 --if (sa==4)and(otladka==1) then smsg2="LINE 630:"..line;  end; 
-                table.insert (pagesSAVES,line:split("!") );
+                table.insert (zapisy_SAVES,line:split("!") );
                 end
             end
               savename="quicksave-autoexit";
               savetest=sourceread(savename);
             if (savetest~=0) then savetest=1; end; 
-             line="14!"..savename.."!14!"..savetest;           table.insert (pagesSAVES,line:split("!") );
+             line="14!"..savename.."!14!"..savetest;           table.insert (zapisy_SAVES,line:split("!") );
              savename="autosave-2";
               savetest=sourceread(savename);
             if (savetest~=0) then savetest=1; end; 
-             line="15!"..savename.."!15!"..savetest;           table.insert (pagesSAVES,line:split("!") );
+             line="15!"..savename.."!15!"..savetest;           table.insert (zapisy_SAVES,line:split("!") );
       --end of creating savegame list
     end
     getsaveslist (); 
@@ -2408,45 +2503,45 @@ if  (loading_lock_message==1) then gameover=1;allowmove=0; renderer=0; allowshot
     --важно -  ид обьекта надо либо +1  делать либо использовать специальную новую функцию  ext_objs_param
     --hdr=objs[1][1];  --двухмерный масив задан правильно и работает
     --lg.print("Obj1-1"..hdr,32,32);     --cs.print("Objsubstr 2,2"..string.sub (hdr,2,2),48,48);--мда попроще нельзя б xxx=objs[1][1]
-    pages0 = {} ;-- Меню игрока андроид - 
+    player_ini = {} ;-- Меню игрока андроид - 
     for line in love.filesystem.lines ("player.ini") do
-      table.insert (pages0, line:split("!"))
+      table.insert (player_ini, line:split("!"))
     end
-    --pages0!ax-standartsizeusermenu!ay-standartwysotagraphicmenu 
-    pagesctc = {} ;-- Меню игрока андроид - контрольный центр --  - po obrazcu player.ini (pages0)
+    --player_ini!ax-standartsizeusermenu!ay-standartwysotagraphicmenu 
+    sklepy = {} ;-- Меню игрока андроид - контрольный центр --  - po obrazcu player.ini (player_ini)
     for line in love.filesystem.lines ("sklepid.ini") do
-      table.insert (pagesctc, line:split("!"))
+      table.insert (sklepy, line:split("!"))
     end
      
   
-     pages = {} ;-- Главное меню (0) тут загружается массив обьектов.
-    for line in love.filesystem.lines ("pages.ini") do
-      table.insert (pages, line:split("!"))
+     menu_glowna = {} ;-- Главное меню (0) тут загружается массив обьектов.
+    for line in love.filesystem.lines ("menu_glowna.ini") do
+      table.insert (menu_glowna, line:split("!"))
     end
-    pages_settings = {} ;-- Меню настроек и параметров (1)
-    for line in love.filesystem.lines ("pages_settings.ini") do
-      table.insert (pages_settings, line:split("!"))
+    menu_settings = {} ;-- Меню настроек и параметров (1)
+    for line in love.filesystem.lines ("menu_settings.ini") do
+      table.insert (menu_settings, line:split("!"))
     end
-    pages3 = {} ;-- меню авторы (2)
+    menu_authors = {} ;-- меню авторы (2)
     for line in love.filesystem.lines ("authors.ini") do
-      table.insert (pages3, line:split("!"))
+      table.insert (menu_authors, line:split("!"))
     end
-    pages4 = {} ;-- меню редактора (3)
+    editor_settings = {} ;-- меню редактора (3)
     for line in love.filesystem.lines ("editor_settings.ini") do
-      table.insert (pages4, line:split("!"))
+      table.insert (editor_settings, line:split("!"))
     end
-    pages_actions = {} ;-- меню игрока (пауза) (4)
-    for line in love.filesystem.lines ("actions.ini") do
-      table.insert (pages_actions, line:split("!"))
+    menu_user = {} ;-- меню игрока (пауза) (4)
+    for line in love.filesystem.lines ("menu_user.ini") do
+      table.insert (menu_user, line:split("!"))
     end
-    pages_pomoc = {} ;
+    menu_glowna_pomoc = {} ;
     
-    if (pages0[1][4]=="demo")and(titlegame=="Reskue") then demka=1 else demka=0; end; 
-      --smsg1=pages0[1][4]; 
+    if (player_ini[1][4]=="demo")and(titlegame=="Reskue") then demka=1 else demka=0; end; 
+      --smsg1=player_ini[1][4]; 
 --zzx2,xpla2,ypla2,hptank,allowmovepla2,man_is_movingpla2,plusypla2,freezetimerPL2,wrog_speed,speedtimerPL2
   class_enemy = {};
   --инициализируем поля класса
-  function class_enemy:new(typt,x3,y3,hp,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2)
+  function class_enemy:new(typt,x3,y3,hp,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8)
       local object = {};  -- как я и думал это массив внутри массива.
       if (titlegame=="Reskue") then love.audio.play(tanknewsnd) ; end; 
       --,x2,y2,hp,rotate,movekey,zzx2,allowmovepla2,x2pla2am,y2pla2am,zzx2ammo,allowshotpla2=0;
@@ -2468,7 +2563,7 @@ if  (loading_lock_message==1) then gameover=1;allowmove=0; renderer=0; allowshot
       object.tanks_am = tanks_am or 0;  --tanks_am  indicator ammo
       object.rotate_t = rotate_t or 0;  --
       object.feartanks = feartanks or 0;  --
-        object.aitype = aitype or 0;  --aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2)
+        object.aitype = aitype or 0;  --aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8)
         object.slowPL1tanks = slowPL1tanks or 0;  --
         object.damagetimertanks = damagetimertanks or 0;  --
         object.pa_icon = pa_icon or 0;  --
@@ -2480,8 +2575,14 @@ if  (loading_lock_message==1) then gameover=1;allowmove=0; renderer=0; allowshot
         object.haveaura = haveaura or "";  --
         object.deadanim = deadanim or "";  --
         object.kierowcaczolgow = kierowcaczolgow or 0;  --
-        object.pax1 = pax1 or 0;  --
+        object.slow_effect_power = slow_effect_power or 0;  --
         object.pax2 = pax2 or 0;  --
+        object.pax3 = pax3 or 0;  --
+        object.pax4 = pax4 or 0;  --
+        object.pax5 = pax5 or 0;  --
+        object.pax6 = pax6 or 0;  --
+        object.pax7 = pax7 or 0;  --
+        object.pax8 = pax8 or 0;  --
       object.res = res or 0;
 
       setmetatable(object,self) --нужно для работы класса
@@ -2536,7 +2637,7 @@ if object.command_ammo=="mineplace" then playsoundifvisible (wystrelbombplacesnd
   end
 
   --функция изменения
-  function class_enemy:set(typt,x3,y3,hp,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2)
+  function class_enemy:set(typt,x3,y3,hp,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8)
   local typt = typt or self.typt;
     local hp = hp or self.hp;
     local rotate = rotate or self.rotate;
@@ -2565,8 +2666,15 @@ if object.command_ammo=="mineplace" then playsoundifvisible (wystrelbombplacesnd
           local haveaura = haveaura or self.haveaura;
           local deadanim = deadanim or self.deadanim;
           local kierowcaczolgow = kierowcaczolgow or self.kierowcaczolgow;
-          local pax1 = pax1 or self.pax1;
+          local slow_effect_power = slow_effect_power or self.slow_effect_power;
           local pax2 = pax2 or self.pax2;
+          local pax3 = pax3 or self.pax3;
+          local pax4 = pax4 or self.pax4;
+          local pax5 = pax5 or self.pax5;
+          local pax6 = pax6 or self.pax6;
+          local pax7 = pax7 or self.pax7;
+          local pax8 = pax8 or self.pax8;
+      
 
     self.typt = typt;
     self.x3 = x3;
@@ -2598,8 +2706,14 @@ if object.command_ammo=="mineplace" then playsoundifvisible (wystrelbombplacesnd
     self.haveaura = haveaura;
     self.deadanim = deadanim;
     self.kierowcaczolgow = kierowcaczolgow;
-    self.pax1 = pax1;
+    self.slow_effect_power = slow_effect_power;
     self.pax2 = pax2;
+    self.pax3 = pax3;
+    self.pax4 = pax4;
+    self.pax5 = pax5;
+    self.pax6 = pax6;
+    self.pax7 = pax7;
+    self.pax8 = pax8;
   end
 
 --функция изменения
@@ -2655,7 +2769,7 @@ if object.command_ammo=="mineplace" then playsoundifvisible (wystrelbombplacesnd
 
   --функция получения результата
   function class_enemy:get()
-    return self.typt, self.x3, self.y3, self.hp, self.rotate, self.man_xpla3, self.man_ypla3, self.tanks_mov , self.freezetanks , self.speedtanks, self.protecttanks, self.jedzenietimer, self.zebrany_item_id, self.timer_alt_anim, self.cooldowntanks, self.tanks_am,self.rotate_t,self.feartanks,self.aitype,self.slowPL1tanks,self.damagetimertanks,self.pa_icon,self.kulemet,self.cel_hp,self.realmovetanknow,self.invisibletanks,self.painreflecttanks,self.haveaura,self.deadanim,self.kierowcaczolgow,self.pax1,self.pax2;
+    return self.typt, self.x3, self.y3, self.hp, self.rotate, self.man_xpla3, self.man_ypla3, self.tanks_mov , self.freezetanks , self.speedtanks, self.protecttanks, self.jedzenietimer, self.zebrany_item_id, self.timer_alt_anim, self.cooldowntanks, self.tanks_am,self.rotate_t,self.feartanks,self.aitype,self.slowPL1tanks,self.damagetimertanks,self.pa_icon,self.kulemet,self.cel_hp,self.realmovetanknow,self.invisibletanks,self.painreflecttanks,self.haveaura,self.deadanim,self.kierowcaczolgow,self.slow_effect_power,self.pax2;
   end
 
 function class_ammo:get()
@@ -3001,7 +3115,7 @@ end
     if ((totalenemies>0)and(editor==0)and(wszystkopostaciej>0)) then --and(wsego_tank_teleporterow>0
         auranum=1; auramax=0; auras = {};
         for enemynum=1,totalenemies,1 do
-            typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value)
+            typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value)
 
             if (haveaura~="")and(haveaura~=0)and(deadanim~="tankdead")and(hpt>0) then auras[auranum] = {auranum, xt, yt, haveaura,enemynum}; auranum=auranum+1; auramax=auramax+1; end;
 
@@ -3010,7 +3124,7 @@ end
                 explodebomb2 (by,bx,"instakill","","kamikadze",enemynum); -- Почему то нужно отдельно вызвать запись состояния танка для этого.
                 hp=0; hpt=0;
 
-                enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2); -- NIL  kak tak?
+                enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8); -- NIL  kak tak?
             end
             if ((xt==x)and(yt==y)and(hpt>0)and(hp>0))and(typt~="scientist")and(typt~="droid")and(typt~="enemydroid") then
                 if (protect<1) then hp=hp-4;end;
@@ -3050,6 +3164,28 @@ end
         return value + value * count * .01
     end
 
+
+        -- 
+function changepietro (pietro, celowepietro)
+            
+              smsg1="changepietro ("..pietro..","..celowepietro..")";
+              love.audio.play(wallsnd);
+             -- if (pietro==celowepietro) then return 0 ;end;
+             --wyzerowanie ammo
+            huded=0;            totalammo=0;
+            ammoX={};            selectedammoid=nil;
+        map_changed=5;
+            startcopy=(pietro)*120000; --     
+            endcopy=(celowepietro)*120000; --   2-1=1 1*55000 + 120000 = 175000 
+          for a=0,120000,1 do  
+           xdata[startcopy+a]= xdata[a]; end --сохранение текущей карты всегда идёт от 0
+          for a=0,120000,1 do   --     1*120000=120000 ,0 
+             if ((xdata[endcopy+a])==nil) then xdata[endcopy+a]=56;xdata[a]=56;end 
+             --if ((xdata[endcopy+a])==14392) then xdata[endcopy+a]=string.char (56);end 
+                                    --   2*120000=240000 =0 
+           xdata[a]=xdata[endcopy+a]; end -- сохранение на текущую карту всегда идёт в 0 
+        end
+
     function ekwipunekcheck (itemid)
       licznik=0; 
       if (slot1==itemid) then licznik=licznik+1;  end ; 
@@ -3075,8 +3211,23 @@ end
      -- Gracz , param
     function standartparameters_player ()
         maximumammo_PC1=500;
+        base_enemy_hp=500;
+        base_enemy_hpmax=500;
+        base_slow_shot_effect_length_PC1=100;
+        base_freeze_shot_effect_length_PC1=100;
+        base_fear_shot_effect_length_PC1=100;
+        base_control_shot_effect_length_PC1=100;
+        base_corruption_effect_length_PC1=100;
+        base_multiplier_longpress_length_effect=2;
+        base_slow_power_effect_PC1=0;
+        base_bomb_damage=500;
+        base_redeemer_damage=2000;
+        base_bomb_shard_damage=150;
+        base_bomb_grenadelauncher_shards_multiplier=4;
+        base_ice_shards_multiplier=2;
+
          chances=math.ceil (math.random(100));
-        if (tank==1) then hpmax=500; end
+        if (tank==1) then hpmax=600; end
         if (tank==0) then hpmax=200; end;
         if (poziom==1) then hpmax=hpmax/2; end;
         if (slot0==180) then hpmax=hpmax+100; end;
@@ -3118,23 +3269,25 @@ end
     -- Gracz , ataka
     function setstandartdamage_P1 (onlyICEPL1,icekeyPL1,firekeyPL1)
         standartdamage=50;
+        damagetype_PC1=""; 
+        alt_damage_PC1=0; 
         if (tank==1) then standartdamage=standartdamage+50; end;
         if (poziom==0) then standartdamage=standartdamage+85; end;
         if (hardlevel~=1) then standartdamage=standartdamage+15; end;
         if (speedtimer>0) then standartdamage=standartdamage+25; end;
         if (speedtimer>0) then standartdamage=standartdamage+25; end;
         if (slot0==170) then standartdamage=standartdamage+20; end;
-        if (slot0==171) then standartdamage=standartdamage+10; end;
-        if (slot0==172) then standartdamage=standartdamage-20; end;
-        if (slot0==174) then standartdamage=standartdamage-100; end;
-        if (slot0==177) then standartdamage=1; end;
-        if (slot0==173)and (ammoLONGpressedPC1==1) then standartdamage=standartdamage-20; end;
-        if (slot0==175)and (ammoLONGpressedPC1==1) then standartdamage=standartdamage-20; end;
-        if (slot0==178)and(slot2==257) then standartdamage=standartdamage+200; end;
+        if (slot0==171) then standartdamage=standartdamage+10; damagetype_PC1="steallife"; end;
+        if (slot0==172) then standartdamage=standartdamage-20; damagetype_PC1="freeze";  end;
+        if (slot0==174) then standartdamage=standartdamage-100; damagetype_PC1="stun";  end;
+        if (slot0==177) then standartdamage=1;  damagetype_PC1="unused";  end;
+        if (slot0==173)and (ammoLONGpressedPC1==1) then standartdamage=standartdamage-20;damagetype_PC1="slow"; end;
+        if (slot0==175)and (ammoLONGpressedPC1==1) then standartdamage=standartdamage-20;damagetype_PC1="fear"; end;
+        if (slot0==178)and(slot2==257) then standartdamage=standartdamage+200;damagetype_PC1="corrosion"; end;
         if (slot3==259) then standartdamage=standartdamage+40; end;
         if (slot4==271) then standartdamage=standartdamage+100; end;
         if (slot5==272) then standartdamage=standartdamage+50; end;
-
+        
         if (slot0==181) then standartdamage=standartdamage+50; end;
         if (slot0==172)and (ammoLONGpressedPC1==1) then standartdamage=0; end;
         if (cursedtimerPL1>0) then standartdamage=math.ceil (standartdamage/2); end;
@@ -3143,10 +3296,17 @@ end
         if (slot0==181)and (onlyICEPL1==1) then standartdamage=0; end;
         if (slot0==170)and (onlyICEPL1==1) then standartdamage=0; end;
         if (slot0==171)and (onlyICEPL1==1) then standartdamage=0; end;
-        if (slot0==180) then standartdamage=0; end;
+        if (slot0==180) then standartdamage=0;damagetype_PC1="protect"; end;
         if (slot0==0)and (onlyICEPL1==1) then standartdamage=0;  end;
         if (slot0==176) then standartdamage=math.ceil (standartdamage/3); end;
-        return standartdamage;
+        alt_damage_PC1=standartdamage;
+        if (slot0==179) then alt_damage_PC1=mass_explode_damage; damagetype_PC1="mine"; end; --* урон не меняется однако бомба нанесет дополнительный.
+        if (slot0==214) then alt_damage_PC1=standartdamage+mass_explode_damage; damagetype_PC1="bomb"; end; --* урон не меняется однако бомба нанесет дополнительный.
+
+        if (slot0==173) then alt_damage_PC1=standartdamage-20;end;
+        if (slot0==175) then alt_damage_PC1=standartdamage-20;end;
+        if (slot0==172) then alt_damage_PC1=0;end;
+      return standartdamage;
     end
     -- прямой вред от самостоятельных патрон, рикошета и осколков   для игрока P1 ,  другие танки
 
@@ -3192,7 +3352,7 @@ end
                     if (slot2==258) then damagetimerPL1=math.ceil (command_power/100); end; 
                     end
                     if (command_ammo=="kwas") then damagetimerPL1=damagetimerPL1+command_power; end; 
-                    if ((titlegame=="Colony")and (command_ammo=="kwas")) then damagetimerPL1=math.ceil (command_power/20); end;
+                    if ((titlegame=="Kolonista")and (command_ammo=="kwas")) then damagetimerPL1=math.ceil (command_power/20); end;
                     if (tank==1)and(command_ammo=="kwas")  then damagetimerPL1=math.ceil (command_power/10);  end
                     if (command_ammo=="pajakowy_zespol") then pajaktimerPL1=pajaktimerPL1+command_power*12; pajakilosc=command_power; end; 
                     if (command_ammo=="invisible") then directdamage_autoammo=2; end; 
@@ -3261,6 +3421,7 @@ end
             ammoX[ammonum]:set(typta, start_x,start_y,x_ammo,y_ammo,m_x_ammo,m_y_ammo,ammo_moving,rotate_tt,renderammoshot_ammos,rikoszets,animset,spd_a,sourceammo,command_ammo,wzmacniacz,directdamage_autoammo,src_tankid,msg_to_func,command_power,delayed_cmd,delayed_snd);
 
         end; end;
+
 
     ----Выполняет аутоматычно конвертацию в знакоместа для сканирования карты
     function scanobject_nearby (code_item,sc_x,sc_y,sc_radius)
@@ -3348,14 +3509,27 @@ end
         return 0 ; 
     end
 
+
+    function printat_not_empty (xt,yt,newloot)
+        ytt=gamey (yt);
+        xtt=gamex (xt);
+        czto_pod_tankom=(screens (ytt,xtt));
+        if (czto_pod_tankom)and(newloot~=0) then printat (ytt,xtt,newloot);
+          return 1; 
+          end;
+        return 0 ; 
+    end
+
+
+
     if (totalenemies>0) then
         for enemynum=1,totalenemies,1 do
-            typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value)
+            typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value)
             hpt_start=hpt;
             if (protecttanks>0) then getstandartdamage=math.ceil (standartdamage/4)  else  getstandartdamage=standartdamage;  end
             if (hpt<1)and(deadanim~="tankdead") then
              cooldowntanks=150;  -- вот именно этот счётчик и срабатывает при смерти танка . другие не срабатывают. 
-             if (titlegame~="Colony") then score=score+70; end
+             if (titlegame~="Kolonista") then score=score+70; end
                 -- фиксит tanksgetdamage тот обрабатывает смерть но не сохраняет состояние смерти почему то
                 -- начало обработки смерти танка.  должно быть ОДНОРАЗОВЫМ!!! однако есть второй обработчик смерти в tanksgetdamage
                 deadanim="tankdead";   -- ubrano build 4000 не убирается, бесконечное начисление очков какого то хера.
@@ -3395,7 +3569,7 @@ end
                 cel_hp=rotate_t;
             end
 
-            enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2);-- NIL  kak tak?
+            enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8);-- NIL  kak tak?
             if (1==1)and(delayed_cmd~="")and(delayed_cmd~="0")and(delayed_cmd~=0)and(dby_copy~=nil) then -- это затычка от глючащего mass_effect который при попадании патрон не желает нормально распространять эффект попадания.
                 -- ME_AMMO analog    -- delayed_cmd чаще всего равен если там пусто то нулю цифровому 0 .
                 --delayed_power=10000;
@@ -3581,7 +3755,7 @@ end
         --defaultbroken="27";
         printat (by,bx,"27");
         defacescreen=1; timerz=0; -- для спецэффекта  wremenno ubral ibo meszajet 4100  wernut
-        mass_explode (by,bx,command,380,"bomb",0);
+        mass_explode (by,bx,command,mass_explode_damage,"bomb",0);
         if (cc1==1)then printat (by+1,bx,"27"); end; --если что то есть из списка - взрываем.
         if (cc2==1) then printat (by-1,bx,"27");end;
         if (cc3==1) then printat (by,bx+1,"27");end;
@@ -4263,12 +4437,29 @@ end
         map_changed=3;
        end;
 
+    hpmaxtemp=hpmax+math.floor (hpmax); 
+    steampak_PC1= ubywanie (steampak_PC1); 
+    chances=math.ceil (math.random(100));
+    --if (steampak_PC1>0)and (hp>hpmax)and (chances>90) then hp=hp-1 ;end; 
 
+ 
+ --если нет ни одного флага предмет активируется незамедлительно после взятия и не появляется в инвентаре.
+ --это действие выполняется по умолчанию. 
+ --Перепроверка использования и подбирания ВСЕХ предметов
+ --Reactmove - логика работы.
+ --Предметы можно использовать тремя методами.
+  --1- Джойстик - FAST USE (левый спуск и Х)
+  --2- Inventory - USE  (кнопка С,  клава и джойстик)  (предметы имеющие флаг inv... правильно берутся но исчезают,обычный флаг отмечающий использовние)
+  --3- Клавиатура - быстрый набор 1,2,3,4,5
+ --КУФСЕЬЩМУ 
     function reactmove (zzx,inventory_fast_and_full_remove_flag_enable)
+       itemused=0; 
         if (inventory_fast_and_full_remove_flag_enable==nil) then inventory_fast_and_full_remove_flag_enable=0; end; 
+        -- ten flag jeść ustawiony w 1 tyłko w ekwipunke pelnem. [c]
+        --if (inventory_fast_and_full_remove_flag_enable==1) then smsg1="INVPLN:"..zzx;end;
         if (ObjectSIZEchangeallow>0) then  allowmove=0; allowshot=0;  return; end;
         if (editor==1) then return; end;
-        if (pause==1) then return; end;
+        if (pause==1)and(inventory_fast_and_full_remove_flag_enable==0) then return; end;
         if (freezetimerPL1>0) then return; end;
         --реакция на движение второго игрока - возможно потом придётся вынести как отдельную функцию.
         --по умолчанию второй игрок отправляет обьект на который наступил, однако для Player 2 надо особый обработчик.
@@ -4306,14 +4497,19 @@ end
             incontrolcentre=1; 
             ObjectSIZEchangeallow=3;
             ObjectSIZEOLD=ObjectSIZE;
-            ObjectSIZE=2;
+            ObjectSIZE=2; if (ObjectSIZEOLD==3) then ObjectSIZE=3;end;
             timerz=0;
             reschange (resolutionPC);         map_changed=3;
        end
 
+
+       
+
       if (otladka==1)and (remove_inv_after_using_item=="removeinvafteruse") then smsg1=" item must be removed  "..itemkey ; end; 
-        if (inventory_fast_and_full_remove_flag_enable==1)and (remove_inv_after_using_item=="removeinvafteruse") then
-          removeinventoryitem (itemkey); takeableitem=""; -- removing item CANNOT be retaken 
+        if (inventory_fast_and_full_remove_flag_enable==1)and (remove_inv_after_using_item=="removeinvafteruse")and (itemused==0) then
+         -- removeinventoryitem (itemkey);  -- отмена повторного удаления предмета по ошибке 
+         -- itemkey=0; -- added to prevent remove 2 or more items.
+          takeableitem=""; -- removing item CANNOT be retaken 
         end
 
 
@@ -4332,6 +4528,15 @@ end
         if   (inventory_fast_and_full_remove_flag_enable==0)and (disable_take_action=="disabletakeaction") then --starttanks=starttanks+5; ДЕЙСТВИЕ TAKE
           return 0 ; 
         end
+
+        if (zzx==306) then
+          hpmaxtemp=hpmax+math.floor (hpmax/2); 
+            if (hp<hpmaxtemp ) then      love.audio.play(aptekasnd);  hp=hpmaxtemp;   
+            steampak_PC1=100; 
+            itemused=1;
+            end;   
+        end;
+
 
 
         if (zzx==183) then hp=math.ceil (hp/8)-1; end;
@@ -4466,6 +4671,49 @@ end
             love.audio.play(levelnextsnd);
 
             love.load();
+        end;
+
+
+
+         
+      if (zzx==307)and (pietro==1) then
+            -- wyzerowanie wrogów
+            pietro=pietro+1;
+            enemies={};            selectedtankid_fortanks=0;
+            totalenemies=0;            sledzione_hp_tankid=0;
+            wsego_tank_teleporterow=0;            livedtanks=0;
+            selectedtankid=nil;
+            changepietro (1,2);       changemusic (mtrack) ;
+               checkx,checky=scanobject (308,-1);--check player 1 start position
+                if (checkx>-1) then x,y=xgametorealpositionbezbyte (1+checky,checkx) ; end
+            
+        end;
+
+           if (zzx==308)and (pietro==2) then
+            -- wyzerowanie wrogów
+            pietro=pietro-1;
+            enemies={};            selectedtankid_fortanks=0;
+            totalenemies=0;            sledzione_hp_tankid=0;
+            wsego_tank_teleporterow=0;            livedtanks=0;
+            selectedtankid=nil;
+            changepietro (2,1);       changemusic (mtrack) ;
+             
+               checkx,checky=scanobject (307,-1);--check player 1 start position
+                if (checkx>-1) then x,y=xgametorealpositionbezbyte (1+checky,checkx) ; end
+            
+        end;
+
+        if (zzx==309)and (pietro==1) then
+            -- wyzerowanie wrogów
+            pietro=pietro+2;
+            enemies={};            selectedtankid_fortanks=0;
+            totalenemies=0;            sledzione_hp_tankid=0;
+            wsego_tank_teleporterow=0;            livedtanks=0;
+            selectedtankid=nil;
+            changepietro (1,3);     
+               checkx,checky=scanobject (307,-1);--check player 1 start position
+                if (checkx>-1) then x,y=xgametorealpositionbezbyte (1+checky,checkx) ; end
+            
         end;
 
     if  (zzx==268) and(editor==0)or(ammoKEYPL1=="ekwip") then
@@ -4682,7 +4930,7 @@ end
             printat (gamey(y)+plusy,gamex(x)+plusx,"56");
         end;
 
-        if (zzx==41) then inventorybelt=1; allowedaidspersonal=allowedaidspersonal+3;
+        if (zzx==41) then inventorybelt=1;
             love.audio.play(protectsnd);
             printat (gamey(y)+plusy,gamex(x)+plusx,"56");
         end
@@ -4719,11 +4967,7 @@ end
             end;
             if (math.random(50)>45) then hp=hp+40;
                 smsg1="You found an bonus hp";
-            end;  --уведомить игрока о действиях.ыыыыы
-            if (math.random(70)>55) then
-               addinventoryitem (95);
-                smsg1="You found an antitank missile";
-            end;  --уведомить игрока о действиях.ыыыыы
+            end;  
             love.audio.play(patronysnd);
             printat (gamey(y)+plusy,gamex(x)+plusx,"56");
         end;
@@ -4752,7 +4996,7 @@ end
         end;
 
         if (zzx==60) then if (hp==hpmax)or(hp>hpmax)  then
-            if (reservedaids<(slotlimit+allowedaidspersonal)) then
+            if (reservedaids<(maxiumumreservedaids)) then
                 reservedaids=reservedaids+1;
                 love.audio.play(patronysnd);
             else
@@ -4766,6 +5010,9 @@ end
 
             if (allowmove~=0) then  printat (gamey(y)+plusy,gamex(x)+plusx,"56"); end;
         end;
+
+
+     
 
 
         if (zzx==114) then
@@ -4982,7 +5229,40 @@ end
           
         end
 
-            
+        if (zzx==310) then
+            allowmove=0;
+            playsoundifvisible (computersnd,x,y);
+            incontrolcentre=1;
+            sklepID="POMOCR18_"; -- training PC1 
+            selectedoptionmenu=17;
+            menu=16; renderer=0;  
+            prokrutka=0 ;    -- запретить смену пунктов но прокрутку оставить.
+            disablechangemenuoptions=17; 
+        end
+
+if (zzx==311) then
+            allowmove=0;
+            playsoundifvisible (computersnd,x,y);
+            incontrolcentre=1;
+            sklepID="POMOCR18_"; -- training PC1 
+            selectedoptionmenu=18;
+            menu=16; renderer=0;  
+            prokrutka=0 ; -- запретить смену пунктов но прокрутку оставить.
+            disablechangemenuoptions=18; 
+        end
+
+if (zzx==312) then
+            allowmove=0;
+            playsoundifvisible (computersnd,x,y);
+            incontrolcentre=1;
+            sklepID="POMOCR18_"; -- training PC1 
+            selectedoptionmenu=19;
+            menu=16; renderer=0;  
+            prokrutka=0 ;-- запретить смену пунктов но прокрутку оставить.
+            disablechangemenuoptions=19; 
+        end
+
+
 
         if (incontrolcentre==1) then allowmove=0; end;  -- блокирует перемещение персонажа пока тот затаривается покупками.ы
         if (pause==1) then allowmove=0; end;  -- блокирует перемещение персонажа пока pause
@@ -5033,8 +5313,9 @@ end
 
 
 
-        if (zzx==147)or (zzx==37) then
+        if (zzx==147) or (zzx==37) then
             allowmove=0;
+            if (itemcooldown_PL1==0) then 
             playsoundteleport=0;
             checkxB,checkyB=realrandomscanobject (148,-5,randomb);--check player 1 start position
             checkx,checky=realrandomscanobject (147,-5,randomc);--check player 1 start position
@@ -5043,11 +5324,15 @@ end
             if (checkx>-1) then x,y=xgametorealpositionbezbyte (2+checky,checkx) ; playsoundteleport=1;   end
             if ((math.random (10))>8.8)and(checkxB>-1) then x,y=xgametorealpositionbezbyte (2+checkyB,checkxB) ;  playsoundteleport=1; end;
             if (playsoundteleport==1) then love.audio.play(teleport2snd); end;
-
-
+            itemcooldown_PL1=50; 
+            end; 
         end
 
         if (zzx==15) then  --teleport object   -- АНИМАЦИЯ НЕ СДЕЛАНО
+            if (tx<1)or (1==1) then
+        skanx,skany=scanobject (119,-1) ;
+       if (skanx>0) then ty=skanx;tx=skany; end;  
+       end
             --  accelmove=2;
             --правильно было бы так - найти на карте все коды 119, переместится случайно в любой из них рядом с
             --которым есть свободная клетка.
@@ -5176,7 +5461,7 @@ end
   end; 
 -- при Старом режиме стрельбы не будет работать долгое удержание стрельбы. Будет обычный выстрел вместо этого.
     cooldownPL1ammo=ubywanie (cooldownPL1ammo);
-
+    itemcooldown_PL1=ubywanie (itemcooldown_PL1);
     cooldownPL1ice=ubywanie (cooldownPL1ice);
     standartdamage=setstandartdamage_P1 (onlyICEPL1,icekeyPL1,firekeyPL1) ;
 
@@ -5322,9 +5607,9 @@ end
             if (totalenemies>0) then
                 ammoKEYPL1="";
                 for enemynum=1,totalenemies,1 do
-                    typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[enemynum]:get();
+                    typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[enemynum]:get();
                     freezetanks=freezetanks+2000+command_power*10;
-                    enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2); -- NIL  kak tak?
+                    enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8); -- NIL  kak tak?
                 end;
                 ammoKEYPL1=""; end;
         
@@ -5335,9 +5620,9 @@ end
             if (totalenemies>0) then
                 ammoKEYPL1="";
                 for enemynum=1,totalenemies,1 do
-                    typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[enemynum]:get();
+                    typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[enemynum]:get();
                     if (protecttanks==0) then slowPL1tanks=slowPL1tanks+100+command_power*8; end; 
-                    enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2); -- NIL  kak tak?
+                    enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8); -- NIL  kak tak?
                 end;
                  end;
         command_ammo="noammo";
@@ -5433,8 +5718,13 @@ end
         --sortinventoryitem ();  -- wciąż wyletaje bez przyczyny  usunęte
     --end
     maximuminventorysize=5;
-    if (inventorybelt==1) then maximuminventorysize=maximuminventorysize+3; end
-    if (inventorybelt==1)and (titlegame=="Colony") then maximuminventorysize=maximuminventorysize+2; end
+    maxiumumreservedaids=4;
+    if (allowedaidspersonal>0) and (allowedaidspersonal<11) then maxiumumreservedaids=maxiumumreservedaids+maxiumumreservedaids;end;
+
+    if (titlegame=="M2K") then maxiumumreservedaids=maxiumumreservedaids+10; end;
+    if (inventorybelt==1) then maximuminventorysize=maximuminventorysize+3; 
+        maxiumumreservedaids=maxiumumreservedaids+3; end
+    if (inventorybelt==1)and (titlegame=="Kolonista") then maximuminventorysize=maximuminventorysize+2; end
     if (slot1==238) then maximuminventorysize=maximuminventorysize+1; end; 
     if (tank==1) then maximuminventorysize=maximuminventorysize+2; end; 
 
@@ -5448,8 +5738,8 @@ end
 
 
     --электричество теперь может включится само по достижению достаточного запаса солнечной энергии в 50. И отключится при падении ( но только если было включено с помощью солнечных панелей).
-    if (solarenergy>50)and(solarpower>200)and(titlegame=="Colony") then powerstate=1; powersetupbysolarenergy=1;   p1=1; p3=1;
-        if (solarpower>200)and(solarpower<250)and(titlegame=="Colony") then allowpowerrescan=1; end ;
+    if (solarenergy>50)and(solarpower>200)and(titlegame=="Kolonista") then powerstate=1; powersetupbysolarenergy=1;   p1=1; p3=1;
+        if (solarpower>200)and(solarpower<250)and(titlegame=="Kolonista") then allowpowerrescan=1; end ;
     end; -- зачем то для включения повер требуется p1>0 p3>0   для чего?
     if (solarenergy<40)and(powersetupbysolarenergy==1) then powerstate=0;powersetupbysolarenergy=0; end;
 
@@ -5585,6 +5875,8 @@ end
                     ammoX[totalammo]= class_ammo:new(ammoword,start_x,start_y,start_x,start_y,start_x,start_y,true,cel_hp,1,rikoszets,0,default_ammo_speed-a*20,"tank","",wzmacniacz,enemytankstandartdamage,src_tankid);
                 end
             end
+            if (typeobject_f=="pajak") and (pajaktimerPL1>0) then hpdetect2=-1; end; 
+            if (typeobject_f=="migalka") then hpdetect2=-1; end; 
             if (hp>0)and(hpdetect==hpdetect2) then   --выключение этого условия делает танки неагрессивными и нестреляющими.
                 if (x_ai==nil) then x_ai=0; end;   --затычка от NIL ибо задолбал
                 if (y_ai==nil) then y_ai=0; end;   --затычка от NIL ибо задолбал
@@ -5651,7 +5943,7 @@ end
         if (((editor<1)and(pause<1)and (ObjectSIZEchangeallow==0))) then  --(ammoKEYPL1=="placeenemy")
             if (totalenemies>0) then
                 for enemynum=1,totalenemies,1 do
-                    typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value)
+                    typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value)
                     -- больше негде в принципе сохранить параметры текущего перемещения кроме как в массиве. а где же ещё то . man_xpla2
                     allowshot_tanks=0;
                     cooldowntanks= ubywanie (cooldowntanks);
@@ -5761,7 +6053,7 @@ end
 
                     end
                     pa_icon="";
-                    enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2); -- NIL  kak tak?
+                    enemies[enemynum]:set(typt, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8); -- NIL  kak tak?
                 end
             end
         end;
@@ -5815,10 +6107,10 @@ end
                     command_ammo="kwas";
                     command_power=40;   --command power почему то в итоге получает 50 или 100!
                     damage=math.floor (damage/15); 
-                    if (titlegame=="Colony") then damage=5; end; 
+                    if (titlegame=="Kolonista") then damage=5; end; 
                     if (tank==1) then damage=math.floor (damage/2); end
                     tanks_speed_am=tanks_speed_am-40;
-                     if (randomget<24)and (titlegame~="Colony")and (tank==0) then 
+                     if (randomget<24)and (titlegame~="Kolonista")and (tank==0) then 
                       damage=1; 
                      command_ammo="pajakowy_zespol"; 
                      command_power=3;
@@ -6111,32 +6403,22 @@ end
   if (flagchecknewteleportersenemy==1)and(pause==0)and(editor==0)and(renderer==1)and(fasttimer>10) then
         --smsg1="Executing flagchecknewteleportersenemy";
         wsego_tank_teleporterow=scanobject (28,-2); -- tanks  universal teleporter
+                --   if (wsego_tank_teleporterow==-1) then smsg1="Tanks teleporters [28] not found.";end;
         wsego_scientist_spawn_jednorazowy=scanobject (34,-2);-- frozen human  not enemy
         wsego_miner_spawn_jednorazowy=scanobject (192,-2);--miner
         wsego_anomaly_spawn_jednorazowy=scanobject (195,-2);-- migalka
-        wsego_boxes=scanobject (47,-2); -- mimic +
+        wsego_boxes_spawn_jednorazowy=scanobject (47,-2); -- mimic +
         wsego_gwozd_spawn_jednorazowy=scanobject (235,-2); -- 235 гвоздь
-        wsego_pajak_spawn_jednorazowy=scanobject (255,-2); -- 255 танк  czasowo pajak
+        wsego_pajak_spawn_jednorazowy=scanobject (255,-2); -- 255 pajak
+        wsego_tank_spawn_jednorazowy=scanobject (303,-2); -- 303 танк  
+        wsego_tank_white_spawn_jednorazowy=scanobject (304,-2); -- 304 танк biały 
         wsego_jezykow=scanobject (54,-2); jezykow=wsego_jezykow; 
         wsego_enemydroid_spawn_jednorazowy=scanobject (269,-2); -- 269 дроид
     spawn_jednorazowy= wsego_miner_spawn_jednorazowy+wsego_anomaly_spawn_jednorazowy+wsego_gwozd_spawn_jednorazowy+wsego_pajak_spawn_jednorazowy+wsego_enemydroid_spawn_jednorazowy;
- 
-        if (titlegame=="M2K")and (levelnumber<130)  then wsego_boxes=0; end; 
-        if (wsego_tank_teleporterow>0) then  --заблокировано чтобы не создавало танков заранее.
-            for aaac=1,0,1 do -- вот именно тут можно прописать мгновенное создание оравы танков.
-              -- функция постоянно занималась тем что телепортировала танки №1 и №2 на стартовую позицию.
-                checkx,checky=scanobject (28,-5,aaac);--che
-                if (checkx==-1) then smsg2="Tanks teleporters not found.";end;
-                if (checky~=nil)and(checkx~=nil)and(checkx>-1) then xt,yt=xgametorealpositionbezbyte (1+checky,checkx) ; end -- пока что печатаем по реальным координатам принтат.
-                if (renderer==1) then
-                    enemies[aaac] = class_enemy:new("tank",xt,yt,500,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0);
-                    totalenemies=totalenemies+1;
-                end;
-            end --endfor 
+    if (spawn_jednorazowy==0)then  flagchecknewteleportersenemy=0; fasttimer=-200; end;
 
-            flagchecknewteleportersenemy=0;
-        end;
-    end
+        if (titlegame=="M2K")and (levelnumber<130)  then wsego_boxes_spawn_jednorazowy=0; end; 
+      end
     --smsg1="wsego_scientist_spawn_jednorazowy="..wsego_scientist_spawn_jednorazowy;
     if (chances==nil) then chances=0; end;
 typeobject_generated="";
@@ -6155,11 +6437,11 @@ typeobject_generated="";
             hpt_new=500;
             if (chances<70) then typeobject="tank"; end;
             if (chances>66) then typeobject="gwozd";end;
-            if (chances<30) and (titlegame~="Colony") then typeobject="enemydroid";  end;
+            if (chances<30) and (titlegame~="Kolonista") then typeobject="enemydroid";  end;
             if (chances<20) then typeobject="pajak";  end;
-            if (titlegame=="Colony")and(typeobject=="gwozd") then typeobject="pajak"; end; 
-            if (chances<10)and (titlegame~="Colony") then typeobject="mimic";  end;
-            if (chances<5)and (titlegame~="Colony") then typeobject="miner"; NO_SCORE_MINES_MODE=1;  end;
+            if (titlegame=="Kolonista")and(typeobject=="gwozd") then typeobject="pajak"; end; 
+            if (chances<10)and (titlegame~="Kolonista") then typeobject="mimic";  end;
+            if (chances<5)and (titlegame~="Kolonista") then typeobject="miner"; NO_SCORE_MINES_MODE=1;  end;
             if (chances<4) then typeobject="migalka";  end;
             if (chances<3)and(enablewtank==1) then typeobject="wtank";  end;  --TEMPORARY ONLY BTANKS
             if (otladka==1) then smsg1="new "..typeobject..":: "..checkx..","..checky.."=scanobject (28,-5,"..randomteleporterselect..")"; end; --new tank
@@ -6187,17 +6469,17 @@ typeobject_generated="";
                 enemies[totalenemies+1] = class_enemy:new(typeobject,xt,yt,hpt_new,0,0,0,0,0,addspeed,10+addprotect,jedzenietimer,0,0,0,0,0,addfear,0,addslowdown,0,0,addkulemet,0,0,addinvis,addpain,addaura,0,0,0,0);
                     totalenemies=totalenemies+1;
                     typeobject_generated=typeobject;
-   --class_enemy:new(typt,x3,y3,hp,rotate,mx,my,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2)
+   --class_enemy:new(typt,x3,y3,hp,rotate,mx,my,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8)
   
                 end --of checky==true
             end
         end
     end
 
-    if (timerx>30)and(fasttimer==3)and(wsego_boxes>0)and(editor==0)and(renderer==1) then  --and(miners<1)
+    if (timerx>30)and(fasttimer==3)and(wsego_boxes_spawn_jednorazowy>0)and(editor==0)and(renderer==1) then  --and(miners<1)
         if (mimics<3)or(typeobject_generated=="mimic") then
             typeobject="mimic";
-            randomteleporterselectminer=math.ceil (math.random (wsego_boxes));
+            randomteleporterselectminer=math.ceil (math.random (wsego_boxes_spawn_jednorazowy));
             checkx,checky=scanobject (47,-5,randomteleporterselectminer);
             if (otladka==1)and(checky~=nil)and(checkx~=nil) then smsg1="new"..typeobject..":: "..checkx..","..checky.."=scanobject (34,-5,"..randomteleporterselectminer..")"; end;
             if (checky~=nil) then xt,yt=xgametorealpositionbezbyte (1+checky,checkx) ;
@@ -6327,8 +6609,29 @@ typeobject_generated="";
                 end --of checky==true
             end
         end
+
+        if (timerx>23)and(fasttimer==9)and(wsego_tank_spawn_jednorazowy>0)and(editor==0)and(renderer==1) then  --and(miners<1)
+        if (spawn_jednorazowy>0) then
+            typeobject="tank";
+            randomteleporterselect=math.ceil (math.random (wsego_tank_spawn_jednorazowy));
+            checkx,checky=scanobject (303,-5,randomteleporterselect);
+            if (otladka==1)and(checky~=nil)and(checkx~=nil) then smsg1="new"..typeobject..":: "..checkx..","..checky.."=scanobject (34,-5,"..randomteleporterselectminer..")"; end;
+            if (checky~=nil) then xt,yt=xgametorealpositionbezbyte (1+checky,checkx) ;
+                if (xt>0)and(yt>0) then
+                    printat (checky,checkx,"56");
+                    --migalok=migalok+1;
+                    addslowdown=3;
+                    addprotect=20;
+                    enemies[totalenemies+1] = class_enemy:new(typeobject,xt,yt,500,0,0,0,0,0,addspeed,10+addprotect,0,0,0,0,0,0,addfear,1,addslowdown,0,0,addkulemet,0,0,0,0,0,0,0,0,0)
+                    totalenemies=totalenemies+1;
+                end --of checky==true
+            end
+        end
     end
 
+        flagchecknewteleportersenemy=0;
+    end
+        flagchecknewteleportersenemy=0;
     -- tank PC2 selfresurrect if hardlevel or reskue  REMOVED
     -- END временный модуль для расстановки танков
 
@@ -6512,6 +6815,12 @@ typeobject_generated="";
         end
         --if  (chancesitem>0) then smsg1="Chances:"..chancesitem.."<"..chancesyou.."src="..sourceammo_f.."add="..addchances; end;
         chancesrandomsound=math.random(70);
+
+        if (zzx2ammo==28)and(komanda_pocisku=="corrosion") then 
+            printat_not_empty  (x2pla2am,y2pla2am,302); --_if_empty
+             allowshotpla2=0;
+          end
+
         --and(steps<5)and(steps>1)  --  Опция разрешения глобального рикошета. работает странно  пули танков отражаются как надо но они самоубиваются
         rikx=0;riky=0;
         if (ammoiconpla2=="cannons") then plusx=0; plusy=0;
@@ -6912,13 +7221,15 @@ typeobject_generated="";
                         if joystick:isDown(12) then movePL1="left";lastmovePL1=movePL1;  rzad="pad"; end; --dpleft xbox360
                         if joystick:isDown(13) then movePL1="right";lastmovePL1=movePL1; rzad="pad";  end; --dpright xbox360
                         if joystick:isDown(9) then ammoKEYPL1="h";  end;  -- left stick button must be defauld  L3
+
+                  
                         if joystick:isDown(7) then ammoKEYPL1="openmainmenu"; end;  -- PS key (guide?) xbox360
                         if joystick:isDown(16) then ammoKEYPL1="ammo"; firekeyPL1="fire"; end ;--right fire xbox360
                         if joystick:isDown(17) then ammoKEYPL1="ice"; icekeyPL1="ice"; joystickKEYPL1="O"; end;   --B (O xbox360)  used for CANCEL
                         if joystick:isDown(9) and joystick:isDown(10) then ammoKEYPL1="openmainmenu"; end; -- L3+R3
 
                         if joystick:isDown(8) and joystick:isDown(7)  and timerz>2 then love.audio.play(wallsnd); emulatedjoystick1as2=not_numeric(emulatedjoystick1as2);  
-                        smsg1="PL2 Select mode Versus Player or Ally Player (if available).  L3 or R3. COOP activated."; menu=0; renderer=1; 
+                        smsg1="PL2 Select mode Versus or Ally Player (if available).  L3 or R3. COOP activated."; menu=0; renderer=1; 
                         end;  -- SELECT + PAUSE XBOX ONE 
                       end
 
@@ -6943,7 +7254,7 @@ typeobject_generated="";
                         if joystick:isDown(19) then movePL1="right";lastmovePL1=movePL1; rzad="pad";  end; --dpright xbox360
 
                         if joystick:isDown(8) and joystick:isDown(7)  and timerz>2 then love.audio.play(wallsnd); emulatedjoystick1as2=not_numeric(emulatedjoystick1as2);  
-                        smsg1="PL2 Select mode Versus Player or Ally Player (if available).  L3 or R3. COOP activated."; menu=0; renderer=1; 
+                        smsg1="PL2 Select mode Versus or Ally Player (if available).  L3 or R3. COOP activated."; menu=0; renderer=1; 
                         end;  -- SELECT + PAUSE XBOX ONE 
                       end
                         if (typejoystick=="xbox1-Wireless" ) then
@@ -6967,7 +7278,7 @@ typeobject_generated="";
                         if joystick:isDown(10) then movePL1="right";lastmovePL1=movePL1; rzad="pad";  end; --dpright xbox360
 
                         if joystick:isDown(12) and joystick:isDown(16)  and timerz>2 then love.audio.play(wallsnd); emulatedjoystick1as2=not_numeric(emulatedjoystick1as2);  
-                        smsg1="PL2 Select mode Versus Player or Ally Player (if available).  L3 or R3. COOP activated."; menu=0; renderer=1; 
+                        smsg1="PL2 Select mode Versus or Ally Player (if available).  L3 or R3. COOP activated."; menu=0; renderer=1; 
                         end;  -- SELECT + PAUSE XBOX ONE 
                       end
 
@@ -6984,9 +7295,9 @@ typeobject_generated="";
                         if joystick:isDown(13)  then ammoKEYPL1="r"; end;  -- right stick click PS3 -- R3   and (ammoKEYPL1~="itemselect")and( ammoKEYPL1~="itemuse")
                         --if joystick:isDown(7) then ammoKEYPL1="ice";  end --left  fire fire PS3                        --if joystick:isDown(8) then ammoKEYPL1="ice";  end --right fire fire PS3
                         if joystick:isDown(9) then ammoKEYPL1="openmainmenu"; end;  --select PS3
-                        if joystick:isDown(10)  then movePL1="menu";  end;  --start PS3
+                        if joystick:isDown(10)  then movePL1="menu";  end;  --start PS3     USUN KOMENTARZ
                         if joystick:isDown(9) and  joystick:isDown(10) and timerz>2 then love.audio.play(wallsnd); emulatedjoystick1as2=not_numeric(emulatedjoystick1as2); 
-                          smsg1="PL2 Select mode Versus Player or Ally Player (if available).  L3 or R3. COOP activated."; menu=0; renderer=1;  
+                          smsg1="PL2 Select mode Player or Ally Player (if available).  L3 or R3. COOP activated."; menu=0; renderer=1;  
                          end;  --start PS3
                         if joystick:isDown(11) then ammoKEYPL1="openmainmenu"; end;  -- PS key (guide?) PS3
                         if joystick:isDown(12) then ammoKEYPL1="h"; end;  -- left stick click PS3   L3
@@ -6998,7 +7309,8 @@ typeobject_generated="";
                         if joystick:isDown(19) then ammoKEYPL1="openmainmenu"; end;  -- PS key (guide?)
                         if joystick:isDown(20) then ammoKEYPL1="openmainmenu"; end;  -- PS key (guide?)
                         if joystick:isDown(12) and joystick:isDown(13) then ammoKEYPL1="openmainmenu"; end; --L3+R3
-                        --if (itemkey) then smsg1="a"..ammoKEYPL1.."..itemkey.."..itemkey.."/"..itemkeypress; end;
+
+                --if (itemkey) then smsg1="a"..ammoKEYPL1.."..itemkey.."..itemkey.."/"..itemkeypress; end;
                        
                         if (PS3joystickMOD=="shanwan") then
                             if joystick:isDown(8) then movePL1="up";lastmovePL1=movePL1; rzad="pad";  end; --dpup PS3
@@ -7035,13 +7347,25 @@ typeobject_generated="";
                         if (s.x>0)and(disableleftstick==0) then movePL2="right"; lastmovePL2=movePL2; end;
                         if (rightfirejs>deadzone/10) then ammoKEYPL2="ammo";firekeyPL2="fire"; end;
                           end
-                          
-                    if joystick:isDown(12)and(typejoystick=="sonyPS3")and (coop_join_disable==0)  and gracz2idpostaci==0 then love.audio.play(wallsnd); if (RolePL2=="") then  RolePL2="czolg"; end;                      end;  -- left stick click PS3
-                    if joystick:isDown(13)and(typejoystick=="sonyPS3")and (coop_join_disable==0)  and gracz2idpostaci==0 and (titlegame=="Reskue")  then love.audio.play(wallsnd); if (RolePL2=="") then RolePL2="naukowec"; end;                     end;  -- right stick click PS3
-                    if joystick:isDown(10)and(typejoystick~="sonyPS3")and (coop_join_disable==0)  and gracz2idpostaci==0 then love.audio.play(wallsnd); if (RolePL2=="") then  RolePL2="czolg"; end;                      end;  -- left stick click PS3
-                    if joystick:isDown(11)and(typejoystick~="sonyPS3")and (coop_join_disable==0)  and gracz2idpostaci==0 and (titlegame=="Reskue")  then love.audio.play(wallsnd); if (RolePL2=="") then RolePL2="naukowec"; end;                     end;  -- right stick click PS3
-                    if joystick:isDown(14)and(typejoystick=="xbox1-Wireless")and (coop_join_disable==0)  and gracz2idpostaci==0 then love.audio.play(wallsnd); if (RolePL2=="") then  RolePL2="czolg"; end;                      end;  -- left stick click PS3
-                    if joystick:isDown(15)and(typejoystick=="xbox1-Wireless")and (coop_join_disable==0)  and gracz2idpostaci==0 and (titlegame=="Reskue")  then love.audio.play(wallsnd); if (RolePL2=="") then RolePL2="naukowec"; end;                     end;  -- right stick click PS3
+                        
+                        -- wybór gracza dla kontrollera (pada),  wybór tryba gry sieciową
+                    if (coop_join_disable==1) then if joystick:isDown(12) or joystick:isDown(13) or joystick:isDown(10 ) or joystick:isDown(11) or joystick:isDown(14) or joystick:isDown(15) then
+                       smsg1="COOPDISABLED"; love.audio.play(badsnd); 
+                     end;end; 
+                     if (coop_join_disable==0)  and gracz2idpostaci==0  then 
+                    if joystick:isDown(12)and(typejoystick=="sonyPS3")then 
+                    if (RolePL2=="") then  RolePL2="czolg"; love.audio.play(wallsnd); end;                      end;  -- left stick click PS3
+                    if joystick:isDown(13)and(typejoystick=="sonyPS3") and (titlegame=="Reskue")  then
+                     if (RolePL2=="") then RolePL2="naukowec"; love.audio.play(wallsnd); end;                     end;  -- right stick click PS3
+                    if joystick:isDown(10)and(typejoystick~="sonyPS3") then
+                     if (RolePL2=="") then  RolePL2="czolg";  love.audio.play(wallsnd);end;                      end;  -- left stick click PS3
+                    if joystick:isDown(11)and(typejoystick~="sonyPS3") and (titlegame=="Reskue")  then
+                       if (RolePL2=="") then RolePL2="naukowec";  love.audio.play(wallsnd);end;                     end;  -- right stick click PS3
+                    if joystick:isDown(14)and(typejoystick=="xbox1-Wireless") then
+                      if (RolePL2=="") then  RolePL2="czolg";  love.audio.play(wallsnd);end;                      end;  -- left stick click PS3
+                    if joystick:isDown(15)and(typejoystick=="xbox1-Wireless")and (titlegame=="Reskue")  then 
+                       if (RolePL2=="") then RolePL2="naukowec"; love.audio.play(wallsnd); end;                     end;  -- right stick click PS3
+                       end -- end coop block player 2 select
                     if (leftfirejs>deadzone/10) and (rightfirejs>deadzone/10) then ammoKEYPL2="zamiast"; end
                   --if joystick:isDown(9) and  joystick:isDown(10) and timerz>15 then timerz=0; emulatedjoystick1as2=not_numeric(emulatedjoystick1as2);  end;  --start PS3
                 end
@@ -7068,11 +7392,14 @@ typeobject_generated="";
                         if (rightfirejs>deadzone/10) then ammoKEYPL2="ammo";firekeyPL2="fire"; end;
                           end
                            
-                    if joystick:isDown(12)and (coop_join_disable==0) and gracz2idpostaci==0 then love.audio.play(wallsnd); if (RolePL2=="") then  RolePL2="czolg"; end;                      end;  -- left stick click PS3
-                    if joystick:isDown(13)and (coop_join_disable==0) and gracz2idpostaci==0 and (titlegame=="Reskue")  then love.audio.play(wallsnd); if (RolePL2=="") then RolePL2="naukowec"; end;                     end;  -- right stick click PS3
+                 if (coop_join_disable==1) then if joystick:isDown(12) or joystick:isDown(13) or joystick:isDown(10 ) or joystick:isDown(11) or joystick:isDown(14) or joystick:isDown(15) then
+                       smsg1="COOPDISABLED"; love.audio.play(badsnd); 
+                     end;end; 
+                    if joystick:isDown(12)and (coop_join_disable==0) and gracz2idpostaci==0 then  if (RolePL2=="") then love.audio.play(wallsnd); RolePL2="czolg"; end;                      end;  -- left stick click PS3
+                    if joystick:isDown(13)and (coop_join_disable==0) and gracz2idpostaci==0 and (titlegame=="Reskue")  then if (RolePL2=="") then love.audio.play(wallsnd); RolePL2="naukowec"; end;                     end;  -- right stick click PS3
                     if (leftfirejs>deadzone/10) and (rightfirejs>deadzone/10) then ammoKEYPL2="zamiast"; end
                  end
-                  if (i==2)and (emulatedjoystick1as2==1) or (i==3) and (emulatedjoystick1as2==0) then  --player 2 support   temporary simpliest 
+                  if (i==2)and (emulatedjoystick1as2==1) or (i==3) and (emulatedjoystick1as2==0) then  --player 3 support   temporary simpliest 
                     
                     if joystick:isDown(14) then movePL3="up"; end; --dpup PS3
                     if joystick:isDown(15) then movePL3="down"; end; --dpdown PS3
@@ -7094,8 +7421,11 @@ typeobject_generated="";
                         if (rightfirejs>deadzone/10) then ammoKEYPL3="ammo";firekeyPL2="fire"; end;
                           end
                            
-                    if joystick:isDown(12)and (coop_join_disable==0) and gracz2idpostaci==0 then love.audio.play(wallsnd); if (RolePL3=="") then  RolePL3="czolg"; end;                      end;  -- left stick click PS3
-                    if joystick:isDown(13)and (coop_join_disable==0) and gracz2idpostaci==0 then love.audio.play(wallsnd); if (RolePL3=="") then RolePL3="naukowec"; end;                     end;  -- right stick click PS3
+                   if (coop_join_disable==1) then if joystick:isDown(12) or joystick:isDown(13) or joystick:isDown(10 ) or joystick:isDown(11) or joystick:isDown(14) or joystick:isDown(15) then
+                       smsg1="COOPDISABLED"; love.audio.play(badsnd); 
+                     end;end; 
+                    if joystick:isDown(12)and (coop_join_disable==0) and gracz3idpostaci==0 then  if (RolePL3=="") then love.audio.play(wallsnd); RolePL3="czolg"; end;                      end;  -- left stick click PS3
+                    if joystick:isDown(13)and (coop_join_disable==0) and gracz3idpostaci==0 then  if (RolePL3=="") then love.audio.play(wallsnd);RolePL3="naukowec"; end;                     end;  -- right stick click PS3
                     if (leftfirejs>deadzone/10) and (rightfirejs>deadzone/10) then ammoKEYPL3="zamiast"; end
                 end
             end
@@ -7119,10 +7449,10 @@ typeobject_generated="";
         if love.keyboard.isDown(uammokey) then ammoKEYPL1="ammo";firekeyPL1="fire"; rzad="kb"; end;
         if love.keyboard.isDown(uicekey) then ammoKEYPL1="ice";icekeyPL1="ice";  end;
         if (kamerapad~=1) then  kamerasrc="" ; end; 
-        if love.keyboard.isDown("p") then ammoKEYPL1="p"; camerakey="p";rsKEYPL1="p"; kamerasrc="czlowiek" ;kamerapad=0; end; --camera move keys
-        if love.keyboard.isDown("[") then ammoKEYPL1="["; camerakey="[";rsKEYPL1="["; kamerasrc="czlowiek" ;kamerapad=0; end;
-        if love.keyboard.isDown("]") then ammoKEYPL1="]"; camerakey="]";rsKEYPL1="]"; kamerasrc="czlowiek" ;kamerapad=0; end;
-        if love.keyboard.isDown(";") then ammoKEYPL1=";"; camerakey=";";rsKEYPL1=";"; kamerasrc="czlowiek" ;kamerapad=0; end;
+        if love.keyboard.isDown(uxcamupkey) then ammoKEYPL1="p"; camerakey="p";rsKEYPL1="p"; kamerasrc="czlowiek" ;kamerapad=0; end; --camera move keys
+        if love.keyboard.isDown(uxcamleftkey) then ammoKEYPL1="["; camerakey="[";rsKEYPL1="["; kamerasrc="czlowiek" ;kamerapad=0; end;
+        if love.keyboard.isDown(uxcamrightkey) then ammoKEYPL1="]"; camerakey="]";rsKEYPL1="]"; kamerasrc="czlowiek" ;kamerapad=0; end;
+        if love.keyboard.isDown(uxcamdownkey) then ammoKEYPL1=";"; camerakey=";";rsKEYPL1=";"; kamerasrc="czlowiek" ;kamerapad=0; end;
         if love.keyboard.isDown(ubombkey) then ammoKEYPL1="bomb" ;end;
         if love.keyboard.isDown(ubombkey)and(menu==9) then ammoKEYPL1="unpack" ;end;
         if love.keyboard.isDown(uhealkey) then ammoKEYPL1="h"; end;
@@ -7134,9 +7464,15 @@ typeobject_generated="";
         if love.keyboard.isDown(",") then ammoKEYPL1="placeenemy" end;  -- Используется для отработки мультиинстансных танков.
         if love.keyboard.isDown("f5")and(gameover==0) then ammoKEYPL1="savegame" end;
         if love.keyboard.isDown("kp0")then ammoKEYPL2="ammo"; end;
-        if love.keyboard.isDown("kp7")and (gracz2idpostaci==0)and (coop_join_disable==0) then love.audio.play(wallsnd); if (RolePL2=="") then  RolePL2="czolg"; end; end;  -- left stick click PS3 end;
-        if love.keyboard.isDown("kp9")and (gracz2idpostaci==0)and (titlegame=="Reskue") and (coop_join_disable==0) then love.audio.play(wallsnd); if (RolePL2=="") then  RolePL2="naukowec"; end; end;  
-        
+        --smsg1="gracz2idpostaci.."..gracz2idpostaci.." k1:"..ammoKEYPL1.." k2:"..ammoKEYPL2;
+        if (selectplayermode=="versus") or love.keyboard.isDown("kp7") then if  (gracz2idpostaci==0)and (coop_join_disable==0) then
+         love.audio.play(wallsnd); if (RolePL2=="") then  RolePL2="czolg"; end; 
+         end; end ;  -- left stick click PS3 end;
+        if (selectplayermode=="coop") or love.keyboard.isDown("kp9") then if (gracz2idpostaci==0)and (titlegame=="Reskue") and (coop_join_disable==0) then 
+          love.audio.play(wallsnd); if (RolePL2=="") then  RolePL2="naukowec"; end;
+           end;  end;
+         -- if (titlegame~="Reskue")and (coop_join_disable==0)and (RolePL2=="") then RolePL2="czolg";end;         
+
         if love.keyboard.isDown("kp.") then ammoKEYPL2="zamiast"; end;
         if love.keyboard.isDown("kp6") then movePL2="right";lastmovePL2=movePL2;  end;
         if love.keyboard.isDown("kp4") then movePL2="left";lastmovePL2=movePL2;  end;
@@ -7171,7 +7507,7 @@ typeobject_generated="";
         if (protect<1) then hp=hp-1; end;
         if (poziom>0) then hp=hp-1; end;
         if (hardlevel>0) then hp=hp-1;end ;
-        if ((tank==1)and (randomget>40)) or ((titlegame=="Colony") and (randomget>20)) 
+        if ((tank==1)and (randomget>40)) or ((titlegame=="Kolonista") and (randomget>20)) 
         then hp=hpsave end;
     end;
 
@@ -7430,12 +7766,17 @@ typeobject_generated="";
             editorloadlevel=1;
             love.load()
         end
-        --эту функцию потом вернуть в редактор!!!   чуток ниже.     xdatapreparetowrite ();  ANALOG MAP SAVE MAP WRITE ЗАПИСЬ КАРТЫ НА ДИСК
-        if love.keyboard.isDown("f5")and not (love.keyboard.isDown("lshift")) and not (love.keyboard.isDown("lctrl"))   then
+        --  xdatapreparetowrite ();  ANALOG MAP SAVE MAP WRITE ЗАПИСЬ КАРТЫ НА ДИСК
+        if love.keyboard.isDown("f5")and not (love.keyboard.isDown("lshift")) and not (love.keyboard.isDown("lctrl"))and(pietro>1)   then
+          smsg1="Pietro 2 . MAP NOT SAVED ."; 
+        end
+
+        if love.keyboard.isDown("f5")and not (love.keyboard.isDown("lshift")) and not (love.keyboard.isDown("lctrl"))and(pietro==1)   then
+          
             pathtosavemap=love.filesystem.getSourceBaseDirectory().."/Levels/LEVEL"..levelnumber..".$C";
             -- в этом месте в уровень надо передать коды уровня + всех параметров в формате M2K включая новые.
             -- важно всего 4 места для загрузки и передачи параметров, но для сохранения и карты они немного различаются,не могут быть просто скопированы целиком.
-
+          -- redaktor pozioma robi tutaj. альтернатива function xdatapreparetowrite ()
             xdata[55623]=poke (greenshitdelay);
             xdata[55624]=poke(darkzone);
             xdata[55625]=poke (gamey(y)+1);
@@ -7449,6 +7790,11 @@ typeobject_generated="";
             xdata[55638]=poke(targetremains);
             if (gamex(xpla2)<mapsize_horizontal)and(gamey(ypla2)<mapsize_horizontal) then xdata[55640]=poke (math.ceil(gamex(xpla2)));
                 xdata[55639]=poke (math.ceil(1+gamey(ypla2))); end
+            xdata[55641]=poke (0); -- savegamecounter не должен сохранятся редактором
+            xdata[55642]=poke (parameter80);
+            xdata[55643]=poke (parameter81);
+            xdata[55644]=poke (parameter82);
+            xdata[55645]=poke (parameter83);
             xdata[55646]=poke (powerstate);--БУГ  sost lazerow
             xdata[55647]=poke (0);  -- не для карты ! инвентарь 5 tx координаты телепортов сохранять ненадо. есть маркер. билд 4000.
             xdata[55648]=poke (0);  -- не для карты ! инвентарь 6 ty
@@ -7476,7 +7822,7 @@ typeobject_generated="";
             xdata[55661]=poke (backgroundcolorlevel);
             xdata[55662]=poke (colorizepole);
             xdata[55663]=poke (colorizeboulder);
-            xdata[55664]=poke (0);--(multikills);
+            xdata[55664]=poke (0);--(multikills); не должен сохранятся редактором
             xdata[55665]=poke (0);--(ultrakills);
             xdata[55666]=poke (parameter66);
             xdata[55667]=poke (parameter67);
@@ -7540,6 +7886,17 @@ typeobject_generated="";
         --управление рисованием в редакторе
         --if (love.keyboard.isDown("1")) then setspeed (10); end
         if (love.keyboard.isDown("lshift"))and(editor==1) then setspeed (12); end;
+
+        if (editor==1) and love.keyboard.isDown("pageup") and (pietro==1) then
+            pietro=pietro+1;
+            map_changed=1;
+            changepietro (1,2);    
+        end
+        if (editor==1) and love.keyboard.isDown("pagedown") and (pietro==2) then
+            pietro=pietro-1;
+            map_changed=1;
+            changepietro (2,1);    
+        end
         if (love.keyboard.isDown("capslock"))and(editor==1) then setspeed (14); end;
 
         if (weaponPL1~="")and(editorcallselectobject==0)or(love.keyboard.isDown("1")) then  -- базовые функции редактора
@@ -7574,6 +7931,12 @@ typeobject_generated="";
         if love.keyboard.isDown("f4") and love.keyboard.isDown("lctrl")then        huded=1;    end
         if love.keyboard.isDown("f5") and love.keyboard.isDown("lctrl")and (selectedtankid>0) then huded=3;    end
         if love.keyboard.isDown("f6") and love.keyboard.isDown("lctrl") then        huded=2;    end
+                if love.keyboard.isDown("f1") and love.keyboard.isDown("rctrl")then        huded=-2;    end
+        if love.keyboard.isDown("f2") and love.keyboard.isDown("rctrl")then        huded=-1;    end
+        if love.keyboard.isDown("f3") and love.keyboard.isDown("rctrl")then        huded=0;    end
+        if love.keyboard.isDown("f4") and love.keyboard.isDown("rctrl")then        huded=1;    end
+        if love.keyboard.isDown("f5") and love.keyboard.isDown("rctrl")and (selectedtankid>0) then huded=3;    end
+        if love.keyboard.isDown("f6") and love.keyboard.isDown("rctrl") then        huded=2;    end
 
         if love.keyboard.isDown("f2") and love.keyboard.isDown("lshift")then
             for b=gamey(y),gamey(ypla2),1 do
@@ -7795,11 +8158,11 @@ typeobject_generated="";
             senddeadmsg=0;
             for enemynum=1,totalenemies,1 do
                 nowenemy=enemynum;
-                typt_TGD,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[nowenemy]:get(); --,rotate[a]    attempt to index global rotate  (a nil value)          --smsg1="AAAAAAAAA xx2="..xx2.." xtn="..xt.." yy2=".. yy2.." yt="..yt;
+                typt_TGD,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[nowenemy]:get(); --,rotate[a]    attempt to index global rotate  (a nil value)          --smsg1="AAAAAAAAA xx2="..xx2.." xtn="..xt.." yy2=".. yy2.." yt="..yt;
                 if (hpt<1)and(deadanim~="tankdead")then
-                  cooldowntanks=200;  -- обычно не срабатывает никогда .  по какой то причине. 
+                  cooldowntanks=200;  -- обычно не срабатывает никогда .  по какой то причине.  hptank==0
                     love.audio.play (tankdeadsnd);
-                    if (titlegame~="Colony") then score=score+70; end
+                    if (titlegame~="Kolonista") then score=score+70; end
                     if (typt_TGD~="scientist")and(typt_TGD~="wtank") then newloot=droploot(10);      printat_if_empty (xt,yt,newloot);             end
                     if (typt_TGD=="wtank") then  printat_if_empty (xt,yt,124);   end
                     hpt=0; senddeadmsg=1;tanksdestroyed=tanksdestroyed+1;
@@ -7837,7 +8200,13 @@ typeobject_generated="";
                     if (zabicie>3) then smsg1="multikill !";   multikills=multikills+1; check_nagrode (); end 
                     if (zabicie>5) then smsg1="ultrakill !";  ultrakills=ultrakills+1;  end 
                     -- if (sourceammo_TGD=="jezyk") then command_power_TGD=1000; end ;  -- Jezyk wysyła power=0; 
-                    if (sourceammo_TGD=="PC1") then hplasttank=hpt; sledzione_hp_tankid=enemynum;  end      --if (sourceammo_TGD=="PC1")and(typt_TGD=="wtank") then hplasttank=hpt/4;   sledzione_hp_tankid=enemynum; end
+                 if (sourceammo_TGD=="PC1") then
+                      hplasttank=hpt; -- TO DISPLAY AS PLAYER GUI!!!
+                      sledzione_hp_tankid=enemynum; 
+                      hplt_command=command_TGD;
+                      hplasttank_power=command_power_TGD;
+                     end 
+                        --if (sourceammo_TGD=="PC1")and(typt_TGD=="wtank") then hplasttank=hpt/4;   sledzione_hp_tankid=enemynum; end
                     potrafil=true;
                     if (command_TGD=="")or(command_TGD=="c_a_update") then   if (protecttanks<1) then hpt=hpt-damage_TGD/2; end;               end;
                     --STUN????
@@ -7876,7 +8245,8 @@ typeobject_generated="";
                     if (command_TGD=="dispel")and(protecttanks<1) then
                         freezetanks=0; feartanks=0; damagetimertanks=0; slowPL1tanks=0;speedtanks=0;  painreflecttanks=0; invisibletanks=0;  haveaura=""; end;
                     if (command_TGD=="painreflect") then painreflecttanks=painreflecttanks+command_power_TGD; end
-                    if (command_TGD=="explodebomb") then by=math.ceil (gamey(yt));bx=math.ceil(gamex(xt)); --by=x; bx=y;
+
+                           if (command_TGD=="explodebomb") then by=math.ceil (gamey(yt));bx=math.ceil(gamex(xt)); --by=x; bx=y;
                         delayed_cmd="explodebomb"; delayed_snd="dynamitesnd"; delayed_power=500; delayed_id=0; delayed_src="explodebomb_ammo";
                     end
                     if (command_TGD=="explodeshards") then -- explode shards used
@@ -7892,7 +8262,7 @@ typeobject_generated="";
 
                     --love.audio.play(patronysnd) ;       пощёлкивание ауры убрано   здесь должен быть звук ауры но его нет.
                     --if (senddeadmsg==1) then deadanim="tankdead";  senddeadmsg=0; end;
-                    enemies[nowenemy]:set(typt_TGD, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2); -- NIL  kak tak?
+                    enemies[nowenemy]:set(typt_TGD, xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8); -- NIL  kak tak?
                     -- удаление этой строки удаляет вред танкам от взрывов бомб и ловушек но убирает и телепортацию.  проблема двойной записи в таблицу с танками.
                     -- в данный момент танки всё ещё телепортируются к бомбам в которые они стреляли
                     return potrafil,zabicie;
@@ -7965,21 +8335,30 @@ typeobject_generated="";
 
         if (editor==0)or((spacepressed==1))or(love.keyboard.isDown("l")) then --or(love.keyboard.isDown("9c"))
             windowsczujnosc=2;
-            if (ObjectSIZE==1) then windowsczujnosc=2; end; 
+            if (ObjectSIZE==1) then windowsczujnosc=1; end; 
+            if (ObjectSIZE>1) then windowsczujnosc=3; end; 
             if (editor==1) then windowsczujnosc=1; end;
             if (gamex(x)-cameraleftpos_x_hor>visual_mapsize_horizontal-(windowsczujnosc+1))and (cameraleftpos_x_hor<mapsize_horizontal-visual_mapsize_horizontal) then 
-             camerakey="]";if (cameratimer==0)and(kamerasrc~="czlowiek") then cameratimer=20; reqmovecamera="right";  end; 
+             camerakey="]";if (cameratimer==0)and(kamerasrc~="czlowiek") then cameratimer=20;
+             if (ObjectSIZE==1) then cameratimer=12; end; 
+              reqmovecamera="right";  end; 
                end;
             if (gamex(x)-cameraleftpos_x_hor<windowsczujnosc)and (cameraleftpos_x_hor>0) then
-             camerakey="[";if (cameratimer==0)and(kamerasrc~="czlowiek") then cameratimer=20; reqmovecamera="left"; end;
+             camerakey="[";if (cameratimer==0)and(kamerasrc~="czlowiek") then cameratimer=20;
+               if (ObjectSIZE==1) then cameratimer=12; end; 
+              reqmovecamera="left"; end;
              end; -- tut mamy problem
             if (gamey(y)-camerauppos_y_vert>visual_mapsize_vertical-windowsczujnosc)and (camerauppos_y_vert<mapsize_vertical-visual_mapsize_vertical)then
              camerakey=";"; 
-             if (cameratimer==0)and(kamerasrc~="czlowiek") then cameratimer=10; reqmovecamera="down";  end; 
+             if (cameratimer==0)and(kamerasrc~="czlowiek") then cameratimer=10; 
+                 if (ObjectSIZE==1) then cameratimer=7; end; 
+              reqmovecamera="down";  end; 
              end; -- tut mamy problem
             if (gamey(y)-camerauppos_y_vert<windowsczujnosc)and  (camerauppos_y_vert>0)  then 
               camerakey="p"; 
-              if (cameratimer==0)and(kamerasrc~="czlowiek") then cameratimer=10; reqmovecamera="up";  end; 
+              if (cameratimer==0)and(kamerasrc~="czlowiek") then cameratimer=10; 
+                if (ObjectSIZE==1) then cameratimer=7; end; 
+                reqmovecamera="up";  end; 
               end;
         end
         
@@ -8200,6 +8579,7 @@ typeobject_generated="";
         if (codeitem~=nil) then
             usable=ext_objs_string (codeitem,22);
             rifleenh=ext_objs_string (codeitem,23);
+            remove_inv_after_using_item=ext_objs_string (zzx,27);
             alreadyaction=0;
             if (usable=="usable")and(rifleenh=="slot0")and (slot0==0) then
                 slot0=codeitem;
@@ -8264,9 +8644,10 @@ typeobject_generated="";
             
             if (usable=="usable")and(rifleenh=="") then  -- Others item using    używanie itemów "c" ekwipunek
                 plusx=0; plusy=0;
-                removeinventoryitem(itemkey);
-                --inventory_fast_and_full_remove_flag_enable=1; 
-                reactmove (codeitem,1);
+                removeinventoryitem(itemkey); -- usuwanie robi jak należy . używanie jest problemem.
+                --remove_inv_after_using_item=="removeinvafteruse"
+                inventory_fast_and_full_remove_flag_enable=1; 
+                reactmove (codeitem,inventory_fast_and_full_remove_flag_enable);
 
             end
             -- реакция на usable особые предметы. 
@@ -8313,10 +8694,22 @@ typeobject_generated="";
     end
 
 
+  if (love.keyboard.isDown(urestkey)and love.keyboard.isDown("rctrl"))and(titlegame=="M2K") then
+        levelnumber=132;
+        smsg1="Sekretny poziom Kolonista!";
+     
+        music:stop(mtrack);
+        levelname="Levels/LEVEL"..levelnumber..".$C";
+        allowris=1;
+        stage0_fps=FPSnow;
+        love.load ();
+
+    end
 
     if (love.keyboard.isDown(urestkey)and love.keyboard.isDown("=")) then
         levelnumber=999;
         smsg1="Benchmark mode activated.";
+        x=0; y=0;
         music:stop(mtrack);
         levelname="Levels/LEVEL"..levelnumber..".$C";
         allowris=1;
@@ -8360,6 +8753,7 @@ typeobject_generated="";
             damagetimerPL1=0;slowPL1=0; freezetimerPL1=0; invisibletimerPL1=0;
             feartimerPL1=0;resurrecttimer=300;cursedtimerPL1=0;
             pajaktimerPL1=0; 
+            itemcooldown_PL1=0; 
             speedtimer=0 ; -- Теперь бонусы ускорения и усиления после смерти также отбираются.
             ammoKEYPL1="";
             if (titlegame=="Reskue") then
@@ -8373,14 +8767,14 @@ typeobject_generated="";
             if (destroy_inventory_after_dead==1) then
                 inventoryitemtable={}; countinventory=0;
             end
-        if (titlegame=="Reskue")or(titlegame=="Colony") then
-          smsg1="try add"; 
+        if (titlegame=="Reskue")or(titlegame=="Kolonista") then
+          --smsg1="try add"; 
           if (lives==1)and(slot5~=272)and(poziom==0) then addinventoryitem (272);
             lasthopeadded=1; 
           end   
         end
 
-            if (titlegame=="Colony") then tank=0; end;
+            if (titlegame=="Kolonista") then tank=0; end;
             hp=hpmax; lives=lives-1;
             anikadr=0;anitimer=0;anicycles=0;
             express=0; -- игрок вылезет из экспресса
@@ -8501,9 +8895,18 @@ typeobject_generated="";
 
     end
 
+    if love.keyboard.isDown("f10")and(timerz>3)and love.keyboard.isDown("f9") then
+        modtextures=not_numeric (modtextures);
+        create_atlas (); map_changed=2;
+        --love.filesystem.setIdentity('atlas');
+        --ATLAS:newImageData():encode('png', "123.png");  -- сохраняем фотку атласа на память.
+
+    end
+
+
    pausedelay=0;
     
-    if love.keyboard.isDown("f12")and(timerz>3) then
+    if love.keyboard.isDown("f11")and(timerz>3) then
           collectgarbage("collect");
            timerz=1; 
         if (not man_is_moving) then ObjectSIZEchangeallow=1;  --266
@@ -8520,12 +8923,14 @@ typeobject_generated="";
     if (execute==true) then  smsg2="execute="..execute; end;
 
 
-    -- Menu 6 pagesSAVES реализация выбора сохранений игр.
+    -- Menu 6 zapisy_SAVES реализация выбора сохранений игр.
 
     if (execute=="quicksave") then ammoKEYPL1="savegame"; selectedoptionmenu=0;menu=0;end
     if (execute=="savegame") then ammoKEYPL1="savegame";  selectedoptionmenu=0;menu=0;end --savegamename
-
-    if ((love.keyboard.isDown("f5"))and(editor==0))and (gameover==0)or(ammoKEYPL1=="savegame")and(editor==0)and (gameover==0) then  --SAVE GAME
+    if ((love.keyboard.isDown("f5"))and(pietro>1)) then 
+      smsg1="Pietro 2 save not allowed.";
+       end; 
+    if ((love.keyboard.isDown("f5"))and(pietro==1)and(editor==0))and (gameover==0)or(ammoKEYPL1=="savegame")and(editor==0)and (gameover==0)and(pietro==1) then  --SAVE GAME
         if (score<1) then
           smsg1="Unable to save game. No score left."; execute=""; ammoKEYPL1=""; end
         if (demka==1) then 
@@ -8536,7 +8941,7 @@ typeobject_generated="";
         end;
         if (score>0) then ammoKEYPL1="";
         smsg1="Game saved";  
-
+        savegamecounter=savegamecounter+1; 
         xdatapreparetowrite ();
         -- в этом месте должны быть переданы наигранные параметры для сохранения игры.
         datatowrite=table.concat(xdata);
@@ -8582,7 +8987,7 @@ typeobject_generated="";
         end
 
         maxselectforgame=1;steplevel=0;
-        if (titlegame=="Reskue") then maxselectforgame=12;steplevel=1; NO_SCORE_MINES_MODE=1; end
+        if (titlegame=="Reskue") then maxselectforgame=14;steplevel=1; NO_SCORE_MINES_MODE=1; end
         if (titlegame=="M2K") then maxselectforgame=35; steplevel=5;end
     
 
@@ -8601,8 +9006,8 @@ typeobject_generated="";
 
             loading_process_flag=1;
             firstload_complete=1; 
-            --smsg1="fck"..pagesSAVES[3][1].."!"..pagesSAVES[3][2].."!"..pagesSAVES[3][3].."!"..pagesSAVES[3][4].."!";   pp  --
-            if (pagesSAVES[3][4]=="1")and(firstload==0)and(disable_quickload_at_start==0) then execute="quickload"; menu=0; renderer=1;pause=0; 
+            --smsg1="fck"..zapisy_SAVES[3][1].."!"..zapisy_SAVES[3][2].."!"..zapisy_SAVES[3][3].."!"..zapisy_SAVES[3][4].."!";   pp  --
+            if (zapisy_SAVES[3][4]=="1")and(firstload==0)and(disable_quickload_at_start==0) then execute="quickload"; menu=0; renderer=1;pause=0; 
                 loadsavegame="yes";--smsg1="autoload";
                 disable_quickload_at_start=1;
                 love.load (); end
@@ -8640,7 +9045,7 @@ typeobject_generated="";
             timerz=0;
             end
         end
-        -- Menu 6 pagesSAVES реализация выбора сохранений игр.
+        -- Menu 6 zapisy_SAVES реализация выбора сохранений игр.
         --if (execute=="quickload") =="loadgame") then ammoKEYPL1="menu_load";  end --savegamename
         --это обычное сохранение игры, не сохранение карты в редакторе.
         -- сохранение - подсчет свободных байтов в save файле - --всё поле - 863 клетки   +128 =991
@@ -8719,6 +9124,7 @@ typeobject_generated="";
     if love.keyboard.isDown("escape")or(ammoKEYPL1=="openmainmenu") then
         stattitle=0;
         renderer=0; -- START GAME OPTION
+        if (menu==1) then writeactualsettings=1;writesettingsgame () ;end;
         menu=0;selectedoptionmenu=1;
         pause=1;
     end
@@ -8738,44 +9144,12 @@ typeobject_generated="";
 
         if ((selectedoptionmenu==1)and(spacepressed==1))or(ammoKEYPL1=="zero")or (joystickKEYPL1=="O") then
             menu=0;selectedoptionmenu=1;
-            writeactualsettings=1;
+            writeactualsettings=1;writesettingsgame () ;
         end
 
 
-        if (writeactualsettings==1) then
-            pnew={};
-            pnew[1]=poke (musicvolume);
-            pnew[2]=poke (mastervolume);
-            pnew[3]=poke (language);
-            pnew[4]=poke (nomusic);
-            pnew[5]=poke (coop_join_disable); --похоже не используется 
-            pnew[6]=poke (editor_dont_show_broken_items);
-            pnew[7]=poke (saveslot);
-            pnew[8]=poke (lastmove);
-            pnew[9]=poke (poziom);
-            pnew[10]=poke (fpslock);
-            pnew[11]=poke (ObjectSIZE);
-            pnew[12]=poke (setspeedgame);
-            pnew[13]=poke (effectvolume);
-            pnew[14]=poke (savparam1);
-            pnew[15]=poke (savparam2);
-            pnew[16]=poke (deadzone);
-            pnew[17]=poke (savparam4);
-            pnew[18]=poke (invertaxesleft);
-            pnew[19]=poke (invertaxesright);
-            pnew[20]=poke (disableleftstick);
-            pnew[21]=poke (disablerightstick);
-
-            local mydata = binser.serialize(uammokey,uicekey,ubombkey,udropkey,uleftkey,urightkey,uupkey,udownkey,unpackkey,uhealkey,urestkey,uzbrojakey,ustatkey,utostartkey)
-
-            datatowrite=table.concat(pnew);
-            sourcewrite(datatowrite, "gamesettings1");
-            if (ossys~="Android") then  sourcewrite(mydata, "keyboardsettings");  end
-            smsg1="Game settings saved.";
-            -- тут должно быть отображение дискетки с сохранением файла
-
-        end;
-        keyword=pages_settings[selectedoptionmenu+1][2];typenumeric=pages_settings[selectedoptionmenu+1][5];
+        
+        keyword=menu_settings[selectedoptionmenu+1][2];typenumeric=menu_settings[selectedoptionmenu+1][5];
         if ((typenumeric=="l")and(spacepressed==1))or((typenumeric=="l")and(love.keyboard.isDown("right")))or(typenumeric=="l")and(movePL1=="right") then
             timerz=8; _G[keyword]=not_numeric (_G[keyword]); --универсальная логическая настройка
 
@@ -8851,12 +9225,13 @@ typeobject_generated="";
                 timerz=0;  --vsyncc
                 levelnumber=999;
                 smsg1="Benchmark mode activated.";
+                x=0;y=0;
                 music:stop(mtrack);
                 levelname="Levels/LEVEL"..levelnumber..".$C";
                 allowris=1; pause=0;
                 renderer=1;
                 stage0_fps=FPSnow;
-                benchmark_stage=1;timerz=0;
+                benchmark_stage=1;timerz=-10;
             end ;
 
             if ((selectedoptionmenu==8)and(spacepressed==1))and(timerz>2)or(ammoKEYPL1=="language") then
@@ -8864,8 +9239,8 @@ typeobject_generated="";
         end;
 
 
-        if (language>3) then language=2; end;
-        if (language>3)and(ossys=="Android") then language=0; end;
+        if (language>2) then language=2; end;
+        if (language>2)and(ossys=="Android") then language=0; end;
         if (language<0) then language=0; end;
         ammoKEYPL1="";
     end
@@ -8890,7 +9265,7 @@ end
         end
     if ((selectedoptionmenu==1)and(spacepressed==1))or(ammoKEYPL1=="zero")or (joystickKEYPL1=="O") then
             menu=0;selectedoptionmenu=1;
-            writeactualsettings=1;
+            writeactualsettings=1;writesettingsgame () ;
         end
 end
     -- опрос клавиатуры и переназначение клавиш. keyboardsettings ustawenia2
@@ -8906,19 +9281,23 @@ end
             menu=1; selectedoptionmenu=1;
             uuammokey=uammokey ;uuicekey=uicekey;uubombkey=ubombkey;uudropkey=udropkey;uuleftkey=uleftkey;uurightkey=urightkey ;uuupkey=uupkey;uudownkey=udownkey;uuunpackkey=uunpackkey;
             uuhealkey=uhealkey; uurestkey=urestkey; uuzbrojakey=uzbrojakey; uustatkey=ustatkey; uutostartkey=utostartkey;
-            timerz=0;
-            zero=0;
+          
+            uuxcamleftkey=uxcamleftkey; uuxcamrightkey=uxcamrightkey; uuxcamupkey=uxcamupkey; uuxcamdownkey=uxcamdownkey;
+            timerz=0;            zero=0;
         end
         if ((selectedoptionmenu==1)and(spacepressed==1)) then
             menu=1; selectedoptionmenu=1;
             uammokey=uuammokey ;uicekey=uuicekey;ubombkey=uubombkey;udropkey=uudropkey;uleftkey=uuleftkey;urightkey=uurightkey ;uupkey=uuupkey;udownkey=uudownkey;uunpackkey=uuunpackkey;
             uhealkey=uuhealkey; urestkey=uurestkey; uzbrojakey=uuzbrojakey; ustatkey=uustatkey; utostartkey=uutostartkey;
+           uxcamleftkey=uuxcamleftkey; uxcamrightkey=uuxcamrightkey; uxcamupkey=uuxcamupkey; uxcamdownkey=uuxcamdownkey;
             timerz=0;zero=0;
         end
         if ((selectedoptionmenu==2)and(spacepressed==1)) then
 
             uuammokey="lshift";uuicekey="capslock";uubombkey="z";uudropkey="x";uuleftkey="left";uurightkey="right";uuupkey="up";uudownkey="down";uuunpackkey="u";
            uuhealkey="h"; uurestkey="r";uuzbrojakey="c"; uustatkey="v";uutostartkey="l";
+            uuxcamleftkey="["; uuxcamrightkey="]"; uuxcamupkey="p"; uuxcamdownkey=";";
+            uxcamleftkey="["; uxcamrightkey="]"; uxcamupkey="p"; uxcamdownkey=";";
             timerz=0;zero=0;
         end
 
@@ -8979,7 +9358,7 @@ end
         if ((selectedoptionmenu==1)and(spacepressed==1))or(ammoKEYPL1=="zero")or(joystickKEYPL1=="O") then
             menu=0;renderer=1; selectedoptionmenu=1;
         end
-        keyword=pages4[selectedoptionmenu+1][2];
+        keyword=editor_settings[selectedoptionmenu+1][2];
         if ((selectedoptionmenu>1)and(love.keyboard.isDown("right")))or(movePL1=="right") then
             timerz=9; _G[keyword]=_G[keyword]+1;
         end
@@ -9024,11 +9403,11 @@ end
             smsg1="Exit without ship ordering.";
         end
 
-        for i=2, #pagesSC,1 do
-            id=pagesSC[i][1];--это просто номер ключа в таблице
-            iditem=pagesSC[i][2]; --это просто номер id item
-            nameitem=pagesSC[i][3]; -- название переменной содержащей картинку загруженную ранее в love.load.
-            costitem=tonumber (pagesSC[i][4]);     --keypresspages=pagesSC[i][1];
+        for i=2, #centrum_dostawy_listSC,1 do
+            id=centrum_dostawy_listSC[i][1];--это просто номер ключа в таблице
+            iditem=centrum_dostawy_listSC[i][2]; --это просто номер id item
+            nameitem=centrum_dostawy_listSC[i][3]; -- название переменной содержащей картинку загруженную ранее в love.load.
+            costitem=tonumber (centrum_dostawy_listSC[i][4]);     --keypressmenu_glowna=centrum_dostawy_listSC[i][1];
             if (costitem==nil) then costitem=0; end;
             --if (id==nil) then id=0; end;
 
@@ -9040,8 +9419,8 @@ end
                     end;
                     --love.audio.play(swapitem);
 
-                    iditem=pagesSC[selectedoptionmenu+1][2]; --это просто номер id item
-                    costitem=tonumber (pagesSC[selectedoptionmenu+1][4]);
+                    iditem=centrum_dostawy_listSC[selectedoptionmenu+1][2]; --это просто номер id item
+                    costitem=tonumber (centrum_dostawy_listSC[selectedoptionmenu+1][4]);
                     additemshippinglist (iditem);
                     if (i~=3) then playsoundifvisible (order1snd,x,y); end
 
@@ -9079,19 +9458,19 @@ end
             smsg1="Exit without action.";
         end
 
-        for i=2, #pagesSC_CC-1,1 do
+        for i=2, #kontrolny_centrum_SC_CC-1,1 do
                             a=selectedoptionmenu+1;
-                            if (selectedoptionmenu>#pagesSC_CC-1) then iditem=0;a=2;  end; 
-                            iditem=ext_param (pagesSC_CC,a,1,"number");
-                            smsg_code=ext_param (pagesSC_CC,a,2,"string");-- textdatacontent,nameitem=smsg_string (objs[iditem+1][13])
-                            act=ext_param (pagesSC_CC,a,3,"string");
-                            cena=ext_param (pagesSC_CC,a,4,"number");
-                            znizka=ext_param (pagesSC_CC,a,5,"number");
-                            sklepnazwa=ext_param (pagesSC_CC,a,6,"string");
-                            iloscitemow=ext_param (pagesSC_CC,a,7,"number");
-                            typeCC=ext_param (pagesSC_CC,a,8,"string");
-                            no_hardlevel=ext_param (pagesSC_CC,a,9,"string");
-                            reqGAME=ext_param (pagesSC_CC,a,10,"string");
+                            if (selectedoptionmenu>#kontrolny_centrum_SC_CC-1) then iditem=0;a=2;  end; 
+                            iditem=ext_param (kontrolny_centrum_SC_CC,a,1,"number");
+                            smsg_code=ext_param (kontrolny_centrum_SC_CC,a,2,"string");-- textdatacontent,nameitem=smsg_string (objs[iditem+1][13])
+                            act=ext_param (kontrolny_centrum_SC_CC,a,3,"string");
+                            cena=ext_param (kontrolny_centrum_SC_CC,a,4,"number");
+                            znizka=ext_param (kontrolny_centrum_SC_CC,a,5,"number");
+                            sklepnazwa=ext_param (kontrolny_centrum_SC_CC,a,6,"string");
+                            iloscitemow=ext_param (kontrolny_centrum_SC_CC,a,7,"number");
+                            typeCC=ext_param (kontrolny_centrum_SC_CC,a,8,"string");
+                            no_hardlevel=ext_param (kontrolny_centrum_SC_CC,a,9,"string");
+                            reqGAME=ext_param (kontrolny_centrum_SC_CC,a,10,"string");
                             keyword=reqGAME;
 
             id=i;
@@ -9137,17 +9516,17 @@ end
             timerz=0;
         end
 
-        for i=3, #pagesSAVES,1 do
-            id=pagesSAVES[i][1];
+        for i=3, #zapisy_SAVES,1 do
+            id=zapisy_SAVES[i][1];
             sa=0;   --PC ::  id 2 idcopy 2 quicksave f5 sa= exit without save (what? ) selected option menu =2
-            if (#pagesSAVES)and(timerz>4)then
+            if (#zapisy_SAVES)and(timerz>4)then
                 if ((spacepressed==1))and(selectedoptionmenu>1)or(ammoKEYPL1==(id))   then --selectedoption работает только с компьютера,  с андроида идет ammoKEYPL1
 
                     if (ammoKEYPL1==(id)and(id~="128")) then selectedoptionmenu=id;
                         if (otladka==1) then smsg1="A:i="..i.." id="..id..", savegamename="..savegamename.." sa="..sa.." selectedoptionmenu="..selectedoptionmenu;      end;
                     end;
-                    id=pagesSAVES[selectedoptionmenu+1][1];
-                    savegamename=pagesSAVES[selectedoptionmenu+1][2];
+                    id=zapisy_SAVES[selectedoptionmenu+1][1];
+                    savegamename=zapisy_SAVES[selectedoptionmenu+1][2];
                     idcopy=id; menu=0;
                     timerz=0;
                     execute="savegame";
@@ -9189,18 +9568,18 @@ end
             timerz=0;
         end
 
-        for i=3, #pagesSAVES,1 do
-            id=pagesSAVES[i][1];
+        for i=3, #zapisy_SAVES,1 do
+            id=zapisy_SAVES[i][1];
             sa=0;   --PC ::  id 2 idcopy 2 quicksave f5 sa= exit without save (what? ) selected option menu =2
-            if (#pagesSAVES)and(timerz>4)then
+            if (#zapisy_SAVES)and(timerz>4)then
                 if ((spacepressed==1))and(selectedoptionmenu>1)or(ammoKEYPL1==(id))   then --selectedoption работает только с компьютера,  с андроида идет ammoKEYPL1
 
                     if (ammoKEYPL1==(id)and(id~="128")) then selectedoptionmenu=id;
                         smsg1="A:i="..i.." id="..id..", savegamename="..savegamename.." sa="..sa.." selectedoptionmenu="..selectedoptionmenu;
                     end;
-                    id=pagesSAVES[selectedoptionmenu+1][1];
-                    savegamename=pagesSAVES[selectedoptionmenu+1][2];
-                    savetest=pagesSAVES[selectedoptionmenu+1][4];
+                    id=zapisy_SAVES[selectedoptionmenu+1][1];
+                    savegamename=zapisy_SAVES[selectedoptionmenu+1][2];
+                    savetest=zapisy_SAVES[selectedoptionmenu+1][4];
                     idcopy=id;
                     timerz=0;
                     if (savetest=="0") then
@@ -9228,7 +9607,9 @@ end
 
     end
 
-
+if (menu==16) and (disablechangemenuoptions>0) then 
+      selectedoptionmenu=disablechangemenuoptions; 
+    end
     if (menu==16)and(timerz>3) then
         --             help center   выход по любой опции
         if ((spacepressed==1))or(ammoKEYPL1=="pause1")or (joystickKEYPL1=="O") then
@@ -9240,7 +9621,7 @@ end
 
     -- Меню Пауза, вызывается по F1
     if (menu==4)and(timerz>3) then
-        --              keypresspages
+        --              keypressmenu_glowna
         if ((selectedoptionmenu==1)and(spacepressed==1))or(ammoKEYPL1=="pause1")or (joystickKEYPL1=="O") then
             menu=0;pause=0 ;  selectedoptionmenu=1;
             renderer=1;
@@ -9257,30 +9638,30 @@ end
         end
 
 
-        for i=2, #pages_actions-1,1 do
-            pagemenuitemkey=pages_actions[i][1]; --это просто номер ключа в таблице
-            keyword=pages_actions[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load.
-            keypresspages=pages_actions[i][5];-- action emulated by codename action
-            keyreal=pages_actions[i][4]; -- action emulated by key name , contain only key name variable, not real contain.
+        for i=2, #menu_user-1,1 do
+            pagemenuitemkey=menu_user[i][1]; --это просто номер ключа в таблице
+            keyword=menu_user[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load.
+            keypressmenu_glowna=menu_user[i][5];-- action emulated by codename action
+            keyreal=menu_user[i][4]; -- action emulated by key name , contain only key name variable, not real contain.
             keyreal2=_G[keyreal]; 
-           --if ((spacepressed==1)) then smsg1="keyword="..keyword..", keypress="..keypresspages.." selectedoptionmenu="..selectedoptionmenu.." pagemenuitemkey="..pagemenuitemkey;        end
+           --if ((spacepressed==1)) then smsg1="keyword="..keyword..", keypress="..keypressmenu_glowna.." selectedoptionmenu="..selectedoptionmenu.." pagemenuitemkey="..pagemenuitemkey;        end
             if (selectedoptionmenu>2) then  --or(ammoKEYPL1=="pause3-9")  kak?   -- (selectedoptionmenu>2)and(selectedoptionmenu<10)and
                 if ((spacepressed==1)) then
 
-                    keypresspages=pages_actions[selectedoptionmenu+1][5];
-                    menu=0;ammoKEYPL1=keypresspages; timerz=0;
-                    renderer=1;getkeyforpause=keypresspages;                        pause=0;
+                    keypressmenu_glowna=menu_user[selectedoptionmenu+1][5];
+                    menu=0;ammoKEYPL1=keypressmenu_glowna; timerz=0;
+                    renderer=1;getkeyforpause=keypressmenu_glowna;                        pause=0;
                 end; end;
 
             if (ammoKEYPL1==keyword) then  --or  kak?   на Android сделанная менюшка работает. а на ПК - нет.
-                menu=0;ammoKEYPL1=keypresspages; timerz=0;
-                renderer=1;getkeyforpause=keypresspages;                        pause=0;
-                smsg1="keyword="..keyword..", keypress="..keypresspages.." selectedoptionmenu="..selectedoptionmenu.." pagemenuitemkey="..pagemenuitemkey;        
+                menu=0;ammoKEYPL1=keypressmenu_glowna; timerz=0;
+                renderer=1;getkeyforpause=keypressmenu_glowna;                        pause=0;
+                smsg1="keyword="..keyword..", keypress="..keypressmenu_glowna.." selectedoptionmenu="..selectedoptionmenu.." pagemenuitemkey="..pagemenuitemkey;        
             end;
             if (ammoKEYPL1==keyreal2)and(ammoKEYPL1~=keyword) then  --or  kak?   на Android сделанная менюшка работает. а на ПК - нет.
                 menu=0;ammoKEYPL1=keyreal2; timerz=0;
-                renderer=1;getkeyforpause=keypresspages;                        pause=0;
-                smsg1="keyword="..keyword..", keypress="..keypresspages.." selectedoptionmenu="..selectedoptionmenu.." pagemenuitemkey="..pagemenuitemkey;        
+                renderer=1;getkeyforpause=keypressmenu_glowna;                        pause=0;
+                smsg1="keyword="..keyword..", keypress="..keypressmenu_glowna.." selectedoptionmenu="..selectedoptionmenu.." pagemenuitemkey="..pagemenuitemkey;        
             end;
         end
       --if ((ammoKEYPL1=="pause14droid")or(keyword=="m_act_ustawenia")) then end; 
@@ -9315,6 +9696,7 @@ end
 
     if (ammoKEYPL1=="pomoc_cc")or love.keyboard.isDown("f2")and(timerz>10)and (editor==0) then
               allowmove=0;
+              disablechangemenuoptions=0; 
             --playsoundifvisible (computersnd,x,y);
             incontrolcentre=1;
             if (menu~=16) then selectedoptionmenu=1; end 
@@ -9487,11 +9869,11 @@ if (ax>postINVCANVASobjectX-2+ia*rozmiarznak)and(ay>postINVCANVASobjectY-2+ia*ro
 end
 end
     --основное игровое меню для Android ONLY  c тестовым рендерингом иконок   ANDROID GUI "player.ini") do
-    --menu Pages0 (основное меню игрока в режиме игры (слева)) ЭТО НЕ ГЛАВНОЕ МЕНЮ
+    --menu player_ini (основное меню игрока в режиме игры (слева)) ЭТО НЕ ГЛАВНОЕ МЕНЮ
       if (t_id~=-1)and(incontrolcentre==0)and(renderer>0)and(editor==0) then
        wysotamenu=standartsizeusermenu_android_0_cc;
         for i=2,10,1 do
-          keyword=pages0[i-1][2];
+          keyword=player_ini[i-1][2];
          if (otladka==1) then  smsg1="k="..keyword.." i="..i.." ay="..math.floor(ay).."<"..math.floor((wysotamenu)*(i-1)).." ay>"..math.floor((wysotamenu)*(i-2)).."ax="..math.floor(ax); end;           --player.ini
         --эти закоментированные пункты работают в подвыводе Androidgui в другом конце программы. --androidmenup = lg.newImage("Textures/a/androiduserguiicon"..i..".png");        --STALO lg.draw(androidmenup, 0,((wysotamenu*scaling)*(i-2)),0,scalingmenu,scalingmenu);
       if  (ay<(wysotamenu)*(i-1)) and (ay>(wysotamenu)*(i-2)) and (ax<wysotamenu) then
@@ -9507,9 +9889,9 @@ end
    --меню пагес1 (основное меню игрока в режиме игры (слева))  Меню игрока андроид - контрольный центр --   controlcentre.ini")
  if (t_id~=-1)and(incontrolcentre==1)and(renderer>0)and(editor==0) then
       wysotamenu=standartsizeusermenu_android_0_cc;
-        for i=2,#pagesctc,1 do
-          keywordname=pagesctc[i-1][2];-- получается это название
-          keyword=pagesctc[i-1][3];   -- а это поле что игнорируем на телефоне?
+        for i=2,#sklepy,1 do
+          keywordname=sklepy[i-1][2];-- получается это название
+          keyword=sklepy[i-1][3];   -- а это поле что игнорируем на телефоне?
         --эти закоментированные пункты работают в подвыводе Androidgui в другом конце программы. --androidmenup = lg.newImage("Textures/a/androiduserguiicon"..i..".png");        --STALO lg.draw(androidmenup, 0,((wysotamenu*scaling)*(i-2)),0,scalingmenu,scalingmenu);     
       if  (ay<(wysotamenu)*(i-1)) and (ay>(wysotamenu)*(i-2)) and (ax<wysotamenu) then
          ammoKEYPL1=keyword; 
@@ -9520,13 +9902,13 @@ end
 
     end
     --окончание меню пагес1 (основное меню игрока в режиме игры (слева))
-        -- Основное игровое меню (меню 0) Главное меню (0) pages.ini")  MAINMENU 
+        -- Основное игровое меню (меню 0) Главное меню (0) menu_glowna.ini")  MAINMENU 
     if (t_id~=-1)and(menu==0)and(renderer==0) then
     --wysotamenu=mainmenusize+1; 
       h=80;
-      for i=2, #pages-1,1 do
-         keyword=pages[i][2]; 
-          skip=pages[i][6]; 
+      for i=2, #menu_glowna-1,1 do
+         keyword=menu_glowna[i][2]; 
+          skip=menu_glowna[i][6]; 
       if  (ay<(h+mainmenusize*(i-1))) and (ay>(h+mainmenusize*(i-2))) then
        if (skip=="x") then ammoKEYPL1=""; 
         i=i+1; --это не работает на андроид. 
@@ -9538,16 +9920,16 @@ end
 
     end
 
- --окончание меню pagesea (основное меню игрока в режиме игры (слева))
+ --окончание меню menu_glownaea (основное меню игрока в режиме игры (слева))
         -- Основное игровое меню (меню 0) Главное меню (0) editor_android.ini")  MAINMENU 
     if (t_id~=-1)and(editor==1)and(renderer==1)and(1==0) then
     wysotamenu=standartsizeusermenu_android_0_cc; 
       h=80;
       
-      for i=2, #pagesea-1,1 do
-         keyword=pagesea[i][2]; 
-         key=pagesea[i][3]; 
-          skip=pagesea[i][6]; 
+      for i=2, #menu_glownaea-1,1 do
+         keyword=menu_glownaea[i][2]; 
+         key=menu_glownaea[i][3]; 
+          skip=menu_glownaea[i][6]; 
     --smsg1="i="..i..", skip="..skip.."if ((ay="..math.ceil (ay).."<h="..h.."+wysotamenu"..wysotamenu.."*(printedmenu"..printedmenu..")) and ("..math.ceil (ay)..".>"..h.."+"..wysotamenu.."*("..printedmenu.."-1))) then)";
       if  (ay<(h+wysotamenu*(i-1))) and (ay>(h+wysotamenu*(i-2))and(ax<100)) then
         if (ossys=="Android") then  ammoKEYPL1=key; end;
@@ -9557,13 +9939,13 @@ end
     t_id=-1;
     end
 
-    -- Меню параметры (меню 1) -- Меню настроек и параметров (1) pages_settings.ini")
+    -- Меню параметры (меню 1) -- Меню настроек и параметров (1) menu_settings.ini")
    if (t_id~=-1)and(incontrolcentre==0)and(menu==1)and(renderer==0) then
     wysotamenu=standartwysotatextmenu; 
       h=0;
-         for i=2, #pages_settings-1,1 do
-         keyword=pages_settings[i][2]; 
-          skip=pages_settings[i][6]; 
+         for i=2, #menu_settings-1,1 do
+         keyword=menu_settings[i][2]; 
+          skip=menu_settings[i][6]; 
       if  (ay<(h+wysotamenu*(i-0))) and (ay>(h+wysotamenu*(i-1))) then
        if (skip=="x") then ammoKEYPL1=""; else  ammoKEYPL1=keyword; end ;
        end;
@@ -9595,9 +9977,9 @@ end
      if (t_id~=-1)and(incontrolcentre==0)and(menu==3) then
        wysotamenu=standartwysotatextmenu;
       h=80; 
-     for i=2, #pages4-1,1 do
-         keyword=pages4[i][2]; 
-          skip=pages4[i][6]; 
+     for i=2, #editor_settings-1,1 do
+         keyword=editor_settings[i][2]; 
+          skip=editor_settings[i][6]; 
       if  (ay<(h+wysotamenu*(i-0))) and (ay>(h+wysotamenu*(i-1))) then
        if (skip=="x") then ammoKEYPL1=""; else  ammoKEYPL1=keyword; end ;
        end;
@@ -9606,14 +9988,14 @@ end
     t_id=-1;
     end
 
-    -- Меню паузы (меню 4)   ("actions.ini"
+    -- Меню паузы (меню 4)   ("menu_user.ini"
      if (t_id~=-1)and(incontrolcentre==0)and(menu==4) then
        wysotamenu=standartwysotatextmenu;
       h=80;
-       for i=2, #pages_actions-1,1 do
-         keyword=pages_actions[i][2]; 
-         keypresspages=pages_actions[i][5]; 
-          skip=pages_actions[i][6]; 
+       for i=2, #menu_user-1,1 do
+         keyword=menu_user[i][2]; 
+         keypressmenu_glowna=menu_user[i][5]; 
+          skip=menu_user[i][6]; 
       if  (ay<(h+wysotamenu*(i-0))) and (ay>(h+wysotamenu*(i-1))) then
        if (skip=="x") then ammoKEYPL1=""; else  ammoKEYPL1=keyword; end ;
        end;
@@ -9627,8 +10009,8 @@ end
      if (t_id~=-1)and(menu==15) then
        wysotamenu=standartwysotatextmenu;
       h=-15; -- тут также 80 поменяли на 0
-       for i=2, #pagesSC_CC,1 do
-         id=pagesSC_CC[i][1]; 
+       for i=2, #kontrolny_centrum_SC_CC,1 do
+         id=kontrolny_centrum_SC_CC[i][1]; 
       if  (ay<(h+wysotamenu*(i-0))) and (ay>(h+wysotamenu*(i-1))) then
        ammoKEYPL1=id; 
        end;
@@ -9643,7 +10025,7 @@ end
       h=-15; -- тут также 80 поменяли на 0
        for i=2, pomoc_punktow,1 do
         id=i ; 
-         --???? массива же нет id=pages[i][1]; 
+         --???? массива же нет id=menu_glowna[i][1]; 
       if  (ay<(h+wysotamenu*(i-0))) and (ay>(h+wysotamenu*(i-1))) then
        ammoKEYPL1=id; 
        end;
@@ -9658,8 +10040,8 @@ end
      if (t_id~=-1)and(menu==5) then
        wysotamenu=standartwysotatextmenu;
       h=-15; -- тут также 80 поменяли на 0
-       for i=2, #pagesSC,1 do
-         id=pagesSC[i][1]; 
+       for i=2, #centrum_dostawy_listSC,1 do
+         id=centrum_dostawy_listSC[i][1]; 
       if  (ay<(h+wysotamenu*(i-0))) and (ay>(h+wysotamenu*(i-1))) then
        ammoKEYPL1=id; 
        end;
@@ -9672,8 +10054,8 @@ end
      if (t_id~=-1)and(menu==6) then
        wysotamenu=standartwysotatextmenu;
       h=80;
-       for i=2, #pagesSAVES,1 do
-         id=pagesSAVES[i][1]; 
+       for i=2, #zapisy_SAVES,1 do
+         id=zapisy_SAVES[i][1]; 
       if  (ay<(h+wysotamenu*(i-0))) and (ay>(h+wysotamenu*(i-1))) then
        ammoKEYPL1=id; 
        end;
@@ -9688,9 +10070,9 @@ end
      if (t_id~=-1)and(menu==7) then
        wysotamenu=standartwysotatextmenu;
       h=80;
-       for i=2, #pagesSAVES,1 do
-         id=pagesSAVES[i][1]; 
-        -- keypresspages=pagesSC[i][5]; 
+       for i=2, #zapisy_SAVES,1 do
+         id=zapisy_SAVES[i][1]; 
+        -- keypressmenu_glowna=centrum_dostawy_listSC[i][5]; 
       if  (ay<(h+wysotamenu*(i-0))) and (ay>(h+wysotamenu*(i-1))) then
        ammoKEYPL1=id; 
        end;
@@ -9943,7 +10325,7 @@ if (editor==1) then lg.draw(editor0, xpla2, ypla2,0,scaling,scaling);end;
 --class_enemy:set(typt,x3,y3,hp,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am)
   if (totalenemies>0)and(editorcallselectobject==0)and(gameover==0)and(ObjectSIZEchangeallow==0) then 
    for enemynum=1,totalenemies,1 do 
-     typt,xt,yt,hpt,rotate,a,a,a,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value) 
+     typt,xt,yt,hpt,rotate,a,a,a,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[enemynum]:get(); --,rotate[a]    attempt to index global rotate  (a nil value) 
       movetk="";
      if (hpt<1) then rotate=0; rotate_t=0; 
 
@@ -9964,7 +10346,8 @@ if (editor==1) then lg.draw(editor0, xpla2, ypla2,0,scaling,scaling);end;
      if(rotate==270) then movesc="up";  end; --up
      if (freezetanks>0) then movesc="idle"; end; 
         rotate=0; end; 
-     if (sledzione_hp_tankid~=nil)and (sledzione_hp_tankid==enemynum) then hplasttank=hpt; end; 
+     if (sledzione_hp_tankid~=nil)and (sledzione_hp_tankid==enemynum) then hplasttank=hpt;
+    end; 
      xtt=xt;ytt=yt; 
      visiblity_tank=isvisible (xt,yt);
      --visiblity_ammo=isvisible (jedzenietimer,zebrany_item_id);-- u każdego czolga nie jeden pocisk!
@@ -10014,7 +10397,7 @@ if (editor==1) then lg.draw(editor0, xpla2, ypla2,0,scaling,scaling);end;
       if (feartanks~=nil)and(feartanks>0) then green (); end;
       if (speedtanks>0) then red (); end;
 
-       if (invisibletanks>0) then setColorX11(255,255,255,10);  end;  -- (titlegame~="Colony") - WYLET w 59 wiersze anim8.lua . 
+       if (invisibletanks>0) then setColorX11(255,255,255,10);  end;  -- (titlegame~="Kolonista") - WYLET w 59 wiersze anim8.lua . 
       if (visiblity_tank==1)and(typt=="migalka") then anim["195"]:draw(image, xtt+0, ytt+0,math.rad(0),scaling,scaling);  end
        if (visiblity_tank==1)and(typt=="miner") then  lg.draw(minerleft, xtt+xpla2fix, ytt+ypla2fix,math.rad(rotate),scaling,scaling);  end;
        if (visiblity_tank==1) then
@@ -10083,27 +10466,38 @@ end
 
 if (renderer<1) then
 -- ограничитель количества пунктов меню (для перемещения на ПК)
-if (menu==-1) then  maximummenulevel=#pages-2; end
-if (menu==0) then  maximummenulevel=#pages-2; end -- mainmenu
-if (menu==1) then maximummenulevel=#pages_settings-2  ; end 
-if (menu==2) then maximummenulevel=#pages3-2  ; end
-if (menu==3) then maximummenulevel=#pages4-2  ; end
-if (menu==4) then maximummenulevel=#pages_actions-2  ; end
-if (menu==5) then maximummenulevel=#pagesSC-1  ; end
-if (menu==6) then maximummenulevel=#pagesSAVES-1  ; end
-if (menu==7) then maximummenulevel=#pagesSAVES-1  ; end
-if (menu==15) then maximummenulevel=#pagesSC_CC-1  ; end
+if (menu==-1) then  maximummenulevel=#menu_glowna-2; end
+if (menu==0) then  maximummenulevel=#menu_glowna-2; end -- mainmenu
+if (menu==1) then maximummenulevel=#menu_settings-2  ; end 
+if (menu==2) then maximummenulevel=#menu_authors-2  ; end
+if (menu==3) then maximummenulevel=#editor_settings-2  ; end
+if (menu==4) then maximummenulevel=#menu_user-2  ; end
+if (menu==5) then maximummenulevel=#centrum_dostawy_listSC-1  ; end
+if (menu==6) then maximummenulevel=#zapisy_SAVES-1  ; end
+if (menu==7) then maximummenulevel=#zapisy_SAVES-1  ; end
+if (menu==15) then maximummenulevel=#kontrolny_centrum_SC_CC-1  ; end
 if (menu==16) then maximummenulevel=pomoc_punktow-1  ; end
 if (menu==20) then maximummenulevel=keyboardmenu_maximum_keys-1 ; end
 
 
 --  общие кнопки для всех меню - вверх и вниз.
  if (timerz>2)and(ossys~="Android") then   -- пытаюсь исправить баг с меню на андроид, этот селектор на нем не нужен.
-if (movePL1=="down")or(ammoKEYPL1=="menudown") then
+ if (menu==9) then if (movePL1=="right")or(ammoKEYPL1=="menuright") then --INVENTORY ONLY
   selectedoptionmenu=selectedoptionmenu+1;timerz=0; imagetest=0; 
+end
+end
+if (menu==9) then if (movePL1=="left")or(ammoKEYPL1=="menuleft") then
+  selectedoptionmenu=selectedoptionmenu-1;timerz=0; imagetest=0; 
+  end
+end
+
+
+
+if (movePL1=="down")or(ammoKEYPL1=="menudown") then
+  if (menu~=9) then  selectedoptionmenu=selectedoptionmenu+1;timerz=0; imagetest=0; end;
      if (menu==0) then  
-      if (pages[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; 
-     if (pages[selectedoptionmenu+1][6]=="d") then selectedoptionmenu=selectedoptionmenu+1; end; 
+      if (menu_glowna[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; 
+     if (menu_glowna[selectedoptionmenu+1][6]=="d") then selectedoptionmenu=selectedoptionmenu+1; end; 
         if (demka==1) or (firstload_complete==0) then
                 if (menu==0) and(selectedoptionmenu==7)and(movePL1=="down")and(score<1) then
                   selectedoptionmenu=8;
@@ -10114,10 +10508,10 @@ if (movePL1=="down")or(ammoKEYPL1=="menudown") then
                 end
 
      end; 
-     if (menu==1) then  if (pages_settings[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; end; 
-     if (menu==2) then  if (pages3[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; end; 
-     if (menu==3) then  if (pages4[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; end; 
-     if (menu==4) then  if (pages_actions[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; end; 
+     if (menu==1) then  if (menu_settings[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; end; 
+     if (menu==2) then  if (menu_authors[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; end; 
+     if (menu==3) then  if (editor_settings[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; end; 
+     if (menu==4) then  if (menu_user[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu+1; end; end; 
   if (selectedoptionmenu>maximummenulevel) then selectedoptionmenu=1; end;
   if (selectedoptionmenu>maximummenulevel)and(menu==20) then selectedoptionmenu=0; end;
     if (selectedoptionmenu>maximummenulevel)and(menu==21) then selectedoptionmenu=0; end;
@@ -10125,7 +10519,7 @@ if (movePL1=="down")or(ammoKEYPL1=="menudown") then
   --if (selectedoptionmenu>maximummenulevel-1)and(menu==15) then selectedoptionmenu=0; end;
 end
 if (movePL1=="up")or(ammoKEYPL1=="menuup") then
-  selectedoptionmenu=selectedoptionmenu-1;timerz=0; imagetest=0; 
+  if (menu~=9) then selectedoptionmenu=selectedoptionmenu-1;timerz=0; imagetest=0;  end; 
         if (demka==1) or (firstload_complete==0) then
                 if (menu==0) and(selectedoptionmenu==7)and(movePL1=="up")and(score<1) then
                   selectedoptionmenu=6;
@@ -10136,12 +10530,12 @@ if (movePL1=="up")or(ammoKEYPL1=="menuup") then
 
         end
 
-  if (menu==0) then  if (pages[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
-  if (menu==0) then  if (pages[selectedoptionmenu+1][6]=="d") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
-  if (menu==1) then  if (pages_settings[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
-  if (menu==2) then  if (pages3[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
-  if (menu==3) then  if (pages4[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
-  if (menu==4) then  if (pages_actions[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
+  if (menu==0) then  if (menu_glowna[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
+  if (menu==0) then  if (menu_glowna[selectedoptionmenu+1][6]=="d") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
+  if (menu==1) then  if (menu_settings[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
+  if (menu==2) then  if (menu_authors[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
+  if (menu==3) then  if (editor_settings[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
+  if (menu==4) then  if (menu_user[selectedoptionmenu+1][6]=="x") then selectedoptionmenu=selectedoptionmenu-1; end; end; 
   if (selectedoptionmenu<0)and(menu==5)or(selectedoptionmenu<0)and(menu==20)or(selectedoptionmenu<0)and(menu==21)or(selectedoptionmenu<0)and(menu==16)or(selectedoptionmenu<0)and(menu==15)  then selectedoptionmenu=maximummenulevel; end;
   if (selectedoptionmenu<1)and(menu~=5)and(menu~=20)and(menu~=16)and(menu~=15) then selectedoptionmenu=maximummenulevel; end;
 end
@@ -10195,7 +10589,7 @@ if (renderer<1)and(menu==0) then
 function create_atlas_mainmenu ()
   quadsize=standartsizeusermenu_android_0_cc;
   height_atlas=quadsize*1;
-  ATLASmenu = lg.newCanvas(4096, height_atlas); 
+  ATLASmenu = lg.newCanvas(4096, height_atlas,{} ); 
 -- это создание пустой картинки для наполнения ее картой спрайтов.
 nonetexture="1empty.png"; 
  IMAGES_MUI = {}; 
@@ -10229,23 +10623,23 @@ lg.setFont(fontVERYBIG);
 --lg.print(""..titlegame.." -- MAIN MENU", maxwidth/2, 10);
    -- wysotamenu=mainmenusize+1;
     h=rozmiarznak;
-     if (MAINMENUCANVAS==nil)and(menu==0) then MAINMENUCANVAS= lg.newCanvas(mainmenusize*9, mainmenusize*#pages);  end; 
+     if (MAINMENUCANVAS==nil)and(menu==0) then MAINMENUCANVAS= lg.newCanvas(mainmenusize*9, mainmenusize*#menu_glowna,{} );  end; 
                           I = {};
                           mainmenu_changed=0; 
                           menu_printed=0;
                           lg.setCanvas(MAINMENUCANVAS); --почему ломает?  fuck 
                           lg.clear (); 
 
-   for i=2, #pages-1,1 do
+   for i=2, #menu_glowna-1,1 do
 
-    pagemenuitemkey=pages[i][1]; --это просто номер ключа в таблице
-    keyword=pages[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load. 
-    name=smsg_string (pages[i][2]);  --  человекочитабельное название
-    if ((menuoption==1)and(i==2)) then name=smsg_string (pages[i][4]); end; -- название меняется для продолжения игры
-    if (pagesSAVES[3][4]=="1")and(firstload==0)and(disable_quickload_at_start==0) then autosave_present=1 ; end; 
-    if ((autosave_present==1)and(menuoption~=1)and(i==2)) then name=smsg_string (pages[i][5]); end; -- название меняется для продолжения игры
-    undefined=pages[i][5]; -- резерв
-    skip=pages[i][6];  -- пропускать пункт если записан "х". переключатель также игнорирует пропускаемые пункты.
+    pagemenuitemkey=menu_glowna[i][1]; --это просто номер ключа в таблице
+    keyword=menu_glowna[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load. 
+    name=smsg_string (menu_glowna[i][2]);  --  человекочитабельное название
+    if ((menuoption==1)and(i==2)) then name=smsg_string (menu_glowna[i][4]); end; -- название меняется для продолжения игры
+    if (zapisy_SAVES[3][4]=="1")and(firstload==0)and(disable_quickload_at_start==0) then autosave_present=1 ; end; 
+    if ((autosave_present==1)and(menuoption~=1)and(i==2)) then name=smsg_string (menu_glowna[i][5]); end; -- название меняется для продолжения игры
+    undefined=menu_glowna[i][5]; -- резерв
+    skip=menu_glowna[i][6];  -- пропускать пункт если записан "х". переключатель также игнорирует пропускаемые пункты.
      postobjectX=2*rozmiarznak; -- это координаты внутри Canvas, про внешние коррдинаты ЗАБЫВАЕМ! 
      postobjectY=h+mainmenusize*menu_printed;
       I[menu_printed]=IMAGES_MUI[i];--a=_G[keyword]
@@ -10253,18 +10647,24 @@ lg.setFont(fontVERYBIG);
          
      if (OBJECTPRINTNOW~=nil) then
                    lg.draw(ATLASmenu,OBJECTPRINTNOW,postobjectX, postobjectY,0,scalingmenu,scalingmenu);
-                   if (name==nil) then name=""; end; -- если в pages.ini ошибка параметр будет пропускатся
+                   if (name==nil) then name=""; end; -- если в menu_glowna.ini ошибка параметр будет пропускатся
                    if ((titlegame=="Reskue") or (titlegame=="M2K"))and (menu_printed==4) then  name=name.." Level:"..prestartlevelselect;end;
-                   if (titlegame=="Reskue") then blue (); 
+                   if (titlegame=="Reskue") then blue ();  -- увы но так проще и быстрее. иначе подкладка будет видна.
+                     if (i==3)and(wsego_saves==0) then black ();name="";  setcolorMNU="black" ; end;
+                    --if (i==7)and(firstload_complete==0) then black ();name="";  setcolorMNU="black" ; end;-- Настройки
+                    if (i==4)and(demka==1)or (i==4)and(firstload_complete==0) then black ();name=""; setcolorMNU="black" ;  end;
+                    if (i==8)and(demka==1)or (i==8)and(firstload_complete==0) then black ();name="";  setcolorMNU="black" ; end;
+            
                    lg.print(name, 102*scaling, 4+h+mainmenusize*menu_printed); 
                    white () ; 
                    end; 
                    if ((selectedoptionmenu+1)==i)then green (); setcolorMNU="green"; else white (); setcolorMNU="white"; end;
                     if ((selectedoptionmenu+1)==i)and(i==2)and(gameover==1) then red (); setcolorMNU="red" ; end;
                     if ((selectedoptionmenu+1)==i)and(i==3)and(demka==1) then yellow (); setcolorMNU="yellow"; end;
-                    if (i==3)and(wsego_saves==0) then black (); setcolorMNU="black" ; end;
-                    if (i==4)and(demka==1)or (i==4)and(firstload_complete==0) then black (); setcolorMNU="black" ;  end;
-                    if (i==8)and(demka==1)or (i==8)and(firstload_complete==0) then black ();  setcolorMNU="black" ; end;
+                    if (i==3)and(wsego_saves==0) then black ();name="";  setcolorMNU="black" ; end;
+                    --if (i==7)and(firstload_complete==0) then black ();name="";  setcolorMNU="black" ; end;-- Настройки
+                    if (i==4)and(demka==1)or (i==4)and(firstload_complete==0) then black ();name=""; setcolorMNU="black" ;  end;
+                    if (i==8)and(demka==1)or (i==8)and(firstload_complete==0) then black ();name="";  setcolorMNU="black" ; end;
                     if ((selectedoptionmenu+1)==i)and(i==4)and(demka==1) then yellow ();  setcolorMNU="yellow" ; end;
                     if ((selectedoptionmenu+1)==i)and(i==4)and(menuoption~=1) then red ();  setcolorMNU="red" ; end;
                     if ((selectedoptionmenu+1)==i)and(i==4)and(gameover==1) then red ();  setcolorMNU="red" ; end;
@@ -10299,6 +10699,10 @@ part2msg= smsg_string ("WELCOM_WINDOWS");
 if (titlegame=="Reskue") then 
 part1msg= smsg_string ("RWELCOM_LINE");
   end
+  if (titlegame=="Kolonista") then 
+part1msg= smsg_string ("KWELCOM_LINE");
+  end
+
 
       if (ossys=="Windows") then win=part2msg; else win=""; end;
       pl1image=dlanubow;
@@ -10383,7 +10787,7 @@ for i=4, (keyboardmenu_maximum_keys+6),1 do
 
       end;
 
-
+  menulockpage= ubywanie (menulockpage);
 if (finaltitle==1) then  -- FINALTITLE STATISTICS
    savedscientists=scanobject(33,-2);
    if (savedscientists<0) then savedscientists=0; end; 
@@ -10393,6 +10797,7 @@ if (finaltitle==1) then  -- FINALTITLE STATISTICS
    pause=1;
    white ();
    lg.setFont(font);
+   if (menulockpage==0) then menulockpage=300; end;
    lprint("WINTITLE",100, maxheight/3);
    lg.print ((smsg_string ("WINSCORE"))..score,  0, maxheight/3+rozmiarznak*2);
    lg.print ((smsg_string ("WINTANK"))..tanksdestroyed,  0, maxheight/3+rozmiarznak*3);
@@ -10400,7 +10805,8 @@ if (finaltitle==1) then  -- FINALTITLE STATISTICS
     lg.print ((smsg_string ("WINSC"))..savedscientists,  0, maxheight/3+rozmiarznak*4);
     lg.print ((smsg_string ("WINFUEL"))..savedfuel,  0, maxheight/3+rozmiarznak*5);
     end;
-     if (timerz>5)and((spacepressed==1)or(ammoKEYPL1=="space"))and (timerz>5) then 
+
+     if (menulockpage<40)and (timerz>5)and((spacepressed==1)or(menulockpage<40)and (ammoKEYPL1=="space"))and (timerz>5) then 
     menu=0;finaltitle=0;  pause=1; timerz=0;
     savedscientists=0; savedfuel=0; 
    end
@@ -10419,40 +10825,43 @@ if (finaltitle==1) then  -- FINALTITLE STATISTICS
       renderer=0; pause=1;  --menu=9; --;
    -- ekwipunek i statystika 
   lg.setCanvas() ;
-lg.setFont(fontBIG);
+lg.setFont(font);
   menu_printed=0;
 wysotamenu=standartwysotatextmenu; -- для увеличения количества отображаемых обьектов
 h=-15;
 if (menu==10) then  blue () ; end
-lprint("KEYB_U15_",(maxwidth/2)+ rozmiarznak, 20); -- Инвентарь 
+lprint("KEYB_U15_",(maxwidth/2)+ rozmiarznak, 0); -- Инвентарь 
 blue ();
 if (menu==10) then  white () ; end
-lprint("KEYB_U16_",(maxwidth/2)+ rozmiarznak, 90); -- Инвентарь 
+lprint("KEYB_U16_",(maxwidth/2)+ rozmiarznak, 0+rozmiarznak); -- Инвентарь 
 white () ; 
 parttext="";
- if  (PC1_select_module=="inventory") then parttext=smsg_string ("KEYB_U18_");end;
- if  (PC1_select_module=="wear") then parttext=smsg_string ("KEYB_U24_");end;
+ if  (PC1_select_module=="inventory") then parttext=smsg_string ("KEYB_U22_CPY");end;
+ if  (PC1_select_module=="wear") then parttext=smsg_string ("KEYB_U28_CPY");end;
  if  (PC1_select_module=="kufr") then parttext=smsg_string ("wziac");end;
+
 if (rzad=="pad")and(menu==9)  then 
-lg.print (smsg_string ("KEYB_U19_").." - "..smsg_string ("Inv_Help_pad").." X(A) - "..parttext..", TR(Y) - "..smsg_string ("wsklad"), 110, downspaceonscreen-rozmiarznak*3);
+   lg.setFont(fontBIG);
+lg.print (smsg_string ("KEYB_U23_CPY").." - "..smsg_string ("Inv_Help_pad").." X(A) - "..parttext..", TR(Y) - "..smsg_string ("wsklad"), 110, downspaceonscreen-rozmiarznak*3);
 end
 if (rzad=="kb")and(menu==9)  then 
+   lg.setFont(font);
 lg.print (uuleftkey..","..uurightkey.." - "..smsg_string ("Inv_Help_pad").." "..uuammokey.. " - "..parttext..", "..ubombkey.." - "..smsg_string ("wsklad"), 110, downspaceonscreen-rozmiarznak*3);
 end
 
-lg.print (""..smsg1, 800, downspaceonscreen-rozmiarznak*2);
+-- lg.print (""..smsg1, 800, downspaceonscreen-rozmiarznak*2);
 lg.setFont(fontSMALL);
--- PAGES INVENTORY  MENU   9 = MAIN+SLOTS , 10 STAT+ BUFFS
+-- menu_glowna INVENTORY  MENU   9 = MAIN+SLOTS , 10 STAT+ BUFFS
  
    if (menu==9) then 
     if (PC1_select_module==nil) then PC1_select_module="inventory";end; 
-    if (rsKEYPL1=="[") then PC1_select_module="inventory"; selectedoptionmenu=1; end
-    if (rsKEYPL1=="]") then PC1_select_module="wear"; selectedoptionmenu=1;  end;
+    if (rsKEYPL1=="[") or ((movePL1=="up" )and (rzad~="pad")) then PC1_select_module="inventory"; selectedoptionmenu=1; end
+    if (rsKEYPL1=="]") or ((movePL1=="down" )and (rzad~="pad"))then PC1_select_module="wear"; selectedoptionmenu=1;  end;
     if (rsKEYPL1==";") then PC1_select_module="kufr"; selectedoptionmenu=1;  end;
     if (rsKEYPL1=="ekwipunek") then PC1_select_module=""; selectedoptionmenu=1; menu=10; timerz=0;   end; -- (left fire main na joystike)
     if (rsKEYPL1=="stattitle") then PC1_select_module=""; selectedoptionmenu=1; menu=9; timerz=0;   end; -- (left fire main na joystike)
 
-          if (SHIPCANVAS==nil) then SHIPCANVAS= lg.newCanvas(maxwidth, rozmiarznak*#pagesSC);  end; 
+          if (SHIPCANVAS==nil) then SHIPCANVAS= lg.newCanvas(maxwidth, rozmiarznak*#centrum_dostawy_listSC,{} );  end; 
                   if (1==1) then
                           IMAGESSHIPINV = {};
                           shipmenu_changed=0; 
@@ -10479,18 +10888,19 @@ lg.setFont(fontSMALL);
                                 type_module="wear";
                                 textdatacontent,nameitem=smsg_string (kod_opis);
                                  if ((selectedoptionmenu)==a)and(PC1_select_module=="wear") then 
-                          if (titlegame=="M2K") then cyan () ; end;  if (titlegame=="Reskue") then green () ; end;  if (titlegame=="Colony") then yellow () ; end;
+                          if (titlegame=="M2K") then cyan () ; end;  if (titlegame=="Reskue") then green () ; end;  if (titlegame=="Kolonista") then yellow () ; end;
                           ekwipunekid=selectedoptionmenu;ekwipunekidslottype=slottype;
                               if (a>0) then  msgbox(nameitem,(maxwidth/2)-4*rozmiarznak , 40+1*rozmiarznak,wysotamenu); end --"["..slottype.."]"
                               if (a>0) and (slottype~="") then  msgbox(smsg_string ("REQ")..slottype,(maxwidth/2)-4*rozmiarznak , 40+2*rozmiarznak,wysotamenu); end
                               if (a>0) then  msgbox(textdatacontent,20,80+3*rozmiarznak,wysotamenu); end
+                              if (a>0) then randomcolor (); lg.print ("*",maxwidth-(iwidth*scaling)-0*(rozmiarznak),rozmiarznak*((a+1)*1.7)+30); end;
                                  end;
                                  white (); 
                                       imgf2 =  objs[iditem+1][3]; -- просто берет название файла.
                                  inventoryvisualcode=iditem; 
                                   if (inventoryvisualcode==nil) then inventoryvisualcode=0; end; 
-                           postobjectX=maxwidth-(iwidth*scaling)-80-2*(rozmiarznak); -- это координаты внутри Canvas, про внешние коррдинаты ЗАБЫВАЕМ! 
-                           postobjectY=rozmiarznak*(a*1.7)+30;
+                           postobjectX=maxwidth-(iwidth*scaling)-0-2*(rozmiarznak); -- это координаты внутри Canvas, про внешние коррдинаты ЗАБЫВАЕМ! 
+                           postobjectY=rozmiarznak*((a+0.5)*1.7)+30;
                           IMAGESSHIPINV[object_to_rendering]=IMAGES[inventoryvisualcode + 1];
                               OBJECTPRINTNOW_SHIPINV=IMAGESSHIPINV[object_to_rendering];
                            if (OBJECTPRINTNOW_SHIPINV~=nil) then 
@@ -10523,7 +10933,7 @@ lg.setFont(fontSMALL);
                                 type_module="kufr";
                                 textdatacontent,nameitem=smsg_string (kod_opis);
                                  if ((selectedoptionmenu)==a)and(PC1_select_module=="kufr") then 
-                          if (titlegame=="M2K") then cyan () ; end;  if (titlegame=="Reskue") then green () ; end;  if (titlegame=="Colony") then yellow () ; end;
+                          if (titlegame=="M2K") then cyan () ; end;  if (titlegame=="Reskue") then green () ; end;  if (titlegame=="Kolonista") then yellow () ; end;
                           ekwipunekid=selectedoptionmenu;ekwipunekidslottype=slottype;
                               if (a>0) then  msgbox(nameitem,(maxwidth/2)-4*rozmiarznak , 40+1*rozmiarznak,wysotamenu); end --"["..slottype.."]"
                               if (a>0) and (slottype~="") then  msgbox(smsg_string ("REQ")..slottype,(maxwidth/2)-4*rozmiarznak , 40+2*rozmiarznak,wysotamenu); end
@@ -10565,17 +10975,18 @@ lg.setFont(fontSMALL);
                             type_module="inventory";
                             textdatacontent,nameitem=smsg_string (kod_opis);
                          if ((selectedoptionmenu)==a)and(PC1_select_module=="inventory")and(#inventoryitemtable>0)  then 
-                         if (titlegame=="M2K") then cyan () ; end;  if (titlegame=="Reskue") then green () ; end;  if (titlegame=="Colony") then yellow () ; end; 
+                         if (titlegame=="M2K") then cyan () ; end;  if (titlegame=="Reskue") then green () ; end;  if (titlegame=="Kolonista") then yellow () ; end; 
                              ekwipunekid=selectedoptionmenu;
                               if (a>0) then  msgbox(nameitem,(maxwidth/2)-4*rozmiarznak , 40+1*rozmiarznak,wysotamenu); end --"["..slottype.."]"
                               if (a>0) and (slottype~="") then  msgbox(smsg_string ("REQ")..slottype,(maxwidth/2)-4*rozmiarznak , 40+2*rozmiarznak,wysotamenu); end
                               if (a>0) then  msgbox(textdatacontent,20,80+3*rozmiarznak,wysotamenu); end
+                              if (a>0) then randomcolor (); lg.print ("*",-30+rozmiarznak+a*(rozmiarznak+20), rozmiarznak*2+wysotamenu*2+h); end;
                               -- Это и есть ВЫВОД ОПИСАНИЯ ПРЕДМЕТА многострочным окошком в экране покупки заказ товара кораблём.
                               end;
                               white (); 
                             
                             imgf2 =  objs[iditem+1][3]; -- просто берет название файла.
-                             inventoryvisualcode=iditem;        --keypresspages=pages_actions[i][5]; -- эмуляция нажатия кнопки через файл описания
+                             inventoryvisualcode=iditem;        --keypressmenu_glowna=menu_user[i][5]; -- эмуляция нажатия кнопки через файл описания
                           if (inventoryvisualcode==nil) then inventoryvisualcode=0; end; 
                            postobjectX=a*(rozmiarznak+20); -- это координаты внутри Canvas, про внешние коррдинаты ЗАБЫВАЕМ! 
                            postobjectY=wysotamenu*object_to_rendering+h;
@@ -10585,12 +10996,33 @@ lg.setFont(fontSMALL);
                             if (nameitem==nil) then nameitem="NILLLLLLLLLLLLLLLLLLLLLLLLLL"; end; --["..slottype.."]".."
                          --вывод графики отображения продуктов в меню, выводится всё имеющее цену, других ограничений пока нет
                          if ((ekwipunekid)==a)and(PC1_select_module=="inventory") then  yellow ();end; 
-                         lg.draw(ATLAS,OBJECTPRINTNOW_SHIPINV,postobjectX, 100,0,scaling+0.7,scaling+0.7);
+                         lg.draw(ATLAS,OBJECTPRINTNOW_SHIPINV,postobjectX, 100,0,scaling+0.7,scaling+0.7);--
                          object_to_rendering=object_to_rendering+1;
                          white (); 
                              end;-- ENDIF (OBJECTPRINTNOW_SHIPINV~
                             end
                           end
+                  
+                            --"WEAR" PC1_select_module="wear"
+                           postobjectX=maxwidth-(iwidth*scaling)-2*(rozmiarznak); -- это координаты внутри Canvas, про внешние коррдинаты ЗАБЫВАЕМ! 
+                           postobjectY=rozmiarznak*(1.5*1.7)+30;
+                            --lg.draw(ATLAS,OBJECTPRINTNOW_SHIPINV,postobjectX, postobjectY,0,scaling+0.7,scaling+0.7);
+                   if (PC1_select_module=="wear") then  yellow (); end;
+                    lprint ("WEAR",postobjectX, postobjectY-rozmiarznak); --..scaling+0.7  mamy problem z skaling. 
+                      green (); if (PC1_select_module=="wear") then  randomcolor2 (); end;
+                    lg.rectangle("line",postobjectX-1, postobjectY-2,(rozmiarznak+12)*(scaling),(rozmiarznak+1)*(5)*(scaling),0,0);
+                    blue (); if (PC1_select_module=="wear") then  yellow (); end;
+                    lg.rectangle("line",postobjectX-2, postobjectY-3,(rozmiarznak+12)*(scaling),(rozmiarznak+1)*5*(scaling),0,0);
+                    white (); 
+
+                    -- lg.draw(ATLAS,OBJECTPRINTNOW_SHIPINV,postobjectX, 100,0,scaling+0.7,scaling+0.7);--
+                    if (PC1_select_module=="inventory") then  yellow (); end;
+                    lprint ("m_act_ekwi",rozmiarznak+40, 20-3); --..scaling+0.7  mamy problem z skaling. 
+                      green ();if (PC1_select_module=="inventory") then  randomcolor2 (); end;
+                    lg.rectangle("line",rozmiarznak+20-1, 100-2,(rozmiarznak)*(maximuminventorysize)*(scaling),(rozmiarznak+12)*(scaling),0,0);
+                    blue ();  if (PC1_select_module=="inventory") then  yellow (); end;
+                    lg.rectangle("line",rozmiarznak+20-2, 100-3,(rozmiarznak)*(maximuminventorysize)*(scaling),(rozmiarznak+12)*(scaling),0,0);
+                    white (); 
                     lg.setCanvas() -- эта строчка возвращает рендерер в игровое поле. обязательная.
                     if (SHIPCANVAS~=nil) then  lg.draw(SHIPCANVAS,0,0); end;  -- canvas if (countinventory>2) then
                      --if (otladka==1) then SHIPCANVAS:newImageData():encode('png', "ship"..countinventory..".png");  end; 
@@ -10617,15 +11049,32 @@ white ();
   if (item_name==nil) then item_name="";  end; 
    if (message~=nil) then objectinfo=item_name.." :: "..message;  end ; 
   if (ignore_tekst~="IGNORE") then printobjectinfo=objectinfo end ; --все неинтересные обьекты в таблице objects.ini должны быть по
-   lg.print ((smsg_string ("NOWDMG"))..standartdamage,  0, maxheight-rozmiarznak*2);
+   
     --lg.print ((smsg_string ("EFF"))..eff,  0, maxheight-rozmiarznak*0);
     if (menu==10) then
-      lg.print ((smsg_string ("EFF"))..eff,  0,400);
+
+      lg.print ((smsg_string ("NOWDMG")).." "..standartdamage,  60, 0+rozmiarznak*1);
+      lg.print ((smsg_string ("HPMAX")).." "..hp.."/"..hpmax,   60, 0+rozmiarznak*2);
+      lg.print ((smsg_string ("AMMOMAX")).." "..ammo.."/"..maximumammo_PC1,  60, 0+rozmiarznak*3);
+      lg.print ((smsg_string ("ICEMAX")).." "..ice.."/"..maximumammo_PC1,  60, 0+rozmiarznak*4);
+      lg.print ((smsg_string ("DAMAGETYPE")).." "..damagetype_PC1,   60, 0+rozmiarznak*5);
+      lg.print ((smsg_string ("ALTDAMAGE")).." "..alt_damage_PC1,   60, 0+rozmiarznak*6);
+      lg.print ((smsg_string ("INVENTORYSIZE")).." "..maximuminventorysize,   60, 0+rozmiarznak*7);
+      lg.print ((smsg_string ("SAVEDONE")).." "..savegamecounter,   60, 0+rozmiarznak*8);
+      lg.print ((smsg_string ("EFF")).." "..eff, 60,  0+rozmiarznak*9);
+
+    if (menu==10)and (titlegame~="M2K") then
+      lg.print ((smsg_string ("MULTIKILLS")).." "..multikills,  60, 0+rozmiarznak*11);
+      lg.print ((smsg_string ("ULTRAKILLS")).." "..ultrakills,  60, 0+rozmiarznak*12);
+    end
+
     end
   
+   
+   
 if (titlegame=="Reskue")and (menu==10) then 
-   lg.print ((smsg_string ("WINTANK"))..tanksdestroyed,  0, maxheight-rozmiarznak*4);
-   lg.print ((smsg_string ("WINSC"))..savedscientists,  0, maxheight-rozmiarznak*5);
+   lg.print ((smsg_string ("WINTANK")).." :: "..tanksdestroyed,  60, 0+rozmiarznak*13);
+   lg.print ((smsg_string ("WINSC")).." :: "..savedscientists,  60, 0+rozmiarznak*14);
  end;
     if (menu==12)and (editor==0)and(incontrolcentre==0)and(otladka==0)and(ossys~="Android")and (titlegame~="Perestroika") then 
   help_player_data_print () ;
@@ -10689,12 +11138,12 @@ lg.setFont(font);
 menu_printed=0;
 wysotamenu=standartwysotatextmenu; 
 h=0;
- for i=2, #pages_settings-1,1 do
+ for i=2, #menu_settings-1,1 do
 if ((selectedoptionmenu+1)==i) then  green () else white () end;
-    pagemenuitemkey=pages_settings[i][1]; --это просто номер ключа в таблице
-    keyword=pages_settings[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load. 
-    typenumeric=pages_settings[i][5];-- если N указывает что вместо переключателя опций будет смена чисел. --skip=pages_settings[i][6];  --пропускать если записан "х".
-     name=smsg_string (pages_settings[i][2]); 
+    pagemenuitemkey=menu_settings[i][1]; --это просто номер ключа в таблице
+    keyword=menu_settings[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load. 
+    typenumeric=menu_settings[i][5];-- если N указывает что вместо переключателя опций будет смена чисел. --skip=menu_settings[i][6];  --пропускать если записан "х".
+     name=smsg_string (menu_settings[i][2]); 
     if (pagemenuitemkey~=nil)and(skip~="x") then
                   if(keyword~="none") then a=_G[keyword];
                   if (selectedoptionmenu>21) then h=20-(selectedoptionmenu-20)*wysotamenu;end
@@ -10740,7 +11189,7 @@ if love.mouse.isDown("1") and (mysz_x>350) and  (mysz_y>120+wysotastroki*0.2) an
   end
 
 if (titlegame=="Reskue") then lg.print("Cover and hero animation created by Nami_Sei ", 350, 120+wysotastroki*1.7); end; 
-if (titlegame=="M2K")or(titlegame=="Colony") then lg.print("Cover art created by Nami_Sei", 350, 120+wysotastroki*1.7); end; 
+if (titlegame=="M2K")or(titlegame=="Kolonista") then lg.print("Cover art created by Nami_Sei", 350, 120+wysotastroki*1.7); end; 
 if love.mouse.isDown("1") and (mysz_x>350) and  (mysz_y>120+wysotastroki*1.7) and (mysz_y<120+wysotastroki*2.4)  then 
     love.system.openURL("https://kwork.ru/user/julia_minina");
   end
@@ -10750,7 +11199,7 @@ if (titlegame=="Reskue") then lg.print("Tanks animation created by Kolumbet", 35
   end
 if (titlegame=="M2K") then lg.print("Puzzle, goal:take items, destroy targets (trolls,mines),search way to next level. ", 350, 120+wysotastroki*4.4); end; 
 if (titlegame=="Reskue") then lg.print("You can save scientists and must delivery fuel. ", 350, 120+wysotastroki*4.4); end
-if (titlegame=="Colony") then lg.print("You must delivery more mushrooms to Earth, and protect colony.", 350, 120+wysotastroki*4.4); end
+if (titlegame=="Kolonista") then lg.print("You must delivery more mushrooms to Earth, and protect colony.", 350, 120+wysotastroki*4.4); end
 if (titlegame=="PERESTROIKA") then lg.print("Save resources and democracy from biurocrats", 350, 120+wysotastroki*4.4); end
 
 if (steam_state==0) then 
@@ -10786,14 +11235,14 @@ lg.print ("map_ver:"..mapversion.." / system_mapver:"..system_mapversion, 800, d
 lg.print ("save_ver:"..saveversion.." / system_savever:"..system_saveversion, 800, downspaceonscreen-rozmiarznak*2);
 lg.print ("build used by map:"..map_builded_with_version.."/"..build_numeric, 800, downspaceonscreen-rozmiarznak*5);
 h=20;
- for i=2, #pages4-1,1 do
+ for i=2, #editor_settings-1,1 do
 if ((selectedoptionmenu+1)==i) then  green () else white () end;
-    pagemenuitemkey=pages4[i][1]; --это просто номер ключа в таблице
-    keyword=pages4[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load. 
-    name=pages4[i][3]; --  человекочитабельное название
-    namerus=pages4[i][4]; -- название для русского перевода, резерв.
+    pagemenuitemkey=editor_settings[i][1]; --это просто номер ключа в таблице
+    keyword=editor_settings[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load. 
+    name=editor_settings[i][3]; --  человекочитабельное название
+    namerus=editor_settings[i][4]; -- название для русского перевода, резерв.
     if (language==2) then name=namerus; end;
-    skip=pages4[i][6];  -- пропускать пункт если записан "х". переключатель также игнорирует пропускаемые пункты.
+    skip=editor_settings[i][6];  -- пропускать пункт если записан "х". переключатель также игнорирует пропускаемые пункты.
      if (language==1) then name=skip; end;
     
         if (pagemenuitemkey~=nil)and(skip~="x") then
@@ -10823,7 +11272,7 @@ h=20;
 -- lg.print ("Some other keys are hardcoded and cannot be changed."..Utext,150, maxheight/3+rozmiarznak*2); 
      
 --0!KEYB_U3_2!Бомба!ubombkey
- pomoc_punktow=17; 
+ pomoc_punktow=20; 
  green (); 
 lg.rectangle("line",40+rozmiarznak, h,400*scaling, h+0+wysotamenu*pomoc_punktow+40,0,0);
 
@@ -10831,7 +11280,7 @@ lg.rectangle("line",40+rozmiarznak, h,400*scaling, h+0+wysotamenu*pomoc_punktow+
  for i=0, pomoc_punktow,1 do
   if (titlegame=="Reskue") then SMSG_CODE="POMOCR"..i.."_"; end; 
   if (titlegame=="M2K") then SMSG_CODE="POMOCM"..i.."_"; end; 
-  if (titlegame=="Colony") then SMSG_CODE="POMOCCL"..i.."_"; end; 
+  if (titlegame=="Kolonista") then SMSG_CODE="POMOCCL"..i.."_"; end; 
   if (titlegame=="Perestroika") then SMSG_CODE="POMOCM"..i.."_"; end; 
   -- назначаем присланную кнопку незамедлительно (пока нет проверки что нажал юзер) 
 if ((selectedoptionmenu+2)==i) then  if (string.len (text)==1) then _G[keyword]=text; end; text=""; end; 
@@ -10839,7 +11288,7 @@ if ((selectedoptionmenu+2)==i) then  if (string.len (text)==1) then _G[keyword]=
 if ((selectedoptionmenu+1)==i) then  green ()      else white () end;
      nameitem,textdatacontent=smsg_string (SMSG_CODE);-- smsg_string (objs[iditem+1][13]);
      if (textdatacontent=="POMOCR") then  SMSG_CODE="POMOCR"..i.."_";  nameitem,textdatacontent=smsg_string (SMSG_CODE); end; 
-     name=nameitem;                           -- cost=pagesSC[a][4];
+     name=nameitem;                           -- cost=centrum_dostawy_listSC[a][4];
     randomget=math.ceil (math.random(10));        
  if (rsKEYPL1=="p")and randomget>5 then prokrutka=prokrutka-1; end;
  if (rsKEYPL1==";")and randomget>5 then prokrutka=prokrutka+1; end;
@@ -10949,10 +11398,10 @@ wysotamenu=standartwysotatextmenu-10*scaling;
 h=20;
 --smgs1="menu="..menu.." selectedoptionmenu="..selectedoptionmenu.." spacepressed="..spacepressed; 
 --if (Ukeycode~=nil) then lg.print ("Ukeycode:"..Ukeycode,550, maxheight/3+rozmiarznak*3); end;
- lg.print ("Some other keys are hardcoded and cannot be changed."..Utext,150, maxheight/3+rozmiarznak*6); 
+-- lg.print ("Some other keys are hardcoded and cannot be changed."..Utext,150, maxheight/3+rozmiarznak*6); 
 
 --0!KEYB_U3_2!Бомба!ubombkey
- keyboardmenu_maximum_keys=17; 
+ keyboardmenu_maximum_keys=21; 
  for i=1, keyboardmenu_maximum_keys+1,1 do
   SMSG_CODE="KEYB_U"..i.."_";
   -- назначаем присланную кнопку незамедлительно (пока нет проверки что нажал юзер) 
@@ -10967,7 +11416,7 @@ if ((selectedoptionmenu+1)==i) then  green ()
               -- if (selectedoptionmenu<20) then h=20; end
                   a=_G[keyword];
                   if (a~=nil) then  lg.print(a, 50, h+0+wysotamenu*menu_printed); end; 
-                  lg.print(name, 90+rozmiarznak, h+0+wysotamenu*menu_printed);
+                  if (i<keyboardmenu_maximum_keys+1) then lg.print(name, 90+rozmiarznak, h+0+wysotamenu*menu_printed);end; 
                         menu_printed=menu_printed+1;
        end
     end
@@ -10978,20 +11427,20 @@ end
 if (menu==4) then
 lg.setFont(fontVERYBIG);
 yellow ()  ;  
-lprint("MENU_USER_PAUSE", maxwidth/2, 40); --"actions.ini"
+lprint("MENU_USER_PAUSE", maxwidth/2, 40); --"menu_user.ini"
 if (otladka==1) then lg.print ("smsg1:"..smsg1, maxwidth/4, maxheight-rozmiarznak); end
 lg.setFont(font);
 menu_printed=0;
 
 wysotamenu=standartwysotatextmenu; 
 h=80;
- for i=2, #pages_actions-1,1 do
+ for i=2, #menu_user-1,1 do
 if ((selectedoptionmenu+1)==i) then  green () else yellow () end;
-    pagemenuitemkey=pages_actions[i][1]; --это просто номер ключа в таблице
-    keyword=pages_actions[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load. 
-     name=smsg_string (pages_actions[i][3]);  --  человекочитабельное название
-    keypresspages=pages_actions[i][5]; -- эмуляция нажатия кнопки через файл описания
-    skip=pages_actions[i][6];  -- пропускать пункт если записан "х". переключатель также игнорирует пропускаемые пункты.
+    pagemenuitemkey=menu_user[i][1]; --это просто номер ключа в таблице
+    keyword=menu_user[i][2]; -- название переменной содержащей картинку загруженную ранее в love.load. 
+     name=smsg_string (menu_user[i][3]);  --  человекочитабельное название
+    keypressmenu_glowna=menu_user[i][5]; -- эмуляция нажатия кнопки через файл описания
+    skip=menu_user[i][6];  -- пропускать пункт если записан "х". переключатель также игнорирует пропускаемые пункты.
      --if (language==1) then name=skip; end;
     if (pagemenuitemkey~=nil)and(skip~="x") then
                    lg.print(name, 140, h+15+wysotamenu*menu_printed);
@@ -11005,41 +11454,41 @@ end
     function controlcentercreate (sklepID)
   
         controlcenteritems={};
-        pagesSC_CC={};
-        counttablepagesSC_CC=0; 
-          line="128!0!"..smsg_string ("SH_EXIT").."!0!0";           table.insert (pagesSC_CC,line:split("!") );
-           line="0!0!"..smsg_string ("SH_ORDER").."!0!0";           table.insert (pagesSC_CC,line:split("!") );
-           line="0!0!"..smsg_string ("SH_ORDER").."!0!0";           table.insert (pagesSC_CC,line:split("!") );
+        kontrolny_centrum_SC_CC={};
+        counttablekontrolny_centrum_SC_CC=0; 
+          line="128!0!"..smsg_string ("SH_EXIT").."!0!0";           table.insert (kontrolny_centrum_SC_CC,line:split("!") );
+           line="0!0!"..smsg_string ("SH_ORDER").."!0!0";           table.insert (kontrolny_centrum_SC_CC,line:split("!") );
+           line="0!0!"..smsg_string ("SH_ORDER").."!0!0";           table.insert (kontrolny_centrum_SC_CC,line:split("!") );
 
-            for sa=0,#pagesctc-1,1 do 
-              iditem=ext_param (pagesctc,sa,1,"number");
+            for sa=0,#sklepy-1,1 do 
+              iditem=ext_param (sklepy,sa,1,"number");
               smsg_from_obj=ext_objs_string (iditem,13);-- textdatacontent,nameitem=smsg_string (objs[iditem+1][13])
               if (smsg_from_obj==nil) then smsg_from_obj="0"; end;
-              act=ext_param (pagesctc,sa,3,"string");
-              cena=ext_param (pagesctc,sa,4,"number");
-              znizka=ext_param (pagesctc,sa,5,"number");
-              sklepnazwa=ext_param (pagesctc,sa,6,"string");
-              iloscitemow=ext_param (pagesctc,sa,7,"number");
-              typeCC=ext_param (pagesctc,sa,8,"string");
-              no_hardlevel=ext_param (pagesctc,sa,9,"string");
-              reqGAME=ext_param (pagesctc,sa,10,"string");
+              act=ext_param (sklepy,sa,3,"string");
+              cena=ext_param (sklepy,sa,4,"number");
+              znizka=ext_param (sklepy,sa,5,"number");
+              sklepnazwa=ext_param (sklepy,sa,6,"string");
+              iloscitemow=ext_param (sklepy,sa,7,"number");
+              typeCC=ext_param (sklepy,sa,8,"string");
+              no_hardlevel=ext_param (sklepy,sa,9,"string");
+              reqGAME=ext_param (sklepy,sa,10,"string");
 
              if (sklepnazwa==sklepID)and(iditem~=nil) then 
-                counttablepagesSC_CC=counttablepagesSC_CC+1;
+                counttablekontrolny_centrum_SC_CC=counttablekontrolny_centrum_SC_CC+1;
                 line=iditem.."!"..smsg_from_obj.."!"..act.."!"..cena.."!"..znizka.."!"..sklepnazwa.."!"..iloscitemow.."!"..typeCC.."!"..no_hardlevel.."!"..reqGAME;
                 --if (sa==2) then smsg1=line;  error (smsg1);end;  
-                table.insert (pagesSC_CC,line:split("!") );
+                table.insert (kontrolny_centrum_SC_CC,line:split("!") );
                 end
             end
             -- end of shipping list generating  (using objects.ini)
-            return pagesSC_CC; 
+            return kontrolny_centrum_SC_CC; 
       end
 
 
 --  Меню control center
 if (menu==15) then
   
-  pagesSC_CC=controlcentercreate (sklepID); -- centrum towarów handlowych na poziome 
+  kontrolny_centrum_SC_CC=controlcentercreate (sklepID); -- centrum towarów handlowych na poziome 
   lg.setCanvas() ;
 lg.setFont(fontBIG);
   menu_printed=0;
@@ -11048,31 +11497,31 @@ h=-15;
 lprint(sklepID,(maxwidth/2)+ rozmiarznak, 40);
 lg.print ("Score:"..score, 800, downspaceonscreen-rozmiarznak);
 lg.print ("Smsg1:"..smsg1, 800, downspaceonscreen-rozmiarznak*2);
-   if (pagesSC_CC~=nil) then 
-          if (SHIPCANVAS==nil) then SHIPCANVAS= lg.newCanvas(rozmiarznak*25, rozmiarznak*#pagesSC);  end; 
+   if (kontrolny_centrum_SC_CC~=nil) then 
+          if (SHIPCANVAS==nil) then SHIPCANVAS= lg.newCanvas(rozmiarznak*25, rozmiarznak*#centrum_dostawy_listSC,{} );  end; 
                   if (1==1) then
                           IMAGESSHIPINV = {};
                           shipmenu_changed=0; 
                           object_to_rendering=0;
                           lg.setCanvas(SHIPCANVAS); --почему ломает?  fuck 
                           lg.clear (); 
-                          for a=1,#pagesSC_CC-1,1 do
+                          for a=1,#kontrolny_centrum_SC_CC-1,1 do
                             if (ossys=="Android") then selectedoptionmenu=0; end; -- исправление ошибки на Android там откуда то string (!) берется. 
                            if (selectedoptionmenu>21) then h=-15-(selectedoptionmenu-20)*wysotamenu;end
                            if (selectedoptionmenu<20) then h=-15; end
 
-                            iditem=ext_param (pagesSC_CC,a,1,"number");
-                            smsg_code=ext_param (pagesSC_CC,a,2,"string");-- textdatacontent,nameitem=smsg_string (objs[iditem+1][13])
-                            act=ext_param (pagesSC_CC,a,3,"string");
-                            cena=ext_param (pagesSC_CC,a,4,"number");
-                            znizka=ext_param (pagesSC_CC,a,5,"number");
-                            sklepnazwa=ext_param (pagesSC_CC,a,6,"string");
-                            iloscitemow=ext_param (pagesSC_CC,a,7,"number");
-                            typeCC=ext_param (pagesSC_CC,a,8,"string");
-                            no_hardlevel=ext_param (pagesSC_CC,a,9,"string");
-                            reqGAME=ext_param (pagesSC_CC,a,10,"string");
+                            iditem=ext_param (kontrolny_centrum_SC_CC,a,1,"number");
+                            smsg_code=ext_param (kontrolny_centrum_SC_CC,a,2,"string");-- textdatacontent,nameitem=smsg_string (objs[iditem+1][13])
+                            act=ext_param (kontrolny_centrum_SC_CC,a,3,"string");
+                            cena=ext_param (kontrolny_centrum_SC_CC,a,4,"number");
+                            znizka=ext_param (kontrolny_centrum_SC_CC,a,5,"number");
+                            sklepnazwa=ext_param (kontrolny_centrum_SC_CC,a,6,"string");
+                            iloscitemow=ext_param (kontrolny_centrum_SC_CC,a,7,"number");
+                            typeCC=ext_param (kontrolny_centrum_SC_CC,a,8,"string");
+                            no_hardlevel=ext_param (kontrolny_centrum_SC_CC,a,9,"string");
+                            reqGAME=ext_param (kontrolny_centrum_SC_CC,a,10,"string");
 
-                            --iditem=pagesSC_CC[a][1]; почему это рабботает  а то нет? ) 
+                            --iditem=kontrolny_centrum_SC_CC[a][1]; почему это рабботает  а то нет? ) 
                             slottype=objs[iditem+1][23];
                             textdatacontent,nameitem=smsg_string (smsg_code);
                             cost=cena; 
@@ -11083,12 +11532,12 @@ lg.print ("Smsg1:"..smsg1, 800, downspaceonscreen-rozmiarznak*2);
                               if (a>2) then  msgbox(textdatacontent,(maxwidth/2)-4*rozmiarznak , 40+4*rozmiarznak,wysotamenu); end
                               -- Это и есть ВЫВОД ОПИСАНИЯ ПРЕДМЕТА многострочным окошком в экране покупки заказ товара кораблём.
                               else white () end;
-                             id=pagesSC_CC[a][1]; --это просто номер ключа в таблице
+                             id=kontrolny_centrum_SC_CC[a][1]; --это просто номер ключа в таблице
                             
                             imgf2 =  objs[iditem+1][3]; -- просто берет название файла.
                             
                             lg.setFont(fontVERYSMALL);
-                          inventoryvisualcode=iditem;        --keypresspages=pages_actions[i][5]; -- эмуляция нажатия кнопки через файл описания
+                          inventoryvisualcode=iditem;        --keypressmenu_glowna=menu_user[i][5]; -- эмуляция нажатия кнопки через файл описания
                           if (inventoryvisualcode==nil) then inventoryvisualcode=0; end; 
                            postobjectX=0*rozmiarznak; -- это координаты внутри Canvas, про внешние коррдинаты ЗАБЫВАЕМ! 
                            postobjectY=wysotamenu*object_to_rendering+h;
@@ -11133,33 +11582,33 @@ wysotamenu=standartwysotatextmenu; -- для увеличения количес
 h=-15;-- тут может что то полететь на андроиде если я 0 поставлю.
  --я отрисовка блока инвентаря корабля + выбранного предмета  yobit  образец для копирования кода инвентаря.
 if (1==1) then 
-          if (SHIPCANVAS==nil) then SHIPCANVAS= lg.newCanvas(rozmiarznak*25, rozmiarznak*#pagesSC);  end; 
+          if (SHIPCANVAS==nil) then SHIPCANVAS= lg.newCanvas(rozmiarznak*25, rozmiarznak*#centrum_dostawy_listSC,{} );  end; 
                   if (1==1) then
                           IMAGESSHIPINV = {};
                           shipmenu_changed=0; 
                           object_to_rendering=0;
                           lg.setCanvas(SHIPCANVAS); --почему ломает?  fuck 
                           lg.clear (); 
-                          for a=1,#pagesSC,1 do
+                          for a=1,#centrum_dostawy_listSC,1 do
                             if (ossys=="Android") then selectedoptionmenu=0; end; -- исправление ошибки на Android там откуда то string (!) берется. 
                            if (selectedoptionmenu>21) then h=-15-(selectedoptionmenu-20)*wysotamenu;end
                            if (selectedoptionmenu<20) then h=-15; end
-                            iditem=pagesSC[a][2];
+                            iditem=centrum_dostawy_listSC[a][2];
                             slottype=objs[iditem+1][23];
                             textdatacontent,nameitem=smsg_string (objs[iditem+1][13]);
-                            cost=pagesSC[a][4]; 
+                            cost=centrum_dostawy_listSC[a][4]; 
                             if ((selectedoptionmenu+1)==a) then  green ();
                               if (a>2) then  msgbox(nameitem.."["..cost.."]",(maxwidth/2)-4*rozmiarznak , 40+1*rozmiarznak,wysotamenu); end
                               if (a>2)and(slottype~="") then  msgbox(slottype,(maxwidth/2)-4*rozmiarznak , 40+2*rozmiarznak,wysotamenu); end
                               if (a>2) then  msgbox(textdatacontent,(maxwidth/2)-4*rozmiarznak , 40+4*rozmiarznak,wysotamenu); end
                               -- Это и есть ВЫВОД ОПИСАНИЯ ПРЕДМЕТА многострочным окошком в экране покупки заказ товара кораблём.
                               else white () end;
-                             id=pagesSC[a][1]; --это просто номер ключа в таблице
+                             id=centrum_dostawy_listSC[a][1]; --это просто номер ключа в таблице
                             
                             imgf2 =  objs[iditem+1][3]; -- просто берет название файла.
                             
                             lg.setFont(fontVERYSMALL);
-                          inventoryvisualcode=iditem;        --keypresspages=pages_actions[i][5]; -- эмуляция нажатия кнопки через файл описания
+                          inventoryvisualcode=iditem;        --keypressmenu_glowna=menu_user[i][5]; -- эмуляция нажатия кнопки через файл описания
                           if (inventoryvisualcode==nil) then inventoryvisualcode=0; end; 
                            postobjectX=0*rozmiarznak; -- это координаты внутри Canvas, про внешние коррдинаты ЗАБЫВАЕМ! 
                            postobjectY=wysotamenu*object_to_rendering+h;
@@ -11195,7 +11644,7 @@ end
 -- тут начинается отрисовка блока shipping inventory (предметный) для СС не нужен, но для сундука - нужен. 
 if (menu==5)and(editor==0) then 
   allowmove=0;
-          if (INVENTORYWINDOWCANVAS_I==nil) then INVENTORYWINDOWCANVAS_I= lg.newCanvas(rozmiarznak*10, rozmiarznak*10);  end; 
+          if (INVENTORYWINDOWCANVAS_I==nil) then INVENTORYWINDOWCANVAS_I= lg.newCanvas(rozmiarznak*10, rozmiarznak*10,{} );  end; 
                   if (1==1) then
                           IMAGESINV_I = {};
                           inventory_ship_changed=0;
@@ -11234,11 +11683,11 @@ menu_printed=-1;
 
 wysotamenu=standartwysotatextmenu; 
 h=80;
- for i=1, #pagesSAVES,1 do
+ for i=1, #zapisy_SAVES,1 do
 if ((selectedoptionmenu+1)==i) then  green () else white () end;
-    id=pagesSAVES[i][1]; --это просто номер ключа в таблице
-    savegamename=pagesSAVES[i][2];
-      savetest=pagesSAVES[i][4];
+    id=zapisy_SAVES[i][1]; --это просто номер ключа в таблице
+    savegamename=zapisy_SAVES[i][2];
+      savetest=zapisy_SAVES[i][4];
       --if(savetest~="-1")and(savetest~="0")and(savetest~="1") then savetest=1; end; --  фиксим баг 5963 с UTF-8  , значит sourceread ПРОИГНОРИРОВАЛ map_flag 2 и прислал файл вместо 1
        if (id~=nil) then --id"..id.."["..iditem.." ] 
               if (i>2) then lg.print(""..savegamename.." "..savetest, 170, h+15+wysotamenu*menu_printed);end;
@@ -11279,7 +11728,7 @@ local function loadImageFromPath( filePath )
 end
 
 function loading_canvas (imagename)
-  if (LCANVAS==nil) then LCANVAS = lg.newCanvas(4096, 4096);  end; 
+  if (LCANVAS==nil) then LCANVAS = lg.newCanvas(4096, 4096,{} );  end; 
   lg.setCanvas(LCANVAS);
   lg.clear (); 
  saveimage=loadImageFromPath (imagename); 
@@ -11300,11 +11749,11 @@ menu_printed=-1;
 
 wysotamenu=standartwysotatextmenu; 
 h=80;
- for i=1, #pagesSAVES,1 do
+ for i=1, #zapisy_SAVES,1 do
         
-    id=pagesSAVES[i][1]; --это просто номер ключа в таблице
-    savegamename=pagesSAVES[i][2];
-    savetest=pagesSAVES[i][4];
+    id=zapisy_SAVES[i][1]; --это просто номер ключа в таблице
+    savegamename=zapisy_SAVES[i][2];
+    savetest=zapisy_SAVES[i][4];
     if ((selectedoptionmenu+1)==i) then  
               green ();
              if (imagetest~=1)and(i>2)and(savetest~="0")and(ossys~="Android")and ((selectedoptionmenu)~=14) then --последнее условие убирает вылет
@@ -11350,7 +11799,7 @@ if (drawonce==0) then   -- fuck для 166 похоже выполняется �
     frozenscientists=scanobject (34,-2);
         savedfuel=scanobject (42,-2);
   --smsg1="drawonce completed";    
-  if (titlegame~="Colony") then skan_y_max,skan_x_max=scanobject (166,-1) ;end;  --object "166"   вот это вот нихера не выполняется  никогда 
+  if (titlegame~="Kolonista") then skan_y_max,skan_x_max=scanobject (166,-1) ;end;  --object "166"   вот это вот нихера не выполняется  никогда 
     --7 левый штё  9 верхний штырёк.6 prawyj  8 niżnij 
     -- обработка штырьков с помощью scanobject который ищет обьект на карте и возвращает координаты.
     -- можно добавить по всей карте, только по вертикали и только по горизонтали. 
@@ -11379,7 +11828,7 @@ end
 -- Зелёное дерьмо (Зёленая слизь, кислота и т.п.) 
 chancesg=30;--math.ceil( math.random (100));
 if (ossys=="Android") then chancesg=50; end;
-if (timerz>1)and(editor==0)and(pause==0)and(menu<1)and(titlegame~="Reskue") then 
+if (timerz>1)and(editor==0)and(pause==0)and(menu<1)then 
   greenshitactivity=greenshitactivity+0.25;
   if (greenshithastetime>30) then greenshithastetime=30; end; 
   if (greenshitactivity>20) then greenshitactivity=50;end
@@ -11397,7 +11846,7 @@ if (timerz>1)and(editor==0)and(pause==0)and(menu<1)and(titlegame~="Reskue") then
        greenshit (skany,skanx,21);
  end
 
- if (watertotal>1)and(math.random(256)>160)and(typelevel~="ZX") then 
+ if (watertotal>1)and(math.random(256)>210)and(typelevel~="ZX") then 
       xxx=math.ceil(math.random (6));
       skanx,skany=scanobject (183+xxx,-3)  ;  --183--189 for water
       for a=0,4+greenshithastetime,1 do  
@@ -11447,10 +11896,7 @@ if (timerz>1)and(editor==0)and(pause==0)and(menu<1) then
  end
 --cycle 1 end
 --процедура поиска обьекта для телепортации. не известно по каким принципам организовывать.
-   if (tx<1) then
-        skanx,skany=scanobject (119,-1) ;
-      if (skanx>0) then ty=skanx;tx=skany; end;  
-    end
+ 
  --есть подозрение что в коде телепортации вообще не учтен screenfix и что она не использует  xgametorealpositionbezbyte
 -- checks panels and droids end. 
 end
@@ -11792,7 +12238,7 @@ vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
 }
 ]]
 local shaderX = love.graphics.newShader(fragment)
---RENDERER CODE  quads= {}; 
+--RENDERER CODE  quads= {}; render2d scene; camera; głowny canvas
   xxxx=visual_mapsize_horizontal*rozmiarznak;
    yyyy=visual_mapsize_vertical*rozmiarznak;
      maximumlines=visual_mapsize_horizontal ;--  это код рендеринга т.е. то что будет визуально. отображать ВСЮ карту не требуется.
@@ -11805,7 +12251,7 @@ if (map_changed>1) then map_changed=map_changed-1; end     --  map_changed==1;
  if (krysztalow>0) then map_changed=1; end ; 
 if (map_changed>0) then lock_render_on_last_image=0; else lock_render_on_last_image=1; end; --smsg1="map_changed="..map_changed.." lock_render_on_last_image="..lock_render_on_last_image; 
 if (renderer==1)and (lock_render_on_last_image==0)and(pause==0) then 
-if (GAMEWINDOWCANVAS==nil) then GAMEWINDOWCANVAS = lg.newCanvas(xxxx, yyyy) -- x,y, это создание пустой картинки для наполнения ее картой спрайтов.
+if (GAMEWINDOWCANVAS==nil) then GAMEWINDOWCANVAS = lg.newCanvas(xxxx, yyyy,{} ) -- x,y, это создание пустой картинки для наполнения ее картой спрайтов.
 end
 nonetexture="1empty.png"; 
 IMAGESX = {};
@@ -11814,7 +12260,7 @@ object_to_rendering_game=0;   -- всё работает ТОЛЬКО если v
     lg.clear (); 
      if (backgroundcolorlevel~=nil) then 
     if (backgroundcolorlevel==0) then setColorX11(192, 192, 192, 255); end
-    if (backgroundcolorlevel==1)or (titlegame=="Colony") then yellow () ; end
+    if (backgroundcolorlevel==1)or (titlegame=="Kolonista") then yellow () ; end
     if (backgroundcolorlevel==4) then green (); end
     if (backgroundcolorlevel==2) then black (); end;
    lg.rectangle("fill", MapRenderingCoordPostobjectX-2,postCANVASobjectY+rozmiarznak-2,(visual_mapsize_horizontal+1)*rozmiarznak+4, (visual_mapsize_vertical+1)*rozmiarznak+4);
@@ -11848,7 +12294,7 @@ object_to_rendering_game=0;   -- всё работает ТОЛЬКО если v
               if (editor==0)and(objnow==63)then objnow=56 ; end;  -- игрок не должен видеть обьекты предназначенные для редактора. У обьекта должен быть такой флаг в таблице  - пока не сделано? 
               if (editor==0)and(objs[objnow+1][14]=="Only_in_editor") then objnow=56; end;    
               --if (editor==0)and(objnow==17)then objnow=56 ; end;  
-              --if (editor==0)and(objnow==18)then objnow=56 ; end;  
+          if (modtextures==0)  then 
               if (titlegame~="Reskue")and(objnow==76)and (objLEFT~=76)and (objRIGHT==76)then objnow=260 ; end;  
               if (titlegame~="Reskue")and(objnow==76)and (objLEFT==76)and (objRIGHT==76)then objnow=261 ; end; 
               if (titlegame~="Reskue")and(objnow==76)and (objRIGHT~=76)and (objLEFT==76)then objnow=262 ; end; 
@@ -11865,8 +12311,12 @@ object_to_rendering_game=0;   -- всё работает ТОЛЬКО если v
           if (obj==44)and (objRIGHT==44)and (objUP==44)then objnow=210 ; end;  
           if (obj==44)and (objDOWN==44)and (objLEFT==44)then objnow=211 ; end;  
           if (obj==44)and (objDOWN==44)and (objRIGHT==44)then objnow=209 ; end;  
-              if (editor==0)and(titlegame=="Colony")and(objnow==28)then objnow=56 ; end;  --в колонии этот обьект невидим.
+           end; 
+              if (editor==0)and(titlegame=="Kolonista")and(objnow==28)then objnow=56 ; end;  --в колонии этот обьект невидим.
               if (editor==0)and(objnow==119)then objnow=56 ; end;  --(-1)
+            usable="";
+            if (obj~=nil) then usable=ext_objs_string (obj,22);end;
+            if (usable==nil) then usable="";end; 
             IMAGESX[object_to_rendering_game]=IMAGES[objnow + 1];
             OBJECTPRINTNOW_IMAGESX=IMAGESX[object_to_rendering_game];
             postobjectX=xx*rozmiarznak;
@@ -11891,6 +12341,7 @@ object_to_rendering_game=0;   -- всё работает ТОЛЬКО если v
     if (kolorowanie==3) then magenta () ; end;     if (kolorowanie==4) then green () ; end;     if (kolorowanie==5) then cyan () ; end;     if (kolorowanie==6) then yellow () ; end;     if (kolorowanie==7) then white () ; end; 
     end;             
       lg.draw(ATLAS,OBJECTPRINTNOW_IMAGESX,postobjectX, postobjectY,0,scaling,scaling);
+       if (editor==1)and(usable=="usable")and(gamey (y)>220) then red (); lg.print("u",postobjectX, postobjectY,0,scaling,scaling); white (); end;
       if (objnow~=nil)and (animset_detect=="animset") then   --identifier animset
         animset_id_objs=objs[((objnow+1))][1]; --number object in object.ini (objs)
         animset_id=objs[((objnow+1))][2];  -- number animation in animset1.png        --anim[animset_id_objs]=animset_id;
@@ -11983,7 +12434,7 @@ white () ;
 -- отрисовка рисуем элемент GUI PC как код инвентаря  --(postGUI_PCCANVASobjectX~=nil)    PLAYER UI 
     --if (1==1) then  gray(); lg.rectangle("fill",0,0,4+rozmiarznak*1.4, (#menuplayitems)*rozmiarznak+4);white ();end
 if (editor==0)and(renderer==1) then 
-          if (GUI_PC_CANVAS==nil) then GUI_PC_CANVAS= lg.newCanvas(rozmiarznak, rozmiarznak*8);  end; 
+          if (GUI_PC_CANVAS==nil) then GUI_PC_CANVAS= lg.newCanvas(rozmiarznak, rozmiarznak*8,{} );  end; 
                   if (pc_gui_draw_create_status~=1) then
                           IMAGES_GUIPC = {};
                           object_to_rendering_gui=0;
@@ -12014,7 +12465,7 @@ end --end of if (editor==0)and(renderer==1) INCL  if (GUI_PC_CANVAS==nil)
     lg.setColor(128, 0, 0, 255)
                 if (ossys~="Android") then 
                 str=0;
-                       if (titlegame~="Reskue")and (titlegame~="Colony")and (titlegame~="Perestroika") then
+                       if (titlegame~="Reskue")and (titlegame~="Kolonista")and (titlegame~="Perestroika") then
                       printparam (hp,leftpos,8,"/"..hpmax) ; str=str+1;
                       print_with_shadows (ammo,leftpos,8+str*wysotamenu) ;str=str+1;
                       end
@@ -12022,10 +12473,10 @@ end --end of if (editor==0)and(renderer==1) INCL  if (GUI_PC_CANVAS==nil)
 
                       print_with_shadows (bombs,leftpos,8+str*wysotamenu) ;str=str+1;
                       print_with_shadows (ice,leftpos,8+str*wysotamenu) ;str=str+1;
-                      if (titlegame~="Colony") then printparam (reservedaids,leftpos,8+str*wysotamenu,"["..uhealkey.."]") ;str=str+1;end -- [h]
+                      if (titlegame~="Kolonista") then printparam (reservedaids,leftpos,8+str*wysotamenu,"["..uhealkey.."]") ;str=str+1;end -- [h]
                       end
-                        if (titlegame~="Colony") then printparam (lives,leftpos,8+str*wysotamenu,"["..urestkey.."]") ;str=str+1; end ;  -- [r] 
-                        if (titlegame~="Reskue")and (titlegame~="Colony") then
+                        if (titlegame~="Kolonista") then printparam (lives,leftpos,8+str*wysotamenu,"["..urestkey.."]") ;str=str+1; end ;  -- [r] 
+                        if (titlegame~="Reskue")and (titlegame~="Kolonista") then
                          if (keys>0) then print_with_shadows (keys,leftpos,8+str*wysotamenu) ;str=str+1; end;
                          if (water>0) then print_with_shadows (water,leftpos,8+str*wysotamenu) ;str=str+1;end;
                       end;
@@ -12042,7 +12493,7 @@ function android_main_gui_do ()
 function create_atlas_mobile ()
   quadsize=standartsizeusermenu_android_0_cc;
   height_atlas=quadsize*1;
-  ATLASmobile = lg.newCanvas(4096, height_atlas); 
+  ATLASmobile = lg.newCanvas(4096, height_atlas,{} ); 
   -- это создание пустой картинки для наполнения ее картой спрайтов.
   nonetexture="1empty.png"; 
   IMAGES_UI = {}; 
@@ -12078,7 +12529,7 @@ function create_atlas_mobile ()
  
   if (incontrolcentre==0)and(android_ui_changed_state>0) then   
   elementsmenu=9;
-   if (ANDROID_UI_CANVAS==nil) then ANDROID_UI_CANVAS= lg.newCanvas(standartsizeusermenu_android_0_cc, standartsizeusermenu_android_0_cc*elementsmenu); end
+   if (ANDROID_UI_CANVAS==nil) then ANDROID_UI_CANVAS= lg.newCanvas(standartsizeusermenu_android_0_cc, standartsizeusermenu_android_0_cc*elementsmenu,{} ); end
 
   IMAGES_UI_X = {};
   lg.setCanvas(ANDROID_UI_CANVAS);
@@ -12104,7 +12555,7 @@ function create_atlas_mobile ()
  end;
 
  if(incontrolcentre==1) then     --androidgui
-  if (ANDROID_UI_CANVAS==nil) then ANDROID_UI_CANVAS= lg.newCanvas(standartsizeusermenu_android_0_cc, standartsizeusermenu_android_0_cc*8); end
+  if (ANDROID_UI_CANVAS==nil) then ANDROID_UI_CANVAS= lg.newCanvas(standartsizeusermenu_android_0_cc, standartsizeusermenu_android_0_cc*8,{} ); end
      IMAGES_UI_X = {};
      lg.setCanvas(ANDROID_UI_CANVAS);
         lg.clear (); 
@@ -12163,7 +12614,12 @@ function editor_gui_do ()       --startpositionuserPCmenuY   EDITOR
   if (editor==1)and (huded==0) then 
         maximumeditorpoint=26;
     for e=1,maximumeditorpoint,1 do 
-        if (e~=11) then lprint("ED_"..e.."_",8+guifix,wED*(e-1)); end
+        if (e~=11) then 
+          black (); lprint("ED_"..e.."_",5+guifix,wED*(e-1)); 
+          white (); lprint("ED_"..e.."_",8+guifix,3+wED*(e-1)); 
+        end
+
+
         if(xdataarchived==1)and(e==11) then lprint("ED_11_",8+guifix,wED*10); end; --12
     end              
        lprint("ED_PS_LEVEL",8+guifix,wysotastroki*33);
@@ -12173,18 +12629,22 @@ if (editor==1)and (huded==-2)  then
   lg.setFont(fontVERYSMALL); -- потом сделать цикл и обработчик как ED_ для танков. с списком переменных на вывод.
       maximumeditorpoint=19;
       for e=0,maximumeditorpoint,1 do 
-         lprint("ED_P_"..e.."_",8+guifix,wED*(e-0)); 
+          blue (); varname=lprint("ED_P_"..e.."_",5+guifix,wED*e);  
+          white (); varname=lprint("ED_P_"..e.."_",8+guifix,3+wED*e); 
+
+       --  lprint("ED_P_"..e.."_",8+guifix,wED*(e-0)); 
          end
    end
 
   if (editor==1)and (huded==3)and(totalenemies>0)and(typt~=nil)and (selectedtankid~=nil)and (selectedtankid~=-1)  then
     lg.setFont(fontVERYSMALL); 
-    typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,pax1,pax2=enemies[selectedtankid]:get(); --,rotate[a]  
+    typt,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,tanks_am,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[selectedtankid]:get(); --,rotate[a]  
             maximumeditorpoint=17;
     for e=1,maximumeditorpoint,1 do 
-      varname=lprint("EDTANKI_"..e.."_",8+guifix,wED*e); 
+       blue ();varname=lprint("EDTANKI_"..e.."_",5+guifix,wED*e); 
+       white (); varname=lprint("EDTANKI_"..e.."_",8+guifix,3+wED*e); 
     end              
-     lg.print("CreatID="..selectedtankid.."/"..totalenemies, 0, wED*22);
+     lg.print("CreatID="..selectedtankid.."/"..totalenemies, 40, wED*0);
    lg.print("Xtnk="..gamex (xt).." rX="..xt, 0, wED*23)   lg.print("Ytnk="..gamey (yt).." rY="..yt, 0, wED*24);
    PCX=coord (gamey (yt),gamex (xt))
    lg.print("PC1 x["..PCX.."]= obj="..(screens (gamey (yt),gamex (xt))), 0, wED*25);
@@ -12202,11 +12662,12 @@ if (editor==1)and (huded==5)and(totalammo>0)  then
     if (ammo_moving==true) then ammo_bukwy_move="true" else ammo_bukwy_move="false" end; 
             maximumeditorpoint=18;
     for e=1,maximumeditorpoint,1 do 
-      varname=lprint("EDAMMO_"..e.."_",8+guifix,wED*e); 
+       blue (); varname=lprint("EDAMMO_"..e.."_",5+guifix,wED*e); 
+      white (); varname=lprint("EDAMMO_"..e.."_",8+guifix,3+wED*e); 
     end              
-     lg.print("A ID="..selectedammoid.."/"..totalammo, 0, wED*22);
-   lg.print("x_="..gamex (x_ammo).." rX="..x_ammo, 0, wED*23);   lg.print("y_="..gamey (y_ammo).." rY="..y_ammo, 0, wED*24);
-   lg.print("PC1 x["..coord (gamey (y_ammo),gamex (x_ammo)).."]= obj="..(screens (gamey (y_ammo),gamex (x_ammo))), 0, wED*25);
+     lg.print("A ID="..selectedammoid.."/"..totalammo, 40, wED*0);
+   lg.print("x_="..gamex (x_ammo).." rX="..x_ammo, 90, wED*23);   lg.print("y_="..gamey (y_ammo).." rY="..y_ammo, 90, wED*24);
+   lg.print("PC1 x["..coord (gamey (y_ammo),gamex (x_ammo)).."]= obj="..(screens (gamey (y_ammo),gamex (x_ammo))), 90, wED*25);
          end
 
   lg.setFont (fontVERYSMALL);
@@ -12221,21 +12682,27 @@ if (editor==1)and (huded==5)and(totalammo>0)  then
         unpackobiekt=ext_objs_param (selectedobject,15);
         cena=ext_objs_param (selectedobject,16);
         chances=ext_objs_param (selectedobject,11);
-        takeable=ext_objs_string (selectedobject,19);
+       
         rikoszet=ext_objs_string (selectedobject,20);
         realrikoszet=ext_objs_string (selectedobject,20);
         nodrop=ext_objs_string (selectedobject,21);
         tankwazn=ext_objs_string (selectedobject,18);
-        usable=ext_objs_string (selectedobject,22);
+
         rifleenh=ext_objs_string (selectedobject,23);
         repair=ext_objs_string (selectedobject,24);
         movable=ext_objs_string (selectedobject,25);
         gravity=ext_objs_string (selectedobject,26);
         kod_opis=ext_objs_string (selectedobject,13);
-        for e=1,18,1 do 
-          varname=lprint("EDPOBJ_"..e.."_",8+guifix,wED*e); 
+
+        takeable=ext_objs_string (selectedobject,19);
+        usable=ext_objs_string (selectedobject,22);
+        remove_inv_after_using_item=ext_objs_string (selectedobject,27);
+        disable_take_action=ext_objs_string (zzx,28);
+        for e=1,20,1 do 
+          blue (); varname=lprint("EDPOBJ_"..e.."_",5+guifix,wED*e);  
+          white (); varname=lprint("EDPOBJ_"..e.."_",8+guifix,3+wED*e); 
         end     
-        lg.print("Object ID="..selectedobject, 0, wED*19);
+        lg.print("Object ID="..selectedobject, 0, wED*0);
         end
       end
 
@@ -12281,8 +12748,8 @@ white () ;
 
 --yobit  образец для копирования кода инвентаря.  -- joystick inventory table 
 if (countinventory>0)and(editor==0)and(renderer==1) then 
-          if (INVENTORYWINDOWCANVAS==nil) then INVENTORYWINDOWCANVAS= lg.newCanvas(rozmiarznak*12, rozmiarznak); saved_maximum=maximuminventorysize;  end; 
-          --if (saved_maximum~=maximuminventorysize) then INVENTORYWINDOWCANVAS= lg.newCanvas(rozmiarznak*maximuminventorysize, rozmiarznak);  end; 
+          if (INVENTORYWINDOWCANVAS==nil) then INVENTORYWINDOWCANVAS= lg.newCanvas(rozmiarznak*12, rozmiarznak,{} ); saved_maximum=maximuminventorysize;  end; 
+          --if (saved_maximum~=maximuminventorysize) then INVENTORYWINDOWCANVAS= lg.newCanva(rozmiarznak*maximuminventorysize, rozmiarznak);  end; 
                   if (inventory_changed==1) then
                           IMAGESINV = {};
                           object_to_rendering=0;
@@ -12325,7 +12792,7 @@ if (postKUFRCANVASobjectX~=nil)and(kufrcountinventory>0)and(editor==0) then
     end
 --yobit  образец для копирования кода инвентаря.
 if (kufrcountinventory>0)and(editor==0)and(renderer==1) then 
-          if (KUFRWINDOWCANVAS==nil) then KUFRWINDOWCANVAS= lg.newCanvas(rozmiarznak*12, rozmiarznak);  end; 
+          if (KUFRWINDOWCANVAS==nil) then KUFRWINDOWCANVAS= lg.newCanvas(rozmiarznak*12, rozmiarznak,{} );  end; 
                   if (inventory_changed==1) then
                           IMAGESKUFR = {};
                           object_to_rendering=0;
@@ -12361,7 +12828,7 @@ cooldownweaponPC1show=a;
 
 --  образец для копирования кода оружия.
 if (editor==0)and(renderer==1)and (titlegame~="Perestroika") then 
-          if (BRONCANVAS==nil) then BRONCANVAS= lg.newCanvas(rozmiarznak*8, rozmiarznak);  end; 
+          if (BRONCANVAS==nil) then BRONCANVAS= lg.newCanvas(rozmiarznak*8, rozmiarznak,{} );  end; 
                   if (inventory_changed==1) then
                           IMAGESBRON = {};
                           object_to_rendering=0;
@@ -12390,7 +12857,7 @@ end
 -- тут заканчивается отрисовка блока оружия и баффов
 -- тут заканчивается отрисовка игрового поля и блока инвентаря (предметный)
  function bad_atlas ()
-if (BADATLAS==nil) then BADATLAS = lg.newCanvas(8192, basetexturesize*8); end  -- это создание пустой картинки для наполнения ее картой спрайтов.
+if (BADATLAS==nil) then BADATLAS = lg.newCanvas(8192, basetexturesize*8,{} ); end  -- это создание пустой картинки для наполнения ее картой спрайтов.
 nonetexture="1empty.png"; 
 BADIMAGES = {};
 for a0=0,255,1 do  -- максимум временно 170 (6800 пикс), для 1 байтового режима - 256. 
@@ -12445,7 +12912,7 @@ end;
 
  if (allowris)and(benchmark_stage==1) then
         bad_atlas (); 
-        map_changed=100;
+        map_changed=140;
         if (ATLASsaved==nil) then ATLASsaved=ATLAS; end
           ATLAS=BADATLAS;
         if (timerz>4) then benchmark_stage=2;timerz=0; stage1_fps=FPSnow;
@@ -12530,7 +12997,7 @@ androidhpshowfix=0;
    
   
  
-      
+      -- PLAYER GUI 2
      if (editor==0) then 
      graybledny () ;
      protectshow=math.floor (protect/2); 
@@ -12634,10 +13101,23 @@ end
     if ((hplasttank>0)) then 
       if hplasttank>1000 then hplasttank=1000;white () ;  end; 
       -- Это ЖИЗНЬ последнего выбранного ПРОТИВНИКА!!!!!! 
-       lg.rectangle("fill", leftspaceonscreen+androidhpshowfix+rozmiarznak ,downspaceonscreen+wysotastroki*1, hplasttank*1.6, rozmiarznak-10,0,0);
+       lg.rectangle("fill", leftspaceonscreen+androidhpshowfix+rozmiarznak ,downspaceonscreen, hplasttank*1.6, rozmiarznak-10,0,0);
     
     end;
     white ();
+         hplt_print="";   
+    if (hplt_command~="") and (sledzione_hp_tankid~=nil) then
+      typt_TGD,xt,yt,hpt,rotate,man_xpla3,man_ypla3,tanks_mov,freezetanks,speedtanks,protecttanks,jedzenietimer,zebrany_item_id,timer_alt_anim,cooldowntanks,ta,rotate_t,feartanks,aitype,slowPL1tanks,damagetimertanks,pa_icon,kulemet,cel_hp,realmovetanknow,invisibletanks,painreflecttanks,haveaura,deadanim,kierowcaczolgow,slow_effect_power,pax2,pax3,pax4,pax5,pax6,pax7,pax8=enemies[sledzione_hp_tankid]:get(); 
+      if (hplt_command=="corrosion") then hplt_print=damagetimertanks;      end
+      if (hplt_command=="slow") then hplt_print=slowPL1tanks.."/power "..slow_effect_power;      end
+      if (hplt_command=="freeze") then hplt_print=freezetanks;      end
+      if (hplt_command=="kierowca") then hplt_print=kierowcaczolgow;      end
+      if (hplt_command=="fear") then hplt_print=feartanks;      end
+      if (hplt_print==0) then hplt_print=""; hplt_command=""; end; 
+    end
+   black () ; 
+   printparam (hplasttank,leftspaceonscreen+androidhpshowfix+rozmiarznak,downspaceonscreen,"/"..hplt_command.."/"..hplt_print.."/");
+   white (); 
       end
 
 
@@ -12676,7 +13156,7 @@ if (pause==1)and(gameover==0) then      lg.setFont(fontVERYBIG);   randomcolor (
     if (glowlock==1) then glowtimer=0; end; 
        if (ossys=="Android") then lprint("ANDR_NEXT_LEVEL", maxwidth/4,maxheight/2); end;
        addkeyprint="";
-       if (ossys~="Android")and (titlegame~="Reskue")and (titlegame~="Colony") then
+       if (ossys~="Android")and (titlegame~="Reskue")and (titlegame~="Kolonista") then
         if (rzad=="pad") and ( typejoystick=="xbox360") then addkeyprint="[A].";end;
         if (rzad=="pad") and ( typejoystick=="sonyPS3") then addkeyprint="[X].";end;
         if (rzad=="kb") then addkeyprint="[SPACE].";end;
@@ -12725,7 +13205,9 @@ if ((hp<1)and(lives>0))and(editor==0) then
 if (titlegame~="Perestroika")and(titlegame~="Reskue")and( deadsoundplayed==0) then  love.audio.play(dymok1snd);  deadsoundplayed=1; end; 
     if(titlegame=="Reskue") then 
       
-      if (gameover==0)and(timenadpisej==0) then reskuegameoverstep=1; gameover=1; timenadpisej=1;  dead_x={};dead_y={};dead_clr={}; pause=1;
+      if (gameover==0)and(timenadpisej==0) then 
+        slot5=0; 
+        reskuegameoverstep=1; gameover=1; timenadpisej=1;  dead_x={};dead_y={};dead_clr={}; pause=1;
         for a=1,800,1 do 
         rnd_x=math.ceil(math.random(visual_mapsize_horizontal*rozmiarznak));
         rnd_y=math.ceil(math.random(visual_mapsize_vertical*rozmiarznak));
@@ -12765,7 +13247,7 @@ if (titlegame~="Perestroika")and(titlegame~="Reskue")and( deadsoundplayed==0) th
     end;
 lg.setFont(font);
 
-  if (WELCOME_WINDOW_FIRSTLOAD==1)and(renderer==1)or love.keyboard.isDown("f11") then 
+  if (WELCOME_WINDOW_FIRSTLOAD==1)and(renderer==1)or love.keyboard.isDown("f7") then 
    if (titlegame~="Mozaic") then teskt_wiadomosci_smsg="WELCOME_WINDOW_FIRSTLOAD2";  czas_wyswietlania=50; end;
    if (titlegame=="Mozaic") then teskt_wiadomosci_smsg="MOZAJKA2"; czas_wyswietlania=50 ;end;
      WELCOME_WINDOW_FIRSTLOAD=0;
@@ -12822,7 +13304,7 @@ lg.setFont(font);
          ObjectSIZE=ObjectSIZE-1; timerz=0;
          reschange (resolutionPC);         map_changed=3;
        end
-       if (ObjectSIZE<1)and movePL1=="right" or (ObjectSIZE<5)and movePL1=="right" and (editor==1)then
+       if (ObjectSIZE<2)and movePL1=="right" or (ObjectSIZE<5)and movePL1=="right" and (editor==1)then
          love.audio.play(swapitem);
          ObjectSIZE=ObjectSIZE+1; timerz=0;
          reschange (resolutionPC);         map_changed=3;
@@ -12835,13 +13317,33 @@ lg.setFont(font);
     end
 
 if ((zzx<500)and (objs[((selectedobject+1))]~=nil)) then  --selectedobject
+
      
+   --if (editor==1) then red () ; lg.print("3",xtt+0, ytt-rozmiarznak/2); white () ; end; 
+
    a,item_name1=smsg_string (objs[((selectedobject+1))][13]); --=selectedobject_name_SMSG_code);    
    a,item_name2=smsg_string (objs[((selectedobject2+1))][13]); --=selectedobject_name_SMSG_code);    
  if (item_name1==nil) then item_name1="***ERROR FIELD***"; end;
  if (item_name2==nil) then item_name1="***ERROR FIELD***"; end;
-      if (editor==1) then lg.print("Obj1:"..selectedobject..","..item_name1, maxwidth-1200, maxheight-wysotastroki*2);
+      
+      if (editor==1) then
+        bukwy="";
+       lg.print("Obj1:"..selectedobject..","..item_name1, maxwidth-1200, maxheight-wysotastroki*2);
        lg.print("Obj2:"..selectedobject2..","..item_name2, maxwidth-600, maxheight-wysotastroki*2);
+        if (item_name1~=nil)and(object1image~=nil)and(textures[object1image]~=nil) then -- nowy bandery dla gry
+        takeable=ext_objs_string (selectedobject,19);
+        usable=ext_objs_string (selectedobject,22);
+        remove_inv_after_using_item=ext_objs_string (selectedobject,27);
+        disable_take_action=ext_objs_string (selectedobject,28);
+        
+        if (takeable=="take") then bukwy="tak"; end
+        if (usable=="usable") then bukwy=bukwy.." use"; end
+        if (remove_inv_after_using_item=="removeinvafteruse") then bukwy=bukwy.." rmv"; end
+        if (disable_take_action=="disabletakeaction") then bukwy=bukwy.." drtk"; end -- disable retake when using flag 
+       
+       red (); lg.print(""..bukwy, 200, maxheight-wysotastroki*2); white (); 
+        end
+      
        object1image =  objs[selectedobject+1][3]; 
        object2image =  objs[selectedobject2+1][3];  
          if (object1image~=nil)and(object2image~=nil) then if (previousselect1image~=object1image)or(previousselect2image~=object2image) then 
@@ -12890,7 +13392,7 @@ white ()
 if (otladka==1) then lg.print("SMSG5:"..smsg5, 0,downspaceonscreen-wysotastroki*3);    
 lg.print("SMSG6:"..smsg6, 0,downspaceonscreen-wysotastroki*4);   end
 
-if (SystextSMG~="") then print_with_shadows (SystextSMG, maxwidth-600,5+downspaceonscreen+wysotastroki*0); end; 
+if (SystextSMG~="")and(editor==0) then print_with_shadows (SystextSMG, maxwidth-600,5+downspaceonscreen+wysotastroki*0); end; 
    lg.setFont(fontSMALL);
    setColorX11(255,255,255,50); 
    lg.print(system_all_data, 1, maxheight-wysotastroki+14); 
@@ -13023,4 +13525,3 @@ end
 end
 -- Самобытное творчество игр и ремейков по мотивам Spectrum -- https://dtf.ru/retro/91476-ishchu-lyubiteley-igr-zx-spectrum
 -- Слова которые важно знать.-- 1. Мирный Дюк-- 2. Мир делает мяч.-- 3. Твой кролик написал.
--- тумбочка для кухни 60 по ширине  84 по высоте 

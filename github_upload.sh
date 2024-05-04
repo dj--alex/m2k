@@ -9,6 +9,7 @@ git pull
 git pull --rebase origin master
 git push -u origin master
 
+#https://wojst.pl/github-repozytoria-zdalne-i-pull-requesty-git/
 # predw zaloginsja tut  ssh -T git@github.com !!!!   fdb
 #git config –global user.email „dj--alex@ya.ru”
 #git config user.email „dj--alex@ya.ru”
